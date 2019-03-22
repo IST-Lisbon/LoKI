@@ -1,0 +1,13 @@
+% populations of the different vibrational states of N2
+
+N2(X,v=0)   1
+N2(X,v=1)   0
+N2(X,v=2)   0
+N2(X,v=3)   0
+N2(X,v=4)   0
+N2(X,v=5)   0
+N2(X,v=6)   0
+N2(X,v=7)   0
+N2(X,v=8)   0
+N2(X,v=9)   0
+N2(X,v=10)  0

@@ -1,0 +1,9 @@
+% harmonic frequencies of different molecular gases expressed in spectroscopic units (cm-1)
+% (data obtained from NIST data base CCCBDB: http://cccbdb.nist.gov/Intro.asp)
+% 
+% In order to change to SI units (rad/s) use:
+%                       freq(SI) = 2*pi*c*freq(cm-1)*100
+
+N2    2*pi*299792458*2358.57*100
+O2    2*pi*299792458*1580.161*100
+H2    2*pi*299792458*4401.213*100

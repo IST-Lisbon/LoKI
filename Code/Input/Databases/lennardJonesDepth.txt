@@ -1,0 +1,19 @@
+% Data for neutral transport calculations: Lennard Jones potential depth
+% 
+% Data obtained from:
+% R. J. Kee, F. M. Rupley, J. A. Miller, M. E. Coltrin, J. F. Grcar, E. Meeks, H. K. Moffat, 
+% A. E. Lutz, G. DixonLewis, M. D. Smooke, J. Warnatz, G. H. Evans, R. S. Larson, 
+% R. E. Mitchell, L. R. Petzold, W. C. Reynolds, M. Caracotsios, W. E. Stewart, P. Glarborg, 
+% C. Wang, and Ola Adigun, CHEMKIN Collection, Release 3.6, 
+% Reaction Design, Inc., San Diego, CA (2000). 
+%
+% In order to change to SI units (J) use:
+%                       epsilon(J) = epsilon(K)*1.38064852e-23
+
+N          71.4*1.38064852e-23
+N2         97.53*1.38064852e-23
+NO         97.53*1.38064852e-23
+NO2        200*1.38064852e-23
+O          80*1.38064852e-23
+O2         107.4*1.38064852e-23
+O3         180*1.38064852e-23

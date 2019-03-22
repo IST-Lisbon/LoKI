@@ -1,0 +1,21 @@
+% shape parameter used on the differential ionization cross section given by 
+% Opal, Peterson and Beaty. 
+% (data obtained from J. Chem. Phys. 55, 4100 (1971), doi.org/10.1063/1.1676707)
+% 
+% for gases in which this parameter is not calculated, use the ionization potential
+
+He      15.8
+Ne      24.2
+Ar      10.0
+Kr      9.6
+Xe      8.7
+H2      8.3
+N2      13
+O2      17.4
+CO      14.2
+NO      13.6
+H2O     13.0
+NH3     10.8
+CH4     7.3
+C2H2    10.0
+CO2     13.8

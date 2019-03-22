@@ -1,0 +1,9 @@
+% anharmonic frequencies of different molecular gases expressed in spectroscopic units (cm-1)
+% (data obtained from NIST data base CCCBDB: http://cccbdb.nist.gov/Intro.asp)
+% 
+% In order to change to SI units (rad/s) use:
+%                       freq(SI) = 2*pi*c*freq(cm-1)*100
+
+N2    2*pi*299792458*14.324*100
+O2    2*pi*299792458*11.95127*100
+H2    2*pi*299792458*121.336*100

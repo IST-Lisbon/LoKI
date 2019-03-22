@@ -1,0 +1,9 @@
+% rotational constants of different molecular gases expressed in spectroscopic units (cm-1)
+% (data obtained from NIST data base CCCBDB: http://cccbdb.nist.gov/Intro.asp)
+%
+% In order to change to eV units use:
+%                       B(eV) = h*c*B(cm-1)*100/e
+
+N2    6.626070040e-34*299792458*1.99824*100/1.6021766208e-19
+O2    6.626070040e-34*299792458*1.43768*100/1.6021766208e-19 
+H2    6.626070040e-34*299792458*60.85300*100/1.6021766208e-19 

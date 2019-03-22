@@ -1,0 +1,327 @@
+% LoKI-B solves a time and space independent form of the two-term 
+% electron Boltzmann equation (EBE), for non-magnetised non-equilibrium 
+% low-temperature plasmas excited by DC/HF electric fields from 
+% different gases or gas mixtures.
+% Copyright (C) 2018 A. Tejero-del-Caz, V. Guerra, D. Goncalves, 
+% M. Lino da Silva, L. Marques, N. Pinhao, C. D. Pintassilgo and
+% L. L. Alves
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+classdef State < handle
+  %State Class that stores the information of a certain state of a gas
+  %   Class that stores the information of a certain state of a gas. The
+  %   information stored here (in particular the population of the state)
+  %   is to be used in a Boltzmann solver to obtain the EEDF.
+  
+  properties
+
+    ID = -1;                % ID that identifies the state in the state array of
+                            %   a gas
+
+		type = '';              % type of state, options are: 'ele', 'vib', 'rot' or 'ion'
+    ionCharg = [];          % ionic level of the state
+    eleLevel = [];          % electronic level of the state
+		vibLevel = [];          % vibrational level of the state
+		rotLevel = [];          % rotational level of the state
+    name = [];              % name of the state gas(ionCharg,eleLevel,vibLevel,rotLevel)
+    
+		gas;                    % handle to the gas that the state belongs to (initialized in the subclass)
+    parent;                 % handle to the parent state (e.g. the parent of N2(X,v=0) is -> N2(X)), electronic 
+                            %  states have no parent) (initicialized in the subclass)
+    siblingArray;           % handle array to the states with the same parent (e.g. siblings of N2(X) are N2(A),
+                            %  N2(B), ...) (initicialized in the subclass)
+    childArray;             % handle array to the child states (e.g. children of N2(X) are N2(X,v=0), N2(X,v=1), 
+                            %  N2(X,v=2),...) (initicialized in the subclass)
+    
+    energy = [];            % energy of the state
+    statisticalWeight = []; % statistical weight of the state
+    population = 0;        % population of the state relative to its siblings
+    density = [];           % absolute density (relative to the gas density)
+    
+  end
+
+  methods
+    
+    function addFamily(state)
+      % addFamily find all the relatives of state and stores the
+      % corresponding information in their properties parent, sibling and
+      % child.
+      
+      switch state.type
+        
+        case 'rot'
+          for auxState = state.gas.stateArray
+            if ( strcmp(auxState.type, 'vib') && ...
+                 strcmp(auxState.eleLevel, state.eleLevel) && ...
+                 strcmp(auxState.vibLevel, state.vibLevel) )
+              state.parent = auxState;
+              auxState.childArray(end+1) = state;
+            elseif ( strcmp(auxState.type, 'rot') && ...
+                     strcmp(auxState.eleLevel, state.eleLevel) && ...
+                     strcmp(auxState.vibLevel, state.vibLevel) )
+              state.siblingArray(end+1) = auxState;
+              auxState.siblingArray(end+1) = state;
+            end
+          end
+          
+        case 'vib'
+          for auxState = state.gas.stateArray
+            if ( strcmp(auxState.type, 'ele') && ...
+                 strcmp(auxState.eleLevel, state.eleLevel) )
+              state.parent = auxState;
+              auxState.childArray(end+1) = state;
+            elseif ( strcmp(auxState.type, 'vib') && ...
+                     strcmp(auxState.eleLevel, state.eleLevel) )
+              state.siblingArray(end+1) = auxState;
+              auxState.siblingArray(end+1) = state;
+            elseif ( strcmp(auxState.type, 'rot') && ...
+                     strcmp(auxState.eleLevel, state.eleLevel) && ...
+                     strcmp(auxState.vibLevel, state.vibLevel) )
+              state.childArray(end+1) = auxState;
+              auxState.parent = state;
+            end
+          end
+          
+        case 'ele'
+          for auxState = state.gas.stateArray
+            if strcmp(auxState.type, 'ele')
+              state.siblingArray(end+1) = auxState;
+              auxState.siblingArray(end+1) = state;
+            elseif ( strcmp(auxState.type, 'vib') && ...
+                     strcmp(auxState.eleLevel, state.eleLevel) )
+              state.childArray(end+1) = auxState;
+              auxState.parent = state;
+            end
+          end
+          
+        case 'ion'
+          for auxState = state.gas.stateArray
+            if strcmp(auxState.type, 'ion')
+              state.siblingArray(end+1) = auxState;
+              auxState.siblingArray(end+1) = state;
+            end
+          end
+      end
+      
+    end
+    
+    function evaluateDensity(state)
+    % evaluateDensity evaluates the absolute density of a certain state.
+    % For a rotational state this means its population, multiplied by the
+    % population of its vibrational parent, multiplied by the population of
+    % the corresponding electronic parent, multiplied by the gas fraction.
+    % For vibrational or electronic states the evaluation is analogue. 
+    % 
+    % NOTE! this density is still relative to the total gas density.
+    
+      switch state.type
+        case 'rot'
+        state.density = state.population*state.parent.population*...
+          state.parent.parent.population*state.gas.fraction;
+        case 'vib'
+        state.density = state.population*state.parent.population*...
+          state.gas.fraction;
+        case 'ele'
+        state.density = state.population*state.gas.fraction;
+        case 'ion'
+        state.density = state.population*state.gas.fraction;
+      end
+        
+    end
+    
+    function disp(state)
+      fprintf('ID: %d\n', state.ID);
+      fprintf('name: %s\n', state.name);
+      if ~isempty(state.energy)
+        fprintf('energy: %g\n', state.energy);
+      end
+      if ~isempty(state.statisticalWeight)
+        fprintf('statisticalWeight: %g\n', state.statisticalWeight);
+      end
+      if ~isempty(state.population)
+        fprintf('population: %g\n', state.population);
+      end
+      if ~isempty(state.density)
+        fprintf('density: %g\n', state.density);
+      end
+      if ~isempty(state.parent)
+        fprintf('parent: %s\n', state.parent.name);
+      end
+      if ~isempty(state.siblingArray)
+        fprintf('siblings:\n');
+        for sibling = state.siblingArray
+          fprintf('\t %s\n', sibling.name);
+        end
+      end
+      if ~isempty(state.childArray)
+        fprintf('childrends:\n')
+        for child = state.childArray
+          fprintf('\t %s\n', child.name);
+        end
+      end
+    end
+  
+    function stateName = evaluateName(state)
+      stateName = [state.gas.name '('];
+      if ~isempty(state.ionCharg)
+        stateName = [stateName state.ionCharg ','];
+      end
+      stateName = [stateName state.eleLevel];
+      if ~isempty(state.vibLevel)
+        stateName = [stateName ',v=' state.vibLevel];
+        if ~isempty(state.rotLevel)
+          stateName = [stateName ',J=' state.rotLevel];
+        end
+      end
+      stateName = [stateName ')'];
+      state.name = stateName;
+    end
+    
+    function gasMass = mass(state)
+      % mass is an alias function to obtain the mass of a certain state which is the mass of the parent gas
+      
+      gasMass = state.gas.mass;
+    end
+    
+  end
+  
+  methods (Static)
+    
+    function [stateArray, stateID] = add(gas, ionCharg, eleLevel, ...
+      vibLevel, rotLevel, stateArray)
+      % addState analyse a state string read from an LXCat file and finds if
+      % the state is already defined in the corresponding gas. If the state
+      % (or even the gas) is not defined the function creates it. The
+      % function returns the Gas array gas and the ID of the state.
+      
+      stateID = State.find(gas.name, ionCharg, eleLevel, vibLevel, ...
+        rotLevel, stateArray);
+      if stateID ~= -1
+        return;
+      end
+      switch class(gas)
+        case 'EedfGas'
+          stateArray(end+1) = EedfState(gas, ionCharg, eleLevel, vibLevel, rotLevel);
+        case 'ChemGas'
+          stateArray(end+1) = ChemState(gas, ionCharg, eleLevel, vibLevel, rotLevel);
+        otherwise
+          error('Gas class ''%s'' not recognised when trying to create an state of %s\n.', class(gas), gas.name);
+      end
+      stateID = stateArray(end).ID;
+    
+    end
+    
+    function stateID = find(gasName, ionCharg, eleLevel, vibLevel, ...
+      rotLevel, stateArray)
+      
+      stateID = [];
+      if strcmp(eleLevel, Parse.wildCardChar)
+        for i = 1:length(stateArray)
+          state = stateArray(i);
+          if ( strcmp(gasName, state.gas.name) && ...
+               strcmp('ele', state.type) )
+            stateID = [state.ID state.siblingArray.ID];
+            break;
+          end
+        end
+      elseif strcmp(vibLevel, Parse.wildCardChar)
+        for i = 1:length(stateArray)
+          state = stateArray(i);
+          if ( strcmp(gasName, state.gas.name) && ...
+               strcmp(eleLevel, state.eleLevel) && ...
+               strcmp('ele', state.type) )
+            stateID = [state.childArray.ID];
+            break;
+          end
+        end
+      elseif strcmp(rotLevel, Parse.wildCardChar)
+        for i = 1:length(stateArray)
+          state = stateArray(i);
+          if ( strcmp(gasName, state.gas.name) && ...
+               strcmp(eleLevel, state.eleLevel) && ...
+               strcmp(vibLevel, state.vibLevel) && ...
+               strcmp('vib', state.type) )
+            stateID = [state.childArray.ID];
+            break;
+          end
+        end
+      else
+        for i = 1:length(stateArray)
+          state = stateArray(i);
+          if ( strcmp(gasName, state.gas.name) && ...
+               strcmp(ionCharg, state.ionCharg) && ...
+               strcmp(eleLevel, state.eleLevel) && ...
+               strcmp(vibLevel, state.vibLevel) && ...
+               strcmp(rotLevel, state.rotLevel) )
+            stateID = state.ID;
+            break;
+          end
+        end
+      end
+      if isempty(stateID)
+        stateID = -1;
+      end
+      
+    end
+    
+    function stateArray = fixOrphanStates(stateArray)
+      % fixOrphanStates looks for orphan states and create the needed
+      % parent states
+      
+      for state = stateArray
+        if strcmp(state.type, 'rot') && isempty(state.parent)
+          stateArray = State.add(state.gas, state.ionCharg, ...
+            state.eleLevel, state.vibLevel, '', stateArray);
+        end
+      end
+      for state = stateArray
+        if strcmp(state.type, 'vib') && isempty(state.parent)
+          stateArray = State.add(state.gas, state.ionCharg, ...
+            state.eleLevel, '', '', stateArray);
+        end
+      end
+      
+    end
+    
+    function equalStates = compareArrays(stateArray1, stateArray2)
+      
+      equalStates = false;
+      numberOfStates = length(stateArray1);
+      if numberOfStates == length(stateArray2)
+        if numberOfStates == 0
+          equalStates = true;
+        elseif numberOfStates == 1
+          if stateArray1.ID == stateArray2.ID
+            equalStates = true;
+          end
+        else
+          for i = 1:numberOfStates
+            for j = 1:numberOfStates
+              if stateArray1(i).ID == stateArray2(j).ID
+                break;
+              elseif j == length(stateArray2)
+                return;
+              end
+            end
+          end
+          equalStates = true;
+        end
+      end
+    end
+    
+  end
+
+end
+

@@ -1,0 +1,9 @@
+% electric cuadrupolar moment of different molecular gases expressed in atomic units (ea_0^2)
+% (data obtained from NIST data base CCCBDB: http://cccbdb.nist.gov/Intro.asp)
+%
+% In order to change to Cm^2 units use:
+%                       Q(Cm^2) = Q(ea_0^2)*e*a_0^2
+
+N2    1.09*1.6021766208e-19*5.2917721092e-11*5.2917721092e-11
+O2    1.4*1.6021766208e-19*5.2917721092e-11*5.2917721092e-11
+H2    0.387*1.6021766208e-19*5.2917721092e-11*5.2917721092e-11

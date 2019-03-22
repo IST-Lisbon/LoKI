@@ -1,0 +1,19 @@
+% Data for neutral transport calculations: Lennard Jones potential distance
+% 
+% Data obtained from:
+% R. J. Kee, F. M. Rupley, J. A. Miller, M. E. Coltrin, J. F. Grcar, E. Meeks, H. K. Moffat, 
+% A. E. Lutz, G. DixonLewis, M. D. Smooke, J. Warnatz, G. H. Evans, R. S. Larson, 
+% R. E. Mitchell, L. R. Petzold, W. C. Reynolds, M. Caracotsios, W. E. Stewart, P. Glarborg, 
+% C. Wang, and Ola Adigun, CHEMKIN Collection, Release 3.6, 
+% Reaction Design, Inc., San Diego, CA (2000). 
+%
+% In order to change to SI units (from angstrom) use:
+%                       sigma(m) = sigma(angstrom)*1e-10
+
+N          3.298*1e-10
+N2         3.621*1e-10
+NO         3.621*1e-10
+NO2          3.5*1e-10
+O           2.75*1e-10
+O2         3.458*1e-10
+O3           4.1*1e-10

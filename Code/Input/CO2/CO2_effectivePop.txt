@@ -1,0 +1,8 @@
+% populations of the different CO2 states for evaluating an elastic cross section from an effective one
+% (Boltzmann distribution at 300K truncated with two vibrational levels)
+% n_0/N = 1/(1+2*exp(-0.083/(1.38064852e-23/1.6021766208e-19*300)))
+% n_1/N = 2*exp(-0.083/(1.38064852e-23/1.6021766208e-19*300))/(1+2*exp(-0.083/(1.38064852e-23/1.6021766208e-19*300)))
+
+CO2(X)        1
+CO2(X,v=000)  0.9254
+CO2(X,v=010)  0.0746
