@@ -62,8 +62,8 @@
    LoKI-B is the result of the efforts of the Portuguese group N-Plasmas Reactive: Modeling and Engineering (N-PRiME), that decided to share the outcome of its research with the members of the Low-Temperature Plasmas community.   
 
    When using LoKI-B in your work, please give proper credits to the main developers, by adding the following citation   
-   Tejero A et al "The LisbOn KInetics Boltzmann solver" 2019 Plasma Sources Sci. Technol. (https://doi.org/10.1088/1361-6595/ab0537)
-   [to be available soon as open-access paper]
+   Tejero A et al "The LisbOn KInetics Boltzmann solver" 2019 Plasma Sources Sci. Technol. 28 043001 (https://doi.org/10.1088/1361-6595/ab0537)
+   [available as open-access paper]
 
 10. Acknowledgments   
    This work was partially funded by Portuguese FCT - Fundação para a Ciência e a Tecnologia, under projects UID/FIS/50010/2013 and PTDC/FISPLA/1243/2014 (KIT-PLASMEBA).
