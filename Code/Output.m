@@ -108,7 +108,11 @@ classdef Output < handle
     
     function electronKineticsSolution(output, electronKinetics, ~)
     
-      % create subfolder in case it is needed (when performing runs of simmulations)
+      % create subfolder name in case of time-dependent boltzmann calculations
+      if isa(electronKinetics, 'Boltzmann') && electronKinetics.isTimeDependent
+        output.subFolder = sprintf('%stime_%e', filesep, electronKinetics.workCond.currentTime);
+      end
+      % create subfolder in case it is needed (when performing runs of simmulations or in time-dependent Boltzmann)
       if ~isempty(output.subFolder) && (output.eedfIsToBeSaved || output.powerBalanceIsToBeSaved || ...
           output.swarmParamsIsToBeSaved || output.rateCoeffsIsToBeSaved )
         if 7 ~= exist([output.folder output.subFolder], 'file')
@@ -134,7 +138,7 @@ classdef Output < handle
         output.saveRateCoefficients(electronKinetics.rateCoeffAll, electronKinetics.rateCoeffExtra);
       end
       if output.lookUpTableIsToBeSaved
-        output.saveLookUpTable(electronKinetics.workCond, electronKinetics.power, electronKinetics.swarmParam)
+        output.saveLookUpTable(electronKinetics);
       end
       
     end
@@ -155,7 +159,7 @@ classdef Output < handle
         values(1:2:2*length(eedf)) = energy;
         fprintf(fileID, '%#.14e %#.14e \n', values);
       else
-        fprintf(fileID, 'Energy(eV)           EEDF(eV^-(3/2))      First Anisotropy\n');
+        fprintf(fileID, 'Energy(eV)           EEDF(eV^-(3/2))      Anisotropy(eV^-(3/2))\n');
         values(3:3:3*length(eedf)) = firstAnisotropy;
         values(2:3:3*length(eedf)) = eedf;
         values(1:3:3*length(eedf)) = energy;
@@ -177,15 +181,17 @@ classdef Output < handle
       fileID = fopen(fileName, 'wt');
       
       % save information into the file
-      fprintf(fileID, '         Reduced electric field = %#.14e (Td)\n', reducedField);
-      fprintf(fileID, '  Reduced diffusion coefficient = %#.14e (1/(ms))\n', swarmParam.redDiffCoeff);
-      fprintf(fileID, '   Reduced mobility coefficient = %#.14e (1/(msV))\n', swarmParam.redMobCoeff);
-      fprintf(fileID, '   Reduced Townsend coefficient = %#.14e (m2)\n', swarmParam.redTownsendCoeff);
-      fprintf(fileID, ' Reduced attachment coefficient = %#.14e (m2)\n', swarmParam.redAttCoeff);
-      fprintf(fileID, '                    Mean energy = %#.14e (eV)\n', swarmParam.meanEnergy);
-      fprintf(fileID, '          Characteristic energy = %#.14e (eV)\n', swarmParam.characEnergy);
-      fprintf(fileID, '           Electron temperature = %#.14e (eV)\n', swarmParam.Te);
-      fprintf(fileID, '                 Drift velocity = %#.14e (m/s)\n', swarmParam.driftVelocity);
+      fprintf(fileID, '               Reduced electric field = %#.14e (Td)\n', reducedField);
+      fprintf(fileID, '        Reduced diffusion coefficient = %#.14e (1/(ms))\n', swarmParam.redDiffCoeff);
+      fprintf(fileID, '                     Reduced mobility = %#.14e (1/(msV))\n', swarmParam.redMobility);
+      fprintf(fileID, ' Reduced energy diffusion coefficient = %#.14e (eV/(ms))\n', swarmParam.redDiffCoeffEnergy);
+      fprintf(fileID, '              Reduced energy mobility = %#.14e (eV/(msV))\n', swarmParam.redMobilityEnergy);
+      fprintf(fileID, '         Reduced Townsend coefficient = %#.14e (m2)\n', swarmParam.redTownsendCoeff);
+      fprintf(fileID, '       Reduced attachment coefficient = %#.14e (m2)\n', swarmParam.redAttCoeff);
+      fprintf(fileID, '                          Mean energy = %#.14e (eV)\n', swarmParam.meanEnergy);
+      fprintf(fileID, '                Characteristic energy = %#.14e (eV)\n', swarmParam.characEnergy);
+      fprintf(fileID, '                 Electron temperature = %#.14e (eV)\n', swarmParam.Te);
+      fprintf(fileID, '                       Drift velocity = %#.14e (m/s)\n', swarmParam.driftVelocity);
       
       % close file
       fclose(fileID);
@@ -305,38 +311,168 @@ classdef Output < handle
       
     end
     
-    function saveLookUpTable(output, workCond, power, swarmParams)
+    function saveLookUpTable(output, electronKinetics)
       
-      persistent initialized;
-      if isempty(initialized)
-        initialized = false;
-      end
+      % name of the files containing the different lookup tables
+      persistent fileName1;
+      persistent fileName2;
+      persistent fileName3;
+      persistent fileName4;
+      persistent fileName5;
       
-      % create file name 
-      fileName = [output.folder filesep 'lookUpTable.txt'];
+      % local copies of different variables (for performance reasons)
+      workCond = electronKinetics.workCond;
+      power = electronKinetics.power;
+      swarmParams = electronKinetics.swarmParam;
+      rateCoeffAll = electronKinetics.rateCoeffAll;
+      rateCoeffExtra = electronKinetics.rateCoeffExtra;
+      eedf = electronKinetics.eedf;
       
-      % initialize the file in case it is needed
-      if ~initialized
-        % open file
-        fileID = fopen(fileName, 'wt');
+      % initialize the files in case it is needed
+      if isempty(fileName1)
+        % create file names
+        fileName1 = [output.folder filesep 'lookUpTableSwarm.txt'];
+        fileName2 = [output.folder filesep 'lookUpTablePower.txt'];
+        fileName3 = [output.folder filesep 'lookUpTableRateCoeff.txt'];
+        fileName4 = [output.folder filesep 'lookUpTableEedf.txt'];
+        % open files
+        fileID1 = fopen(fileName1, 'wt');
+        fileID2 = fopen(fileName2, 'wt');
+        fileID3 = fopen(fileName3, 'wt');
+        fileID4 = fopen(fileName4, 'wt');
         % write file headers
-        fprintf(fileID, ['RedField(Td)         RedDif(1/(ms))       RedMob(1/(msV))      RedTow(m2)           '...
-          'RedAtt(m2)           MeanE(eV)            CharE(eV)            EleTemp(eV)          '...
-          'DriftVelocity(m/s)   RelativePowerBalance\n']);
-        % close file
-        fclose(fileID);
-        initialized = true;
+        fprintf(fileID3, [repmat('#', 1, 80) '\n# %-76s #\n'], 'ID   Description');
+        strFile3 = '';
+        for i = 1:length(rateCoeffAll)
+          fprintf(fileID3, '# %-4d %-71s #\n', rateCoeffAll(i).collID, rateCoeffAll(i).collDescription);
+          strAux = sprintf('R%d_ine(m3/s)', rateCoeffAll(i).collID);
+          strFile3 = sprintf('%s%-20s ', strFile3, strAux);
+          if 2 == length(rateCoeffAll(i).value)
+            strAux = sprintf('R%d_sup(m3/s)', rateCoeffAll(i).collID);
+            strFile3 = sprintf('%s%-20s ', strFile3, strAux);
+          end
+        end
+        fprintf(fileID3, '#%s#\n# %-76s #\n#%s#\n# %-76s #\n', repmat(' ', 1, 78), ...
+          '*** Extra rate coefficients ***', repmat(' ', 1, 78), 'ID   Description');
+        for i = 1:length(rateCoeffExtra)
+          fprintf(fileID3, '# %-4d %-71s #\n', rateCoeffExtra(i).collID, rateCoeffExtra(i).collDescription);
+          strAux = sprintf('R%d_ine(m3/s)', rateCoeffExtra(i).collID);
+          strFile3 = sprintf('%s%-20s ', strFile3, strAux);
+          if 2 == length(rateCoeffExtra(i).value)
+            strAux = sprintf('R%d_sup(m3/s)', rateCoeffExtra(i).collID);
+            strFile3 = sprintf('%s%-20s ', strFile3, strAux);
+          end
+        end
+        fprintf(fileID3, [repmat('#', 1, 80) '\n\n']);
+        if isa(electronKinetics, 'Boltzmann')
+          if electronKinetics.isTimeDependent
+            fprintf(fileID1, '%-20s ', 'Time(s)');
+            fprintf(fileID2, '%-20s ', 'Time(s)');
+            fprintf(fileID3, '%-20s ', 'Time(s)');
+            if electronKinetics.eDensIsTimeDependent
+              fileName5 = [output.folder filesep 'lookUpTableElectronDensity.txt'];
+              fileID5 = fopen(fileName5, 'wt');
+              fprintf(fileID5, '%-20s %-20s\n', 'time(s)', 'ne(m-3)\n');
+              fclose(fileID5);
+            end
+          end
+          fprintf(fileID1, [repmat('%-20s ', 1, 11) '\n'], 'RedField(Td)', 'RedDiff(1/(ms))', 'RedMob(1/(msV))', ...
+            'RedDiffE(eV/(ms))', 'RedMobE(eV/(msV))', 'RedTow(m2)', 'RedAtt(m2)', 'MeanE(eV)', 'CharE(eV)', ...
+            'EleTemp(eV)', 'DriftVelocity(m/s)');
+          fprintf(fileID2, [repmat('%-20s ', 1, 22) '\n'], 'RedField(Td)', 'PowerField(eVm3/s)', ...
+            'PwrElaGain(eVm3/s)', 'PwrElaLoss(eVm3/s)', 'PwrElaNet(eVm3/s)', 'PwrCARGain(eVm3/s)', ...
+            'PwrCARLoss(eVm3/s)', 'PwrCARNet(eVm3/s)', 'PwrEleGain(eVm3/s)', 'PwrEleLoss(eVm3/s)', ...
+            'PwrEleNet(eVm3/s)', 'PwrVibGain(eVm3/s)', 'PwrVibLoss(eVm3/s)', 'PwrVibNet(eVm3/s)', ...
+            'PwrRotGain(eVm3/s)', 'PwrRotLoss(eVm3/s)', 'PwrRotNet(eVm3/s)', 'PwrIon(eVm3/s)', 'PwrAtt(eVm3/s)', ...
+            'PwrGroth(eVm3/s)', 'PwrBalance(eVm3/s)', 'RelPwrBalance');
+          fprintf(fileID3, '%-20s %s\n', 'RedField(Td)', strFile3);
+        else
+          fprintf(fileID1, [repmat('%-20s ', 1, 11) '\n'], 'EleTemp(eV)', 'RedField(Td)', 'RedDiff(1/(ms))', ...
+            'RedMob(1/(msV))', 'RedDiffE(eV/(ms))', 'RedMobE(eV/(msV))', 'RedTow(m2)', 'RedAtt(m2)', 'MeanE(eV)', ...
+            'CharE(eV)', 'DriftVelocity(m/s)');
+          fprintf(fileID2, [repmat('%-20s ', 1, 22) '\n'], 'EleTemp(eV)', 'PowerField(eVm3/s)', ...
+            'PwrElaGain(eVm3/s)', 'PwrElaLoss(eVm3/s)', 'PwrElaNet(eVm3/s)', 'PwrCARGain(eVm3/s)', ...
+            'PwrCARLoss(eVm3/s)', 'PwrCARNet(eVm3/s)', 'PwrEleGain(eVm3/s)', 'PwrEleLoss(eVm3/s)', ...
+            'PwrEleNet(eVm3/s)', 'PwrVibGain(eVm3/s)', 'PwrVibLoss(eVm3/s)', 'PwrVibNet(eVm3/s)', ...
+            'PwrRotGain(eVm3/s)', 'PwrRotLoss(eVm3/s)', 'PwrRotNet(eVm3/s)', 'PwrIon(eVm3/s)', 'PwrAtt(eVm3/s)', ...
+            'PwrGroth(eVm3/s)', 'PwrBalance(eVm3/s)', 'RelPwrBalance');
+          fprintf(fileID3, '%-20s %s\n', 'EleTemp(eV)', strFile3);
+        end
+        % add first line with energies to eedf lookup table (eedfs will be saved as rows)
+        fprintf(fileID4, '%-20.13e ', [0 electronKinetics.energyGrid.cell]);
+        fprintf(fileID4, '\n');
+        
+        % close files
+        fclose(fileID1);
+        fclose(fileID2);
+        fclose(fileID3);
+        fclose(fileID4);
       end
       
-      % open file
-      fileID = fopen(fileName, 'at');
-      % append new line with data
-      fprintf(fileID, '%20.14e %20.14e %20.14e %20.14e %20.14e %20.14e %20.14e %20.14e %20.14e %19.14e%%\n', ...
-        workCond.reducedField, swarmParams.redDiffCoeff, swarmParams.redMobCoeff, ...
-        swarmParams.redTownsendCoeff, swarmParams.redAttCoeff, swarmParams.meanEnergy, ...
-        swarmParams.characEnergy, swarmParams.Te, swarmParams.driftVelocity, power.relativeBalance*100);
-      % close file
-      fclose(fileID);
+      % open files
+      fileID1 = fopen(fileName1, 'at');
+      fileID2 = fopen(fileName2, 'at');
+      fileID3 = fopen(fileName3, 'at');
+      fileID4 = fopen(fileName4, 'at'); 
+      % check if electron density data needs to be saved
+      if ~isempty(fileName5)
+        fileID5 = fopen(fileName5, 'at');
+        fprintf(fileID5, '%#.14e %#.14e\n',workCond.currentTime, workCond.electronDensity);
+        fclose(fileID5);
+      end
+      % append new lines with data
+      if isa(electronKinetics, 'Boltzmann')
+        if electronKinetics.isTimeDependent
+          fprintf(fileID1, '%-20.13e ', workCond.currentTime);
+          fprintf(fileID2, '%-20.13e ', workCond.currentTime);
+          fprintf(fileID3, '%-20.13e ', workCond.currentTime);
+          fprintf(fileID4, '%-20.13e ', workCond.currentTime);
+        else
+          fprintf(fileID4, '%-20.13e ', workCond.reducedField);
+        end
+        fprintf(fileID1, [repmat('%-20.13e ', 1, 11) '\n'], ...
+          workCond.reducedField, swarmParams.redDiffCoeff, swarmParams.redMobility, swarmParams.redDiffCoeffEnergy, ...
+          swarmParams.redMobilityEnergy, swarmParams.redTownsendCoeff, swarmParams.redAttCoeff, ...
+          swarmParams.meanEnergy, swarmParams.characEnergy, swarmParams.Te, swarmParams.driftVelocity);
+        fprintf(fileID2, [repmat('%-+20.12e ', 1, 21) '%19.14e%%\n'], workCond.reducedField, power.field, ...
+          power.elasticGain, power.elasticLoss, power.elasticNet, power.carGain, power.carLoss, power.carNet, ...
+          power.excitationSup, power.excitationIne, power.excitationNet, power.vibrationalSup, power.vibrationalIne, ...
+          power.vibrationalNet, power.rotationalSup, power.rotationalIne, power.rotationalNet, power.ionizationIne, ...
+          power.attachmentIne, power.eDensGrowth, power.balance, power.relativeBalance*100);
+        fprintf(fileID3, '%-20.13e ', workCond.reducedField);
+      else
+        fprintf(fileID4, '%-20.13e ', workCond.electronTemperature);
+        fprintf(fileID1, [repmat('%-20.13e ', 1, 11) '\n'], ...
+          swarmParams.Te, workCond.reducedField, swarmParams.redDiffCoeff, swarmParams.redMobility, ...
+          swarmParams.redDiffCoeffEnergy, swarmParams.redMobilityEnergy, swarmParams.redTownsendCoeff, ...
+          swarmParams.redAttCoeff, swarmParams.meanEnergy, swarmParams.characEnergy, swarmParams.driftVelocity);
+        fprintf(fileID2, [repmat('%-+20.12e ', 1, 21) '%19.14e%%\n'], workCond.electronTemperature, power.field, ...
+          power.elasticGain, power.elasticLoss, power.elasticNet, power.carGain, power.carLoss, power.carNet, ...
+          power.excitationSup, power.excitationIne, power.excitationNet, power.vibrationalSup, power.vibrationalIne, ...
+          power.vibrationalNet, power.rotationalSup, power.rotationalIne, power.rotationalNet, power.ionizationIne, ...
+          power.attachmentIne, power.eDensGrowth, power.balance, power.relativeBalance*100);
+        fprintf(fileID3, '%-20.13e ', workCond.electronTemperature);
+      end
+      fprintf(fileID4, '%-20.13e ', eedf);
+      fprintf(fileID4, '\n');
+      for i = 1:length(rateCoeffAll)
+        fprintf(fileID3, '%-20.13e ', rateCoeffAll(i).value(1));
+        if 2 == length(rateCoeffAll(i).value)
+          fprintf(fileID3, '%-20.13e ', rateCoeffAll(i).value(2));
+        end
+      end
+      for i = 1:length(rateCoeffExtra)
+        fprintf(fileID3, '%-20.13e ', rateCoeffExtra(i).value(1));
+        if 2 == length(rateCoeffExtra(i).value)
+          fprintf(fileID3, '%-20.13e ', rateCoeffExtra(i).value(2));
+        end
+      end
+      fprintf(fileID3, '\n');
+      % close files
+      fclose(fileID1);
+      fclose(fileID2);
+      fclose(fileID3);
+      fclose(fileID4);
       
     end
     

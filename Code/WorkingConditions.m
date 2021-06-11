@@ -29,6 +29,7 @@ classdef WorkingConditions < handle
   properties
     gasPressure = [];
     gasTemperature = [];
+    wallTemperature = [];
     gasDensity = [];
     electronDensity = [];
     electronTemperature = [];
@@ -37,13 +38,13 @@ classdef WorkingConditions < handle
     reducedField = [];
     reducedFieldSI = [];
     excitationFrequency = [];
-    reducedExcFreqSI= [];
+    reducedExcFreqSI = [];
+    currentTime = [];             % only used for time-dependent calculations 
   end
   
   events
     updatedGasPressure
-    updatedGasTemperature1
-    updatedGasTemperature2
+    updatedGasTemperature
     updatedGasDensity
     updatedElectronDensity
     updatedElectronTemperature
@@ -86,8 +87,7 @@ classdef WorkingConditions < handle
           case 'gasTemperature'
             workCond.gasDensity = workCond.gasPressure/(Constant.boltzmann*workCond.gasTemperature);
             workCond.reducedExcFreqSI = workCond.excitationFrequency*2*pi/workCond.gasDensity;
-            notify(workCond, 'updatedGasTemperature1');
-            notify(workCond, 'updatedGasTemperature2');
+            notify(workCond, 'updatedGasTemperature'); 
             notify(workCond, 'updatedGasDensity');
             notify(workCond, 'updatedExcitationFrequency');
             
@@ -123,7 +123,7 @@ classdef WorkingConditions < handle
         'electronTemperature', workCond.electronTemperature, 'chamberLength', workCond.chamberLength, ...
         'chamberRadius', workCond.chamberRadius, 'reducedField', workCond.reducedField, ...
         'reducedFieldSI', workCond.reducedFieldSI, 'excitationFrequency', workCond.excitationFrequency, ...
-        'reducedExcFreqSI', workCond.reducedExcFreqSI);
+        'reducedExcFreqSI', workCond.reducedExcFreqSI, 'currentTime', workCond.currentTime);
       
     end
     

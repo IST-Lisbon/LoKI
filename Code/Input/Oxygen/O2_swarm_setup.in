@@ -24,7 +24,7 @@ electronKinetics:
     - Oxygen/O2_LXCat.txt               
     - Oxygen/O2_rot_LXCat.txt
 %   CARgases:             % gases for which CAR is activated
-%    - O2
+%     - O2
   gasProperties:        % properties of the gases (S.I. Units)
     mass: Databases/masses.txt
     fraction:
@@ -39,11 +39,17 @@ electronKinetics:
       - O2(X,v=*) = harmonicOscillatorEnergy
       - O2(X,v=0,J=*) = rigidRotorEnergy  
     statisticalWeight:
+      - O2(X) = 3
+      - O2(a1Dg) = 2 
+      - O2(b1Sg+) = 1 
+      - O2(A3Su+_C3Du_c1Su-) = 10
+      - O2(9.97eV)= 3
+      - O2(14.7eV) = 1  %value assumed (state ambiguously defined)
       - O2(X,v=*) = 3.0
       - O2(X,v=0,J=*) = rotationalDegeneracy
     population:
       - O2(X) = 1.0
-      - O2(X,v=0) = 1.0
+      - O2(X,v=0) = 1.0 
 %       - O2(X,v=*) = boltzmannPopulation@gasTemperature
       - O2(X,v=0,J=*) = boltzmannPopulation@gasTemperature
   numerics: % configuration of numerical details of the simulation
@@ -56,10 +62,10 @@ electronKinetics:
         updateFactor: 0.05  % factor used to increase or decrease the maximum value of the energy grid
     maxPowerBalanceRelError: 1e-9       % threshold for the relative power balance warning message
     nonLinearRoutines:
-      algorithm: mixingDirectSolutions  % mixingDirectSolutions or iterativeSolution
+      algorithm: mixingDirectSolutions  % mixingDirectSolutions or temporalIntegration
       mixingParameter: 0.7              % mixingDirectSolutions mixing parameter from 0 to 1
       maxEedfRelError: 1e-9             % maximum difference for each eedf component between two iterations (stop criteria)
-%       odeSetParameters:                 % optional parameters for the ode solver of the "iterativeSolution" algorithm
+%       odeSetParameters:                 % optional parameters for the ode solver of the "temporalIntegration" algorithm
 %         MaxStep: 1e-7
 
 % --- configuration for the heavy species kinetics ---
@@ -74,7 +80,7 @@ gui:
 % ---  configuration of the output files ---
 output: 
   isOn: false
-  folder: O2Swarm_discrete_rotations_300K
+  folder: O2Swarm_discrete_rotations_300K_spatial
   dataFiles:
     - eedf
     - swarmParameters

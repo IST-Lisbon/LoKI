@@ -31,6 +31,8 @@ classdef Setup < handle
     enableGui = false;              % determines if the gui must be activated (default value false)
     enableOutput = false;           % determines if the output must be activated (default value false)
     enableElectronKinetics = false; % determines if the electron kinetics module must be activated (default value false)
+    pulsedSimulation = false;       % determines if the simulation must be run in steady-state or pulsed configuration
+    pulseInfo;                      % information about the pulse to be simulated
     
     batches = struct.empty;         % information about the different jobs to be run
     numberOfBatches = 1;            % total number of batches of jobs to be run (one by default)
@@ -92,6 +94,7 @@ classdef Setup < handle
       
       % ----- SET SIMULATION PATH -----
       path(path, [pwd filesep 'PropertyFunctions']);
+      path(path, [pwd filesep 'OtherAuxFunctions']);
       
       % ----- SETTING UP THE WORKING CONDITIONS OF THE SIMULATION -----
       % setting up the working conditions
@@ -147,7 +150,6 @@ classdef Setup < handle
       end
       % setting up the output object (if needed)
       if setup.enableOutput
-        % create the object and save handle for later use
         setup.output = Output(setup);
       end
       
@@ -298,7 +300,13 @@ classdef Setup < handle
               error(['Trying to assign property ''%s'' to non existing gas '...
                 '''%s''.\nCheck input file'], property{1}, parsedEntry.gasName);
             end
-            gasArray(gasID).(property{1}) = str2num(parsedEntry.value);
+            if isempty(parsedEntry.constant)
+              gasArray(gasID).([property{1} 'Func']) = str2func(parsedEntry.function);
+              gasArray(gasID).([property{1} 'Params']) = parsedEntry.argument;
+              gasArray(gasID).(['evaluate' upper(property{1}(1)) property{1}(2:end)])(setup.workCond);
+            else
+              gasArray(gasID).(property{1}) = parsedEntry.constant;
+            end
           end
         end
       end
@@ -333,67 +341,34 @@ classdef Setup < handle
           if isfield(parsedEntry, 'fileName')
             stateAndValueArray = Parse.statePropertyFile(parsedEntry.fileName);
             for stateAndValue = stateAndValueArray
-              stateID = State.find(stateAndValue.gasName, ...
-                stateAndValue.ionCharg, stateAndValue.eleLevel, ...
-                stateAndValue.vibLevel, stateAndValue.rotLevel, ...
-                stateArray);
+              stateID = State.find(stateAndValue.gasName, stateAndValue.ionCharg, stateAndValue.eleLevel, ...
+                stateAndValue.vibLevel, stateAndValue.rotLevel, stateArray);
               if stateID == -1
                 continue;
               end
               stateArray(stateID).(property{1}) = stateAndValue.value;
             end
           else
-            IDArray = State.find(parsedEntry.gasName, parsedEntry.ionCharg, ...
-              parsedEntry.eleLevel, parsedEntry.vibLevel, ...
-              parsedEntry.rotLevel, stateArray);
+            IDArray = State.find(parsedEntry.gasName, parsedEntry.ionCharg, parsedEntry.eleLevel, ...
+              parsedEntry.vibLevel, parsedEntry.rotLevel, stateArray);
             if IDArray == -1
-              error(['Trying to asing property %s to a state which doesn''t'...
-                ' exist.\n( %s ).\nCheck input file'], property{1}, entry{1});
+              error('Trying to asing property %s to a state which doesn''t exist.\n( %s ).\nCheck input file', ...
+                property{1}, entry{1});
             end
-            functionHandle = str2func(parsedEntry.function);
-            argumentArray = zeros(1,length(parsedEntry.argument));
-            for i = 1:length(parsedEntry.argument)
-              if isnumeric(parsedEntry.argument{i}) 
-                argumentArray(i) = parsedEntry.argument{i};
-              elseif isa(parsedEntry.argument{i}, 'function_handle')
-                argumentArray = parsedEntry.argument{1};
-              else
-                argumentArray(i) = setup.findParameter(parsedEntry.argument{i});
-                if isnan(argumentArray(i))
-                  error(['Wrong argument %s of function %s when assigning ' ...
-                    'property %s to the states.\nCheck input file.'], ...
-                    parsedEntry.argument{i}, parsedEntry.function, property{1});
-                end
+            if isempty(parsedEntry.constant)
+              for stateID = IDArray
+                stateArray(stateID).([property{1} 'Func']) = str2func(parsedEntry.function);
+                stateArray(stateID).([property{1} 'Params']) = parsedEntry.argument;
+                stateArray(stateID).(['evaluate' upper(property{1}(1)) property{1}(2:end)])(setup.workCond);
+              end
+            else
+              for stateID = IDArray
+                stateArray(stateID).(property{1}) = parsedEntry.constant;
               end
             end
-            stateArray(IDArray) = functionHandle(stateArray(IDArray), ...
-              property{1}, argumentArray);
           end
         end
       end
-      
-    end
-    
-    function value = findParameter(setup, parameterName, structure)
-      % findProperty looks for a certain parameter contained in the
-      % properties of the object setup and returns its value. If the
-      % parameter is not found return a NaN.
-      
-      if nargin == 2
-        structure = setup.info;
-      end
-      for field = fieldnames(structure)'
-        if strcmp(field{1}, parameterName)
-          value = structure.(field{1});
-          return;
-        elseif isstruct(structure.(field{1}))
-          value = setup.findParameter(parameterName,structure.(field{1}));
-          if isnumeric(value)
-            return;
-          end
-        end
-      end
-      value = NaN;
       
     end
     
@@ -456,7 +431,7 @@ classdef Setup < handle
       
       % different checks for each gas in gasArray
       for gas = gasArray
-        % avoid dummy gases (gases created for extra cross sections or for the sake of a pretty output)
+        % avoid dummy gases (gases created because of extra cross sections or for the sake of a pretty output)
         if isempty(gas.collisionArray)
           continue;
         end
@@ -466,7 +441,7 @@ classdef Setup < handle
             '\nCheck input file'], gas.name);
         end
         % check for the distribution of states to be properly normalised
-        gas.checkPopulationNorms;
+        gas.checkPopulationNorms();
         % check for an Elastic collision to be defined, for each electronic state with population
         collisionArray = gas.checkElasticCollisions(collisionArray);
       end
@@ -488,8 +463,6 @@ classdef Setup < handle
       switch lower(setup.info.electronKinetics.eedfType)
         case 'boltzmann'
           electronKinetics = Boltzmann(setup);
-        case 'maxwellian'
-          electronKinetics = Maxwellian(setup);
         case 'prescribedeedf'
           if ~isfield(setup.info.electronKinetics, 'shapeParameter')
             error(['When selectinc a ''prescribedEedf'' the user must include the '...
@@ -507,13 +480,56 @@ classdef Setup < handle
     
     function selfDiagnostic(setup)
       % selfDiagnostic is a function that performs a diagnostic of the values provided by the user in the setup file,
-      % checking for the correctness of the simulation configuration.
+      % checking for the correctness of the configuration of the simulation.
       
       % local copy of the setup configuration
       setupInfo = setup.info;
       
-      % check working conditions to be positive quantities
+      % check working conditions
       workCondStruct = setupInfo.workingConditions;
+      % check input for 'reducedField' field in working conditions to know if simulation is in pulsed mode
+      if ischar(workCondStruct.reducedField)
+        % configuration for pulsed simulations: pulse@functionName, firstStep, finalTime, samplingType, samplingPoints, aditionalParameters
+        pulseInfoAux = regexp(workCondStruct.reducedField, ['pulse@\s*(?<function>\w+)\s*,\s*' ...
+          '(?<firstStep>[\(\)^\d.eE+-]+)\s*,\s*(?<finalTime>[\(\)^\d.eE+-]+)\s*,\s*(?<samplingType>linspace|logspace)\s*,\s*' ...
+          '(?<samplingPoints>\d+)\s*,?\s*(?<functionParameters>.*)?'], 'names', 'once');
+        if isempty(pulseInfoAux)
+          error(['Error found in the configuration of the setup file.\nWrong configuration for the field ' ...
+            '''workingConditions>reducedField''.\nPlease, fix the problem and run the code again.'],'foo');
+        end
+        pulseInfoAux.function = str2func(pulseInfoAux.function);
+        pulseInfoAux.firstStep = str2num(pulseInfoAux.firstStep);
+        pulseInfoAux.finalTime = str2num(pulseInfoAux.finalTime);
+        pulseInfoAux.samplingPoints = str2double(pulseInfoAux.samplingPoints);
+        if ~isnumeric(pulseInfoAux.firstStep) || isnan(pulseInfoAux.firstStep)
+          error(['Error found in the configuration of the setup file.\nWrong configuration for the field ' ...
+            '''workingConditions>reducedField''.\n''firstStep'' parameter should be numeric\nPlease, fix the ' ...
+            'problem and run the code again.'],'foo');
+        elseif ~isnumeric(pulseInfoAux.finalTime) || isnan(pulseInfoAux.finalTime)
+          error(['Error found in the configuration of the setup file.\nWrong configuration for the field ' ...
+            '''workingConditions>reducedField''.\n''finalTime'' parameter should be numeric\nPlease, fix the ' ...
+            'problem and run the code again.'], 'foo');
+        elseif ~isnumeric(pulseInfoAux.samplingPoints) || isnan(pulseInfoAux.samplingPoints)
+          error(['Error found in the configuration of the setup file.\nWrong configuration for the field ' ...
+            '''workingConditions>reducedField''.\n''samplingPoints'' parameter should be numeric\nPlease, fix the ' ...
+            'problem and run the code again.'],'foo');
+        end
+        pulseInfoAux.functionParameters = regexp(pulseInfoAux.functionParameters, ',', 'split');
+        for idx = 1:length(pulseInfoAux.functionParameters)
+          value = str2double(pulseInfoAux.functionParameters{idx});
+          if ~isnan(value)
+            pulseInfoAux.functionParameters{idx} = value;
+          end
+        end
+        % save pulse information in the setup object
+        setup.pulsedSimulation = true;
+        setup.pulseInfo = pulseInfoAux;
+        % set reduced field in the working conditions to zero (later updated to initial value of the pulse)
+        workCondStruct.reducedField = 0;
+        setupInfo.workingConditions.reducedField = 0;
+        setup.info.workingConditions.reducedField = 0;
+      end
+      % check working conditions to be positive quantities
       for field = fieldnames(workCondStruct)'
         if any(workCondStruct.(field{1})<0)
           error(['Error found in the configuration of the setup file.\nNegative value found for the field' ...
@@ -666,11 +682,11 @@ classdef Setup < handle
             error(['Error found in the configuration of the setup file.\n''algorithm'' field not ' ...
               'found in the ''electronKinetics>numerics>nonLinearRoutines'' section of the setup file.\n' ...
               'Please, fix the problem and run the code again.'],1);
-          elseif ~any(strcmp({'mixingDirectSolutions' 'iterativeSolution'}, ...
+          elseif ~any(strcmp({'mixingDirectSolutions' 'temporalIntegration'}, ...
               setupInfo.electronKinetics.numerics.nonLinearRoutines.algorithm))
             error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
               '''electronKinetics>numerics>nonLinearRoutines>algorithm''.\nValue should be either: ' ...
-              '''mixingDirectSolutions'' or ''iterativeSolution''.\nPlease, fix the problem and run the code again.'],1);
+              '''mixingDirectSolutions'' or ''temporalIntegration''.\nPlease, fix the problem and run the code again.'],1);
           elseif ~isfield(setupInfo.electronKinetics.numerics.nonLinearRoutines, 'maxEedfRelError')
             error(['Error found in the configuration of the setup file.\n''maxEedfRelError'' field not ' ...
               'found in the ''electronKinetics>numerics>nonLinearRoutines'' section of the setup file.\n' ...
@@ -692,6 +708,37 @@ classdef Setup < handle
               error(['Error found in the configuration of the setup file.\n''electricQuadrupoleMoment'' field not ' ...
                 'found in the ''electronKinetics>gasProperties'' section of the setup file.\n' ...
                 'Please, fix the problem and run the code again.'],1);
+            end
+          end
+          % check the configuration of pulsed simulations (when simulating field pulses)
+          if setup.pulsedSimulation
+            % pulsed simulations only implemented for the electron kinetics
+            if isfield(setupInfo, 'chemistry') && setupInfo.chemistry.isOn
+              error(['Error found in the configuration of the setup file.\nPulsed simulations are not implemented ...'
+                'for the chemistry module.\nPlease, fix the problem and run the code again.'],1);
+            end
+            % pulsed simulations not allowed for oscillating fields
+            if any(workCondStruct.excitationFrequency~=0)
+              error(['Error found in the configuration of the setup file.\nPulsed simulations are not allowed for ...'
+                'oscillating fields.\nPlease, fix the problem and run the code again.'],1);
+            end
+            % smart grid not inplemented for pulsed simulations
+            if isfield(setupInfo.electronKinetics.numerics.energyGrid, 'smartGrid')
+              error(['Error found in the configuration of the setup file.\n''smartGrid'' feature not implemented ' ...
+                'for pulsed simulations.\nPlease, fix the problem and run the code again.'],1);
+            end
+            % pulsed simulations must use the "temporalIntegration" algorithm
+            if ~strcmp(setupInfo.electronKinetics.numerics.nonLinearRoutines.algorithm, 'temporalIntegration')
+              error(['Error found in the configuration of the setup file.\nWhen doing pulsed simulations the ' ...
+                'parameter ''electronKinetics>numerics>nonLinearRoutines>algorithm'' must be set to ' ...
+                '''temporalIntegration''.\nPlease, fix the problem and run the code again.'],1);
+            end
+            % pulsed simulations must use either: conservative ionization or temporal growth for the electron density
+            if ~strcmp(setupInfo.electronKinetics.ionizationOperatorType, 'conservative') && ...
+                strcmp(setupInfo.electronKinetics.growthModelType, 'spatial')
+              error(['Error found in the configuration of the setup file.\nWhen doing pulsed simulations the ' ...
+                'parameter ''electronKinetics>growthModelType'' must be set to ''temporal''.\nPlease, fix the ' ...
+                'problem and run the code again.'],1);
             end
           end
           % check configuration of the smart grid in case it is activated
@@ -770,7 +817,36 @@ classdef Setup < handle
         elseif setupInfo.chemistry.isOn
           % check whether the mandatory fields of the chemistry module (apart from isOn) are present when the
           % chemistry module is activated
-          % --- 'eedfType' field %%% CONTINUE WHEN THE CHEMISTRY MODULE DEVELOPMENT IS FINISHED
+          % --- 'includeThermalModel' field
+          if ~isfield(setupInfo.chemistry, 'includeThermalModel')
+            error(['Error found in the configuration of the setup file.\n''includeThermalModel'' field not ' ...
+              'found in the ''chemistry'' section of the setup file.\nPlease, fix the problem and run the ' ...
+              'code again.'],1);
+          elseif ~islogical(setupInfo.chemistry.includeThermalModel)
+            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+              '''chemistry>includeThermalModel''.\nValue should be logical (''true'' or ''false'').\n' ...
+              'Please, fix the problem and run the code again.'],1);
+          elseif setupInfo.chemistry.includeThermalModel
+            if (workCondStruct.chamberLength ~= 0 || workCondStruct.chamberRadius == 0 )
+              error(['Error found in the configuration of the setup file.\nChamber dimensions specified in the ' ...
+                'working conditions are not compatible with the thermal model.\nEither, deactivate thermal model:\n'...
+                '''chemistry>includeThermalModel: false''\n or set chamber dimensions to those of an infinitely ' ...
+                'long cylinder:\n''workingConditions>chamberLenght: 0''\n''workingConditions>chamberRadius: [any ' ...
+                'value different than zero]''\nPlease, fix the problem and run the code again.'],1);
+            elseif ~isfield(setupInfo, 'electronKinetics') || ~setupInfo.electronKinetics.isOn
+              error(['Error found in the configuration of the setup file.\nThermal model cannot be activated ' ...
+                'without antivating the electronKinetics module\nPlease, fix the problem and run the code again.'],1);
+            elseif ~isfield(setupInfo.chemistry.gasProperties, 'heatCapacity')
+              error(['Error found in the configuration of the setup file.\n''heatCapacity'' field not found ' ...
+                'in the ''chemistry>gasProperties'' section of the setup file.\n' ...
+                'Please, fix the problem and run the code again.'],1);
+            elseif ~isfield(setupInfo.chemistry.gasProperties, 'thermalConductivity')
+              error(['Error found in the configuration of the setup file.\n''thermalConductivity'' field not ' ...
+                'found in the ''chemistry>gasProperties'' section of the setup file.\n' ...
+                'Please, fix the problem and run the code again.'],1);
+            end
+          end
+          %%% CONTINUE WHEN THE CHEMISTRY MODULE DEVELOPMENT IS FINISHED
         end
       end
       
@@ -826,15 +902,15 @@ classdef Setup < handle
             if isfield(setupInfo, 'electronKinetics') && setupInfo.electronKinetics.isOn && ...
                 isfield(setupInfo, 'chemistry') && setupInfo.chemistry.isOn
               possibleDataFiles = {'none' 'eedf' 'swarmParameters' 'rateCoefficients' 'powerBalance' ...
-                'finalDensities' 'finalParticleBalance'};
+                'finalDensities' 'densitiesTime' 'finalParticleBalance'};
               possibleDataFilesStr = ['none, eedf, swarmParameters, rateCoefficients, powerBalance, ' ...
-                'finalDensities or finalParticleBalance'];
+                'finalDensities, densitiesTime or finalParticleBalance'];
             elseif isfield(setupInfo, 'electronKinetics') && setupInfo.electronKinetics.isOn
               possibleDataFiles = {'none' 'eedf' 'swarmParameters' 'rateCoefficients' 'powerBalance' 'lookUpTable'};
               possibleDataFilesStr = 'none, eedf, swarmParameters, rateCoefficients, powerBalance or lookUpTable';
             elseif isfield(setupInfo, 'chemistry') && setupInfo.chemistry.isOn
-              possibleDataFiles = {'none' 'finalDensities' 'finalParticleBalance'};
-              possibleDataFilesStr = 'none, finalDensities or finalParticleBalance';
+              possibleDataFiles = {'none' 'finalDensities' 'densitiesTime' 'finalParticleBalance'};
+              possibleDataFilesStr = 'none, finalDensities, densitiesTime or finalParticleBalance';
             end
             for dataFile = dataFiles
               if ~any(strcmp(possibleDataFiles, dataFile))
@@ -857,6 +933,7 @@ classdef Setup < handle
       
       % ----- RESTORE SEARCH PATH -----
       rmpath([pwd filesep 'PropertyFunctions']);
+      rmpath([pwd filesep 'OtherAuxFunctions']);
       
       % ----- FINISH MESSAGE -----
       disp('Finished!');

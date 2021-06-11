@@ -118,12 +118,29 @@ classdef Parse
     % contains information related to a certain gas property. It returns an
     % structure with the parsed information. 
     
-      regExp = '(?<gasName>\w+)\s*=\s*(?<value>.+)';
+      regExp = ['(?<gasName>\w+)\s*=\s*(?<constant>[\d.eE\s()*/+-]+)?' ...
+        '(?<function>\w+)?(?(function)@?)(?<argument>.+)?\s*'];
       parsedEntry = regexp(entry, regExp, 'names');
       if isempty(parsedEntry)
-        parsedEntry(end+1).fileName = entry;
-        parsedEntry = rmfield(parsedEntry, 'gasName');
-        parsedEntry = rmfield(parsedEntry, 'value');
+        parsedEntry = struct('fileName', entry);
+      elseif ~isempty(parsedEntry.function)
+        if ~isempty(parsedEntry.constant)
+          error(['Error found when parsing state property entry:\n%s\n' ...
+            'Please, fix the problem and run the code again'], entry);
+        end
+        if isempty(parsedEntry.argument)
+          parsedEntry.argument = cell(0);
+        else
+          parsedEntry.argument = strsplit(parsedEntry.argument, ',');
+          for i=1:length(parsedEntry.argument)
+            numericArgument = str2num(parsedEntry.argument{i});
+            if ~isnan(numericArgument)
+              parsedEntry.argument{i} = numericArgument;
+            end
+          end
+        end
+      else
+        parsedEntry.constant = str2num(parsedEntry.constant);
       end
       
     end
@@ -163,44 +180,30 @@ classdef Parse
     % contains information related to a certain state property. It returns
     % an structure with the parsed information. 
     
-      regExp = [Parse.stateRegExp '\s*=\s*(?<constant>[\d.eE\s()*/+-]+)?(?<functionHandle>@[\w]+)?'...
+      regExp = [Parse.stateRegExp '\s*=\s*(?<constant>[\d.eE\s()*/+-]+)?' ...
         '(?<function>\w+)?(?(function)@?)(?<argument>.+)?\s*'];
       parsedEntry = regexp(entry, regExp, 'names');
       if isempty(parsedEntry)
-        parsedEntry(end+1).fileName = entry;
-        parsedEntry = rmfield(parsedEntry, 'gasName');
-        parsedEntry = rmfield(parsedEntry, 'ionCharg');
-        parsedEntry = rmfield(parsedEntry, 'eleLevel');
-        parsedEntry = rmfield(parsedEntry, 'vibLevel');
-        parsedEntry = rmfield(parsedEntry, 'rotLevel');
-        parsedEntry = rmfield(parsedEntry, 'function');
-        parsedEntry = rmfield(parsedEntry, 'argument');
-      elseif isempty(parsedEntry.constant)
-        if isempty(parsedEntry.functionHandle)
-          if isempty(parsedEntry.argument)
-            parsedEntry.argument = cell(0);
-          else
-            parsedEntry.argument = strsplit(parsedEntry.argument, ',');
-            for i=1:length(parsedEntry.argument)
-              numericArgument = str2num(parsedEntry.argument{i});
-              if ~isnan(numericArgument)
-                parsedEntry.argument{i} = numericArgument;
-              else
-                parsedEntry.argument{i} = parsedEntry.argument{i};
-              end
+        parsedEntry = struct('fileName', entry);
+      elseif ~isempty(parsedEntry.function)
+        if ~isempty(parsedEntry.constant)
+          error(['Error found when parsing state property entry:\n%s\n' ...
+            'Please, fix the problem and run the code again'], entry);
+        end
+        if isempty(parsedEntry.argument)
+          parsedEntry.argument = cell(0);
+        else
+          parsedEntry.argument = strsplit(parsedEntry.argument, ',');
+          for i=1:length(parsedEntry.argument)
+            numericArgument = str2num(parsedEntry.argument{i});
+            if ~isnan(numericArgument)
+              parsedEntry.argument{i} = numericArgument;
             end
           end
-        else
-          parsedEntry.function = 'functionHandle';
-          parsedEntry.argument = {str2func(parsedEntry.functionHandle)};
         end
       else
-        parsedEntry.function = 'constantValue';
-        parsedEntry.argument = {str2num(parsedEntry.constant)};
+        parsedEntry.constant = str2num(parsedEntry.constant);
       end
-      parsedEntry = rmfield(parsedEntry, 'quantity');
-      parsedEntry = rmfield(parsedEntry, 'constant');
-      parsedEntry = rmfield(parsedEntry, 'functionHandle');
       
     end
     

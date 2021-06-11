@@ -19,26 +19,14 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-function stateArray = rotationalDegeneracy_H2(stateArray, property, ...
-  argumentArray)
+function statisticalWeight = rotationalDegeneracy_H2(state, ~, ~)
   % rotationalDegeneracy_H2 (have to be writen)
   
-  [stackTrace, ~] = dbstack;
-  if ~strcmp(property, 'statisticalWeight')
-    error(['Trying to use %s function to set up property %s. Check input '...
-      'file'], stackTrace(1).name, property);
+  if ~strcmp(state.type, 'rot')
+    error(['Trying to asign rotational degeneracy to non rotational state %s. Check input file', state.name]);
   end
-  if ~isempty(argumentArray)
-    error(['Wrong number of arguments when evaluating %s function. Check '...
-      'input file'], stackTrace(1).name)
-  end
-  for state = stateArray
-    if ~strcmp(state.type, 'rot')
-      error(['Trying to asign rotational degeneracy to non rotational state '...
-        '%s. Check input file', state.name]);
-    end
-    J = str2double(state.rotLevel);
-    state.statisticalWeight = (2-(-1)^J)*(2*J+1);
-  end
+  
+  J = str2double(state.rotLevel);
+  statisticalWeight = (2-(-1)^J)*(2*J+1);
   
 end

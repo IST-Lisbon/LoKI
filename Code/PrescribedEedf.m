@@ -312,43 +312,54 @@ classdef PrescribedEedf < handle
     end
 
     function swarmParam = evaluateSwarmParameters(prescribedEedf)
-
+      
+      % save local copy of total momentum transfer cross section
+      totalCrossSectionAux = prescribedEedf.totalCrossSection;
+      
       % initialize transport parameters structure
-      swarmParam = struct('redDiffCoeff', [], 'redMobCoeff', [], 'redTownsendCoeff', [], 'redAttCoeff', [],...
-        'meanEnergy', [], 'characEnergy', [], 'Te', [], 'driftVelocity', []);
+      swarmParam = struct('redDiffCoeff', [], 'redMobility', [], 'redDiffCoeffEnergy', [], 'redMobilityEnergy', [], ...
+        'redTownsendCoeff', [], 'redAttCoeff', [], 'meanEnergy', [], 'characEnergy', [], 'Te', [], 'driftVelocity', []);
 
       % evaluate reduced diffusion coefficient
       swarmParam.redDiffCoeff = (2.0/3.0)*sqrt(2.0*Constant.electronCharge/Constant.electronMass)*...
         sum(prescribedEedf.energyGrid.cell.*prescribedEedf.eedf./(prescribedEedf.totalCrossSection(1:end-1)+...
-        prescribedEedf.totalCrossSection(2:end)))*prescribedEedf.energyGrid.step;
+        totalCrossSectionAux(2:end)))*prescribedEedf.energyGrid.step;
 
-      % evaluate reduced mobility coefficient
-      swarmParam.redMobCoeff = -sqrt(2.0*Constant.electronCharge/Constant.electronMass)/3.0*...
+      % evaluate reduced mobility
+      swarmParam.redMobility = -sqrt(2.0*Constant.electronCharge/Constant.electronMass)/3.0*...
         sum(prescribedEedf.energyGrid.node(2:end-1).*(prescribedEedf.eedf(2:end)-prescribedEedf.eedf(1:end-1))./...
-        prescribedEedf.totalCrossSection(2:end-1));
+        totalCrossSectionAux(2:end-1));
+      
+      % evaluate reduced energy diffusion coefficient
+      swarmParam.redDiffCoeffEnergy = (2.0/3.0)*sqrt(2.0*Constant.electronCharge/Constant.electronMass)*...
+        sum(prescribedEedf.energyGrid.cell.^2.*prescribedEedf.eedf./(totalCrossSectionAux(1:end-1)+...
+        totalCrossSectionAux(2:end)))*prescribedEedf.energyGrid.step;
+      
+      % evaluate reduced energy mobility
+      swarmParam.redMobilityEnergy = -sqrt(2.0*Constant.electronCharge/Constant.electronMass)/3.0*...
+        sum(prescribedEedf.energyGrid.node(2:end-1).^2.*(prescribedEedf.eedf(2:end)-prescribedEedf.eedf(1:end-1))./...
+        totalCrossSectionAux(2:end-1));
       
       % evaluate drift velocity
-      swarmParam.driftVelocity = swarmParam.redMobCoeff*prescribedEedf.workCond.reducedFieldSI;
+      swarmParam.driftVelocity = swarmParam.redMobility*prescribedEedf.workCond.reducedFieldSI;
       
-      % evaluate reduced Townsend coefficient (to be revised)
+      % evaluate reduced Townsend coefficient
       totalIonRateCoeff = 0;
       for gas = prescribedEedf.gasArray
         for collision = gas.collisionArray
           if strcmp(collision.type, 'Ionization')
-            totalIonRateCoeff = totalIonRateCoeff + gas.fraction*collision.ineRateCoeff;
-            break;
+            totalIonRateCoeff = totalIonRateCoeff + collision.target.density*collision.ineRateCoeff;
           end
         end
       end
       swarmParam.redTownsendCoeff = totalIonRateCoeff / swarmParam.driftVelocity;
 
-      % evaluate reduced attachment coefficient (to be revised)
+      % evaluate reduced attachment coefficient
       totalAttRateCoeff = 0;
       for gas = prescribedEedf.gasArray
         for collision = gas.collisionArray
           if strcmp(collision.type, 'Attachment')
-            totalAttRateCoeff = totalAttRateCoeff + gas.fraction*collision.ineRateCoeff;
-            break;
+            totalAttRateCoeff = totalAttRateCoeff + collision.target.density*collision.ineRateCoeff;
           end
         end
       end
@@ -359,7 +370,7 @@ classdef PrescribedEedf < handle
         prescribedEedf.energyGrid.step;
 
       % evaluate characteristic energy
-      swarmParam.characEnergy = swarmParam.redDiffCoeff/swarmParam.redMobCoeff;
+      swarmParam.characEnergy = swarmParam.redDiffCoeff/swarmParam.redMobility;
 
       % evaluate electron temperature
       swarmParam.Te = prescribedEedf.workCond.electronTemperature; %swarmParam.meanEnergy*2/3;

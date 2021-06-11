@@ -32,10 +32,12 @@ classdef Constant
     unifiedAtomicMass = 1.660539040e-27;  % Unified Atomic Mass unit (UAM) in kg
     bohrRadius = 5.2917721067e-11;        % Bohr radius in m
     vacuumPermittivity = 8.854187817e-12; % Vacuum permittivity in F/m
-    plank = 6.626070040e-34;              % Plank constant in J s
+    vacuumPermeability = 1.25663706212e-6;% Vacuum permeability in N A^(-2)
+    planck = 6.626070040e-34;             % Plank constant in J s
     speedOfLight = 299792458;             % Speed of light in vacuum in m/s
     atmosphereInPa = 101325;              % Standard atmosphere in Pa
     atmosphereInTorr = 760;               % Standard atmosphere in Torr (not obtained from NIST database)
+    avogadro = 6.02214076e23;             % Avogadro's constant / Avogadro's number
     
   end
   
@@ -48,17 +50,24 @@ classdef Constant
       
     end
     
-    function hBar = plankReduced()
-      % plankReduced Reduced Plank constant in J s
+    function hBar = planckReduced()
+      % planckReduced Reduced Plank constant in J s
       
-      hBar = Constant.plank/(2*pi);
+      hBar = Constant.planck/(2*pi);
       
     end
     
-    function hBar = plankReducedInEV()
-      % plankReducedInEV Reduced Plank constant in eV s
+    function hBar = planckReducedInEV()
+      % planckReducedInEV Reduced Plank constant in eV s
       
-      hBar = Constant.plank/(2*pi*Constant.electronCharge);
+      hBar = Constant.planck/(2*pi*Constant.electronCharge);
+      
+    end
+    
+    function R = idealGas()
+      % idealGas ideal gas constant in J K^(-1) mol^(-1)
+      
+      R = Constant.boltzmann*Constant.avogadro;
       
     end
 

@@ -19,35 +19,21 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-function stateArray = morseOscillatorEnergy(stateArray, property, argumentArray)
+function energy = morseOscillatorEnergy(state, ~, ~)
   % morseOscillator (have to be writen)
   
-  [stackTrace, ~] = dbstack;
-  if ~strcmp(property, 'energy')
-    error(['Trying to use %s function to set up property %s. Check input '...
-      'file'], stackTrace(1).name, property);
+  
+  if ~strcmp(state.type, 'vib')
+    error('Trying to asign morse oscillator energy to non vibrational state %s. Check input file', state.name);
+  elseif isempty(state.gas.harmonicFrequency)
+    error(['Unable to find harmonicFrequency to evaluate the energy of the state %s with function ' ...
+      '''harmonicOscillatorEnergy''.\nCheck input file'], state.name);
+  elseif isempty(state.gas.anharmonicFrequency)
+    error(['Unable to find anharmonicFrequency to evaluate the energy of the state %s with function ' ...
+      '''morseOscillatorEnergy''.\nCheck input file'], state.name);
   end
-  if ~isempty(argumentArray)
-    error(['Wrong number of arguments when evaluating %s function. Check '...
-      'input file'], stackTrace(1).name)
-  end
-  for state = stateArray
-    if ~strcmp(state.type, 'vib')
-      error(['Trying to asign morse oscillator energy to non vibrational '...
-        'state %s. Check input file', state.name]);
-    elseif isempty(state.gas.harmonicFrequency)
-      error(['Unable to find harmonicFrequency to evaluate the energy of '...
-        'the state %s with function %s.\nCheck input file'], state.name, ...
-        stackTrace(1).name);
-    elseif isempty(state.gas.anharmonicFrequency)
-      error(['Unable to find anharmonicFrequency to evaluate the energy of '...
-        'the state %s with function %s.\nCheck input file'], state.name, ...
-        stackTrace(1).name);
-    end
-    vibLevel = str2double(state.vibLevel);
-    state.energy = Constant.plankReducedInEV*(...
-      state.gas.harmonicFrequency*(vibLevel+0.5)-...
-      state.gas.anharmonicFrequency*(vibLevel+0.5)^2);
-  end
+  
+  v = str2double(state.vibLevel);
+  energy = Constant.planckReducedInEV*(state.gas.harmonicFrequency*(v+0.5)-state.gas.anharmonicFrequency*(v+0.5)^2);
   
 end

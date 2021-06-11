@@ -1,0 +1,94 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   DEFAULT CONFIGURATION FILE LOKI-B    %
+% (subject to change during development) %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% --- configuration of the working conditions ---
+workingConditions:
+  reducedField: pulse@reducedFieldPulse, 1e-15, 1e-8, logspace, 200, 1e-9, 100 % pulse@functionName, firstStep, finalTime, samplingType, samplingPoints, aditionalParameters
+  electronTemperature: linspace(0.03, 5, 300) % in eV
+  excitationFrequency: 0                      % in Hz
+  gasPressure: 133320                         % in Pa
+  gasTemperature: 300                         % in K
+  electronDensity: 1e19                       % in m-3
+  chamberLength: 1.0                          % in m
+  chamberRadius: 1.0                          % in m
+
+% --- configuration of the electron kinetics ---
+electronKinetics:
+  isOn: true                           % true or false (to activate of deactivate the electron kinetics)
+  eedfType: boltzmann                  % boltzmann or prescribedEedf (generalized expression Maxwellian/Druyvesteyn)
+%   shapeParameter: 1                  % prescribedEedf shape parameter from 1 (Maxwellian) to 2 (Druyvesteyn)
+  ionizationOperatorType: usingSDCS    % conservative, oneTakesAll, equalSharing or usingSDCS
+  growthModelType: temporal             % temporal or spatial
+  includeEECollisions: false           % true or false (to include / remove e-e collisions)
+  LXCatFiles:                          % cross section files
+    - Nitrogen/N2_LXCat.txt
+    - Oxygen/O2_LXCat.txt
+%  LXCatFilesExtra: extra_LXCat.txt    % extra cross section files
+%  effectiveCrossSectionPopulations:   % see doc
+%    - N2_effectivePop.txt
+%  CARgases:                           % gases for which CAR is activated
+%    - N2
+  gasProperties:                       % properties of the gases (S.I. Units)
+    mass: Databases/masses.txt
+    fraction:
+      - N2 = 0.8
+      - O2 = 0.2
+    harmonicFrequency: Databases/harmonicFrequencies.txt
+    anharmonicFrequency: Databases/anharmonicFrequencies.txt
+    rotationalConstant: Databases/rotationalConstants.txt
+    electricQuadrupoleMoment: Databases/quadrupoleMoment.txt
+    OPBParameter: Databases/OPBParameter.txt
+  stateProperties:                     % properties of the states (S.I. Units except for the energy [eV])
+    energy:
+      - N2(X,v=*) = harmonicOscillatorEnergy
+      - O2(X,v=*) = harmonicOscillatorEnergy
+    statisticalWeight:
+      - N2(X,v=*) = 1.0
+      - O2(X) = 3
+      - O2(a1Dg) = 2 
+      - O2(b1Sg+) = 1 
+      - O2(A3Su+_C3Du_c1Su-) = 10
+      - O2(9.97eV)= 3
+      - O2(14.7eV) = 1  %value assumed (state ambiguously defined)
+      - O2(X,v=*) = 1.0
+    population:
+      - N2(X) = 1.0
+      - O2(X) = 1.0
+      - N2(X,v=*) = boltzmannPopulation@gasTemperature
+      - O2(X,v=*) = boltzmannPopulation@gasTemperature
+  numerics:                            % configuration of numerical details of the simulation
+    energyGrid:                        % properties of the energy grid (in eV)
+      maxEnergy: 18
+      cellNumber: 1800
+%       smartGrid:                       % configuration of the smart grid
+%         minEedfDecay: 20               % minimum number of decade-fall for the EEDF
+%         maxEedfDecay: 25               % maximum number of decade-fall for the EEDF
+%         updateFactor: 0.05             % factor used to increase or decrease the maximum value of the energy grid
+    maxPowerBalanceRelError: 100         % threshold for the relative power balance warning message
+    nonLinearRoutines:
+      algorithm: temporalIntegration % mixingDirectSolutions or temporalIntegration
+      mixingParameter: 0.7             % mixingDirectSolutions mixing parameter from 0 to 1
+      maxEedfRelError: 1e-9            % maximum rel. variation for EEDF between two iterations (stop criterion)
+      odeSetParameters:                % optional parameters for the ode solver of the "temporalIntegration" algorithm	           
+        AbsTol: 1e-300
+        RelTol: 1e-6
+%         MaxStep: 1e-7
+          
+% --- configuration of the graphical user interface ---
+gui: 
+  isOn: true
+  refreshFrequency: 1
+
+% ---  configuration of the output files ---
+output: 
+  isOn: true
+  folder: simulation1
+  dataFiles:
+%     - eedf
+%     - swarmParameters
+%     - rateCoefficients
+%     - powerBalance
+    - lookUpTable
+

@@ -19,55 +19,72 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-function stateArray = treanorPopulation(stateArray, property, argumentArray)
-  % treanor (have to be writen)
+function population = treanorPopulation(state, argumentArray, workCond)
+  % treanorPopulation (have to be writen)
   
-  [stackTrace, ~] = dbstack;
-  if ~strcmp(property, 'population')
-    error(['Trying to use %s function to set up property %s. Check input '...
-      'file'], stackTrace(1).name, property);
+  temp0 = argumentArray{1};
+  temp1 = argumentArray{2};
+  if ~isnumeric(temp0)
+    switch temp0
+      case 'gasTemperature'
+        temp0 = workCond.gasTemperature;
+      case 'electronTemperature'
+        temp0 = workCond.electronTemperature;
+      otherwise
+        error(['Error found when evaluating population of state %s.\nTemperature ''%s'' not defined in the ' ...
+          'working conditions.\nPlease, fix the problem and run the code again.'], state.name, temp0);
+    end
   end
-  if length(argumentArray) ~= 2
-    error(['Wrong number of arguments when evaluating %s function. Check '...
-      'input file'], stackTrace(1).name)
+  if ~isnumeric(temp1)
+    switch temp1
+      case 'gasTemperature'
+        temp1 = workCond.gasTemperature;
+      case 'electronTemperature'
+        temp1 = workCon.electronTemperature;
+      otherwise
+        error(['Error found when evaluating population of state %s.\nTemperature ''%s'' not defined in the ' ...
+          'working conditions.\nPlease, fix the problem and run the code again.'], state.name, temp1);
+    end
   end
-  temp0 = argumentArray(1);
-  temp1 = argumentArray(2);
+  
+  if ~strcmp(state.type, 'vib')
+    error(['Trying to asign treanor population to non vibrational state %s. Check input file', state.name]);
+  end
+  
+  E0 = [];
+  E1 = [];
+  for stateAux = [state state.siblingArray]
+    if strcmp(stateAux.vibLevel, '0')
+      E0 = stateAux.energy;
+    elseif strcmp(stateAux.vibLevel, '1')
+      E1 = stateAux.energy;
+    end
+  end
+  if isempty(E0) || isempty(E1)
+    error('Unable to find E0 or E1 to populate state %s and its siblings with function %s.\nCheck input file', ...
+      state.name, 'treanorPopulation');
+  end
+  
+  % evaluate Treanor
   norm = 0;
-  groundEnergy = [];
-  firstEnergy = [];
-  for state = stateArray
-    if ~strcmp(state.type, 'vib')
-      error(['Trying to asign treanor population to non vibrational state '...
-        '%s. Check input file', state.name]);
+  for stateAux = [state state.siblingArray]
+    v = str2double(stateAux.vibLevel);
+    E = stateAux.energy;
+    g = stateAux.statisticalWeight;
+    if isempty(E)
+      error('Unable to find %s energy for the evaluation of %s function.\nCheck input file', ...
+        stateAux.name, 'treanorPopulation');
+    elseif isempty(g)
+      error('Unable to find %s statistical weight for the evaluation of %s function.\nCheck input file', ...
+        stateAux.name, 'treanorPopulation');
     end
-    if strcmp(state.vibLevel, '0')
-      groundEnergy = state.energy;
-    elseif strcmp(state.vibLevel, '1')
-      firstEnergy = state.energy;
-    end
+    stateAux.population = g*exp(-(v*(E1-E0)*(1/temp1-1/temp0)+(E-E0)/temp0)/Constant.boltzmannInEV);
+    norm = norm + stateAux.population;
   end
-  if isempty(groundEnergy) || isempty(firstEnergy)
-    error(['Unable to find groundEnergy or firstEnergy to populate state %s'...
-      ' and its siblings with function %s.\nCheck input file'], ...
-      stateArray(end).name, stackTrace(1).name);
+  for stateAux = [state state.siblingArray]
+    stateAux.population = stateAux.population/norm;
   end
-  for state = stateArray
-    if isempty(state.energy)
-      error(['Unable to find %s energy for the evaluation of %s function.\n'...
-        'Check input file'], state.name, stackTrace(1).name);
-    elseif isempty(state.statisticalWeight)
-      error(['Unable to find %s statistical weight for the evaluation of %s '...
-        'function.\nCheck input file'], state.name, stackTrace(1).name);
-    end
-    vibLevel = str2double(state.vibLevel);
-    state.population = state.statisticalWeight*exp(...
-      -(1./Constant.boltzmannInEV)*(vibLevel*(firstEnergy-groundEnergy)*...
-      (1/temp1-1/temp0)+(state.energy-groundEnergy)/temp0));
-    norm = norm + state.population;
-  end
-  for state = stateArray
-    state.population = state.population/norm;
-  end
+  
+  population = state.population;
   
 end

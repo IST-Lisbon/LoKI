@@ -19,34 +19,41 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-function stateArray = boltzmannPopulation(stateArray, property, argumentArray)
+function population = boltzmannPopulation(state, argumentArray, workCond)
   % boltzmann (have to be writen)
   
-  [stackTrace, ~] = dbstack;
-  if ~strcmp(property, 'population')
-    error(['Trying to use %s function to set up property %s. Check input '...
-      'file'], stackTrace(1).name, property);
-  end
-  if length(argumentArray) ~= 1
-    error(['Wrong number of arguments when evaluating %s function. Check '...
-      'input file'], stackTrace(1).name)
-  end
-  temperature = argumentArray;
-  norm = 0;
-  for state = stateArray
-    if isempty(state.energy)
-      error(['Unable to find %s energy for the evaluation of %s function.\n'...
-        'Check input file'], state.name, stackTrace(1).name);
-    elseif isempty(state.statisticalWeight)
-      error(['Unable to find %s statistical weight for the evaluation of %s '...
-        'function.\nCheck input file'], state.name, stackTrace(1).name);
+  % obtain temperature of the distribution (either prescribed, i.e. numeric, or found in the working conditions)
+  temperature = argumentArray{1};
+  if ~isnumeric(temperature)
+    switch temperature
+      case 'gasTemperature'
+        temperature = workCond.gasTemperature;
+      case 'electronTemperature'
+        temperature = workCond.electronTemperature;
+      otherwise
+        error(['Error found when evaluating population of state %s.\nTemperature ''%s'' not defined in the ' ...
+          'working conditions.\nPlease, fix the problem and run the code again.'], state.name, temperature);
     end
-    state.population = state.statisticalWeight*exp(...
-      -state.energy/(Constant.boltzmannInEV*temperature));
-    norm = norm + state.population;
   end
-  for state = stateArray
-    state.population = state.population/norm;
+  
+  % evaluate Boltzmann distribution for the state and its siblings
+  norm = 0;
+  for stateAux = [state state.siblingArray]
+    if isempty(stateAux.energy)
+      error(['Unable to find %s energy for the evaluation of ''boltzmannPopulation'' function.\n'...
+        'Check input file'], stateAux.name);
+    elseif isempty(stateAux.statisticalWeight)
+      error(['Unable to find %s statistical weight for the evaluation of ''boltzmannPopulation'' '...
+        'function.\nCheck input file'], stateAux.name);
+    end
+    stateAux.population = stateAux.statisticalWeight*exp(-stateAux.energy/(Constant.boltzmannInEV*temperature));
+    norm = norm + stateAux.population;
   end
+  for stateAux = [state state.siblingArray]
+    stateAux.population = stateAux.population/norm;
+  end
+  
+  % return population of the current state
+  population = state.population;
   
 end

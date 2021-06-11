@@ -27,32 +27,54 @@ classdef State < handle
   
   properties
 
-    ID = -1;                % ID that identifies the state in the state array of
-                            %   a gas
-
-		type = '';              % type of state, options are: 'ele', 'vib', 'rot' or 'ion'
-    ionCharg = [];          % ionic level of the state
-    eleLevel = [];          % electronic level of the state
-		vibLevel = [];          % vibrational level of the state
-		rotLevel = [];          % rotational level of the state
-    name = [];              % name of the state gas(ionCharg,eleLevel,vibLevel,rotLevel)
+    ID = -1;                        % ID that identifies the state in the state array of a gas
+                                    
+    type = '';                      % type of state, options are: 'ele', 'vib', 'rot' or 'ion'
+    ionCharg = [];                  % ionic level of the state
+    eleLevel = [];                  % electronic level of the state
+    vibLevel = [];                  % vibrational level of the state
+    rotLevel = [];                  % rotational level of the state
+    name = [];                      % name of the state gas(ionCharg,eleLevel,vibLevel,rotLevel)
+                                    
+    gas;                            % handle to the gas that the state belongs to (initialized in the subclass)
+    parent;                         % handle to the parent state (e.g. the parent of N2(X,v=0) is -> N2(X)), electronic 
+                                    %  states have no parent) (initicialized in the subclass)
+    siblingArray;                   % handle array to the states with the same parent (e.g. siblings of N2(X) are N2(A),
+                                    %  N2(B), ...) (initicialized in the subclass)
+    childArray;                     % handle array to the child states (e.g. children of N2(X) are N2(X,v=0), N2(X,v=1), 
+                                    %  N2(X,v=2),...) (initicialized in the subclass)
+                                    
+    energy = [];                    % energy of the state
+    energyFunc = [];                % handle to function that evaluates the energy of the state
+    energyParams = {};              % cell array of parameters needed by energyFunc
+                                    
+    statisticalWeight = [];         % statistical weight of the state
+    statisticalWeightFunc = [];     % handle to function that evaluates the statistical weight of the state
+    statisticalWeightParams = {};   % cell array of parameters needed by statisticalWeightFunc
+                                    
+    population = 0;                 % population of the state relative to its siblings
+    populationFunc = [];            % handle to function that evaluates the population 
+    populationParams = {};          % cell array of parameters needed by populationFunc
+                                    
+    density = [];                   % absolute density (relative to the gas density)
+                                    
+    reducedDiffCoeff = [];          % reduced free diffusion coefficient
+    reducedDiffCoeffFunc = [];      % handle to function that evaluates the reduced free diffusion coefficient
+    reducedDiffCoeffParams = {};    % cell array of parameters needed by reducedDiffCoeffFunc
+                                    
+    reducedMobility = [];           % reduced free mobility
+    reducedMobilityFunc = [];       % handle to function that evaluates the reduced free mobility
+    reducedMobilityParams = {};     % cell array of parameters needed by reducedMobillityFunc
     
-		gas;                    % handle to the gas that the state belongs to (initialized in the subclass)
-    parent;                 % handle to the parent state (e.g. the parent of N2(X,v=0) is -> N2(X)), electronic 
-                            %  states have no parent) (initicialized in the subclass)
-    siblingArray;           % handle array to the states with the same parent (e.g. siblings of N2(X) are N2(A),
-                            %  N2(B), ...) (initicialized in the subclass)
-    childArray;             % handle array to the child states (e.g. children of N2(X) are N2(X,v=0), N2(X,v=1), 
-                            %  N2(X,v=2),...) (initicialized in the subclass)
+    gasTemperatureListener = [];    % handle to the listener of changes in gas temperature (working conditions property)
     
-    energy = [];            % energy of the state
-    statisticalWeight = []; % statistical weight of the state
-    population = 0;        % population of the state relative to its siblings
-    density = [];           % absolute density (relative to the gas density)
+  end
+  
+  events
     
   end
 
-  methods
+  methods (Access = public)
     
     function addFamily(state)
       % addFamily find all the relatives of state and stores the
@@ -193,6 +215,82 @@ classdef State < handle
       % mass is an alias function to obtain the mass of a certain state which is the mass of the parent gas
       
       gasMass = state.gas.mass;
+      
+    end
+    
+    function energyLocal = evaluateEnergy(state, workCond)
+      
+      % checks if the property is to be evaluated with a function or a fixed parameter
+      if isempty(state.energyFunc)
+        % return fixed parameter
+        energyLocal = state.energy;
+      else
+        % call function to evaluate the value of the property
+        energyLocal = state.energyFunc(state, state.energyParams, workCond);
+        % save local value in object properties
+        state.energy = energyLocal;
+      end
+      
+    end
+    
+    function statisticalWeightLocal = evaluateStatisticalWeight(state, workCond)
+      
+      % checks if the property is to be evaluated with a function or a fixed parameter
+      if isempty(state.statisticalWeightFunc)
+        % return fixed parameter
+        statisticalWeightLocal = state.statisticalWeight;
+      else
+        % call function to evaluate the value of the property
+        statisticalWeightLocal = state.statisticalWeightFunc(state, state.statisticalWeightParams, workCond);
+        % save local value in object properties
+        state.statisticalWeight = statisticalWeightLocal;
+      end
+      
+    end
+    
+    function populationLocal = evaluatePopulation(state, workCond)
+      
+      % checks if the property is to be evaluated with a function or a fixed parameter
+      if isempty(state.populationFunc)
+        % return fixed parameter
+        populationLocal = state.population;
+      else
+        % call function to evaluate the value of the property
+        populationLocal = state.populationFunc(state, state.populationParams, workCond);
+        % save local value in object properties
+        state.population = populationLocal;
+      end
+      
+    end
+    
+    function reducedDiffCoeffLocal = evaluateReducedDiffCoeff(state, workCond)
+      
+      % checks if the property is to be evaluated with a function or a fixed parameter
+      if isempty(state.reducedDiffCoeffFunc)
+        % return fixed parameter
+        reducedDiffCoeffLocal = state.reducedDiffCoeff;
+      else
+        % call function to evaluate the value of the property
+        reducedDiffCoeffLocal = state.reducedDiffCoeffFunc(state, state.reducedDiffCoeffParams, workCond);
+        % save local value in object properties
+        state.reducedDiffCoeff = reducedDiffCoeffLocal;
+      end
+      
+    end
+    
+    function reducedMobilityLocal = evaluateReducedMobility(state, workCond)
+      
+      % checks if the property is to be evaluated with a function or a fixed parameter
+      if isempty(state.reducedMobilityFunc)
+        % return fixed parameter
+        reducedMobilityLocal = state.reducedMobility;
+      else
+        % call function to evaluate the value of the property
+        reducedMobilityLocal = state.reducedMobilityFunc(state, state.reducedMobilityParams, workCond);
+        % save local value in object properties
+        state.reducedMobility = reducedMobilityLocal;
+      end
+      
     end
     
   end

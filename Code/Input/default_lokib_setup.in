@@ -60,10 +60,10 @@ electronKinetics:
         updateFactor: 0.05             % factor used to increase or decrease the maximum value of the energy grid
     maxPowerBalanceRelError: 1e-9      % threshold for the relative power balance warning message
     nonLinearRoutines:
-      algorithm: mixingDirectSolutions % mixingDirectSolutions or iterativeSolution
+      algorithm: mixingDirectSolutions % mixingDirectSolutions or temporalIntegration
       mixingParameter: 0.7             % mixingDirectSolutions mixing parameter from 0 to 1
       maxEedfRelError: 1e-9            % maximum rel. variation for EEDF between two iterations (stop criterion)
-%	  odeSetParameters:                % optional parameters for the ode solver of the "iterativeSolution" algorithm	           
+%	  odeSetParameters:                % optional parameters for the ode solver of the "temporalIntegration" algorithm	           
 %		MaxStep: 1e-7
           
 % --- configuration of the graphical user interface ---

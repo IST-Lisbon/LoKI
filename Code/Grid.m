@@ -70,8 +70,8 @@ classdef Grid < handle
       grid.cell = ((1:grid.cellNumber)-0.5)*grid.step; 
       
       % broadcast change in the grid
-      notify(grid, 'updatedMaxEnergy1');
-      notify(grid, 'updatedMaxEnergy2');
+      notify(grid, 'updatedMaxEnergy1'); % update interpolations of collision cross-sections
+      notify(grid, 'updatedMaxEnergy2'); % update operators of the Boltzmann equation
     end
 
     function adjustedArray = adjustToGrid(grid, originalArray, threshold, mode)

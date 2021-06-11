@@ -19,30 +19,17 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-function stateArray = rigidRotorEnergy(stateArray, property, ...
-  argumentArray)
+function energy = rigidRotorEnergy(state, ~, ~)
   % rigidRotorEnergy (have to be writen)
   
-  [stackTrace, ~] = dbstack;
-  if ~strcmp(property, 'energy')
-    error(['Trying to use %s function to set up property %s. Check input '...
-      'file'], stackTrace(1).name, property);
+  if ~strcmp(state.type, 'rot')
+    error(['Trying to asign rigid rotor energy to non rotational state %s. Check input file', state.name]);
+  elseif isempty(state.gas.rotationalConstant)
+    error(['Unable to find rotationalConstant to evaluate the energy of the state %s with function ' ...
+      '''rigidRotorEnergy''.\nCheck input file'], state.name);
   end
-  if ~isempty(argumentArray)
-    error(['Wrong number of arguments when evaluating %s function. Check '...
-      'input file'], stackTrace(1).name)
-  end
-  for state = stateArray
-    if ~strcmp(state.type, 'rot')
-      error(['Trying to asign rigid rotor energy to non rotational '...
-        'state %s. Check input file', state.name]);
-    elseif isempty(state.gas.rotationalConstant)
-      error(['Unable to find rotationalConstant to evaluate the energy of '...
-        'the state %s with function %s.\nCheck input file'], state.name, ...
-        stackTrace(1).name);
-    end
-    rotLevel = str2double(state.rotLevel);
-    state.energy = state.gas.rotationalConstant*rotLevel*(rotLevel+1);
-  end
+  
+  J = str2double(state.rotLevel);
+  energy = state.gas.rotationalConstant*J*(J+1);
   
 end

@@ -23,7 +23,7 @@ classdef EedfState < State
   
   properties
     
-    isTarget = false;                 % true if the state is the target of a collision, false otherwise
+    isTarget = false;                 % true if the state is the target of a collision (not extra), false otherwise
     collisionArray = Collision.empty; % handle array to the collisions of which the target is state
     collisionArrayExtra = Collision.empty;
 

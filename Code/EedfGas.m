@@ -55,6 +55,79 @@ classdef EedfGas < Gas
       end
     end
     
+    function checkPopulationNorms(gas)
+      % checkPopulationNorms checks for the population of the different states of the gas to be properly normalised,
+      % i. e. the populations of all sibling states should add to one. This overloaded function avoids "dummy" states,
+      % i. e. states that appear only on as product of a collision or as targets of extra collisions.
+      
+      % avoid gases not present in the mixture
+      if gas.fraction == 0
+        return;
+      end
+      
+      % check norm of electronic/ionic states
+      gasNorm = 0;
+      electronicStatesToBeChecked = true;
+      ionicStatesToBeChecked = true;
+      for state = gas.stateArray
+        % norm of electronic states
+        if strcmp(state.type, 'ele') && electronicStatesToBeChecked
+          for eleState = [state state.siblingArray]
+            if eleState.isTarget && eleState.population ~= 0
+              gasNorm = gasNorm + eleState.population;
+              % check norm of vibrational states (if they exist)
+              if ~isempty(eleState.childArray)
+                vibNorm = 0;
+                for vibState = eleState.childArray
+                  if vibState.isTarget && vibState.population ~= 0
+                    vibNorm = vibNorm + vibState.population;
+                    % check norm of rotational states (if they exist)
+                    if ~isempty(vibState.childArray)
+                      rotNorm = 0;
+                      for rotState = vibState.childArray
+                        if rotState.isTarget && rotState.population ~= 0
+                          rotNorm = rotNorm + rotState.population;
+                        end
+                      end
+                      if abs(rotNorm-1) > 10*eps(1)
+                        stateDistName = vibState.name;
+                        stateDistName = [stateDistName(1:end-1) ',J=*)'];
+                        error('Rotational distribution %s is not properly normalised. (Error = %e)\n', ...
+                          stateDistName, rotNorm-1);
+                      end
+                    end
+                  end
+                end
+                if abs(vibNorm-1) > 10*eps(1)
+                  stateDistName = eleState.name;
+                  stateDistName = [stateDistName(1:end-1) ',v=*)'];
+                  error('Vibrational distribution %s is not properly normalised. (Error = %e)\n', ...
+                    stateDistName, vibNorm-1);
+                end
+              end
+            end
+          end
+          electronicStatesToBeChecked = false;
+        end
+        if strcmp(state.type, 'ion') && ionicStatesToBeChecked
+          for ionState = [state state.siblingArray]
+            if ionState.population ~= 0
+              gasNorm = gasNorm + ionState.population;
+            end
+          end
+          ionicStatesToBeChecked = false;
+        end
+        if ~electronicStatesToBeChecked && ~ionicStatesToBeChecked
+          break;
+        end
+      end
+      if abs(gasNorm-1) > 10*eps(1)
+        stateDistName = [gas.name '(*)'];
+        error('Electronic/ionic distribution %s is not properly normalised. (Error = %e)\n', stateDistName, gasNorm-1);
+      end
+      
+    end
+    
     function checkCARconditions(gas)
     % checkCARconditions checks that the particular gas fulfils the conditions to use the continuous approximation for 
     % rotation: not to have electron collisions defined that causes a rotational transition and to have defined a 
@@ -103,7 +176,7 @@ classdef EedfGas < Gas
           % loop over every electronic state of the gas
           for eleState = [state state.siblingArray]
             % find electronic states with population
-            if eleState.population ~= 0
+            if eleState.isTarget
               % look for an Elastic collision associated with the state
               elasticCollisionNeedsToBeCreated = true;
               for collision = eleState.collisionArray
@@ -225,7 +298,7 @@ classdef EedfGas < Gas
       
       % remove contributions to the effective due to the different collisional mechanisms
       for collision = gas.collisionArray
-        if strcmp(collision.type, 'Effective')
+       if strcmp(collision.type, 'Effective') || strcmp(collision.type, 'Elastic')
           continue
         end
         rawElasticCrossSection(2,:) = rawElasticCrossSection(2,:) - gas.effectivePopulations(collision.target.ID)*...
@@ -247,6 +320,10 @@ classdef EedfGas < Gas
       end
       
     end
+    
+  end
+  
+  methods (Static)
     
   end
   

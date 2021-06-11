@@ -31,6 +31,8 @@ classdef GUI < handle
     solutions = struct.empty;
     eedfGasArray;
     refreshFrequency;
+    evolvingParameter;
+    evolvingParameterPopUpMenuStr;
     
     setupPanel;
     setupTabGroup;
@@ -56,6 +58,10 @@ classdef GUI < handle
     redDiffPlot;
     redMobTab;
     redMobPlot;
+    redDiffEnergyTab;
+    redDiffEnergyPlot;
+    redMobEnergyTab;
+    redMobEnergyPlot;
     energyTab;
     energyPlot;
     redTownsendTab;
@@ -84,10 +90,7 @@ classdef GUI < handle
     swarmParametersInfo;
     rateCoeffTab;
     rateCoeffInfo;
-    lookUpTableTab;
-    lookUpTableInfo;
-    lookUpTableStr;
-    
+
     statusPanel;
     statusTabGroup;
     logTab;
@@ -121,13 +124,25 @@ classdef GUI < handle
       % create electronKinetics related tabs
       switch class(setup.electronKinetics)
         case 'Boltzmann'
-          xLabelText = 'Reduced Field (Td)';
+          if setup.electronKinetics.isTimeDependent
+            xLabelText = 'Time (s)';
+            gui.evolvingParameter = 'currentTime';
+            gui.evolvingParameterPopUpMenuStr = 't = %9.3e (s)';
+          else
+            xLabelText = 'Reduced Field (Td)';
+            gui.evolvingParameter = 'reducedField';
+            gui.evolvingParameterPopUpMenuStr = 'E/N = %9.3e (Td)';
+          end
         case 'PrescribedEedf'
           xLabelText = 'Electron Temperature (eV)';
+          gui.evolvingParameter = 'electronTemperature';
+          gui.evolvingParameterPopUpMenuStr = 'Te = %9.3e (eV)';
       end
       gui.createEedfTab();
       gui.createRedDiffTab(xLabelText);
       gui.createRedMobTab(xLabelText);
+      gui.createRedDiffEnergyTab(xLabelText);
+      gui.createRedMobEnergyTab(xLabelText);
       gui.createEnergyTab(xLabelText);
       gui.createRedTownsendTab(xLabelText);
       gui.createRedAttachmentTab(xLabelText);
@@ -136,8 +151,7 @@ classdef GUI < handle
       gui.createPowerBalanceTab();
       gui.createSwarmParametersTab();
       gui.createRateCoeffTab();
-      gui.createLookUpTableTab();
-      
+
       % display the gui
       drawnow;
       
@@ -225,6 +239,28 @@ classdef GUI < handle
         [0 0 1 0.9], 'Box', 'on', 'XScale', 'log'); 
       xlabel(xLabelText);
       ylabel('Reduced mobility (1/(msV))');
+      hold on;
+      
+    end
+    
+    function createRedDiffEnergyTab(gui, xLabelText)
+      
+      gui.redDiffEnergyTab = uitab('Parent', gui.resultsGraphsTabGroup, 'Title', 'Electron Reduced Energy Diffusion');
+      gui.redDiffEnergyPlot = axes('Parent', gui.redDiffEnergyTab, 'Units', 'normalized', 'OuterPosition', ...
+        [0 0 1 0.9], 'Box', 'on', 'XScale', 'log'); 
+      xlabel(xLabelText);
+      ylabel('Reduced energy diffusion (eV/(ms))');
+      hold on;
+      
+    end
+      
+    function createRedMobEnergyTab(gui, xLabelText)
+      
+      gui.redMobEnergyTab = uitab('Parent', gui.resultsGraphsTabGroup, 'Title', 'Electron Reduced Energy Mobility');
+      gui.redMobEnergyPlot = axes('Parent', gui.redMobEnergyTab, 'Units', 'normalized', 'OuterPosition', ...
+        [0 0 1 0.9], 'Box', 'on', 'XScale', 'log'); 
+      xlabel(xLabelText);
+      ylabel('Reduced energy mobility (eV/(msV))');
       hold on;
       
     end
@@ -342,14 +378,6 @@ classdef GUI < handle
       
     end
     
-    function createLookUpTableTab(gui)
-      
-      gui.lookUpTableTab = uitab('Parent', gui.resultsTextTabGroup, 'Title', 'Look-Up Table');
-      gui.lookUpTableInfo = uicontrol('Parent', gui.lookUpTableTab, 'Style', 'edit', ...
-        'Units', 'normalized', 'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', ...
-        'FontName', 'FixedWidth', 'Fontsize', 10, 'HorizontalAlignment', 'left');
-      
-    end
     
     function newEedf(gui, electronKinetics, ~)
       
@@ -358,12 +386,8 @@ classdef GUI < handle
       
       % save solutions for later use on the gui
       gui.solutions(newSolutionID).eedf = electronKinetics.eedf;
-      switch class(electronKinetics)
-        case 'Boltzmann'
-          gui.solutions(newSolutionID).firstAnisotropy = electronKinetics.firstAnisotropy;
-          inputParameter = 'reducedField';
-        case 'PrescribedEedf'
-          inputParameter = 'electronTemperature';
+      if isa(electronKinetics, 'Boltzmann')
+        gui.solutions(newSolutionID).firstAnisotropy = electronKinetics.firstAnisotropy;
       end
       gui.solutions(newSolutionID).energyValues = electronKinetics.energyGrid.cell;
       gui.solutions(newSolutionID).power = electronKinetics.power;
@@ -373,12 +397,7 @@ classdef GUI < handle
       gui.solutions(newSolutionID).workCond = electronKinetics.workCond.struct;
       
       % add new entry to eedfPopUpMenu
-      switch inputParameter
-        case 'reducedField'
-          newString = sprintf('E/N = %9.3e (Td)', electronKinetics.workCond.reducedField);
-        case 'electronTemperature'
-          newString = sprintf('Te = %9.3e (eV)', electronKinetics.workCond.electronTemperature);
-      end
+      newString = sprintf(gui.evolvingParameterPopUpMenuStr, electronKinetics.workCond.(gui.evolvingParameter));
       if length(gui.eedfPopUpMenu.String) == 1
         newString = [newString; gui.eedfPopUpMenu.String];
       else
@@ -391,12 +410,11 @@ classdef GUI < handle
       
       % update graphs and results panels with the new solution
       gui.addEedfPlot(newSolutionID, 0);
-      gui.updateSwarmParamGraphs(inputParameter);
-      gui.updatePowerGraphs(inputParameter);
+      gui.updateSwarmParamGraphs(gui.evolvingParameter);
+      gui.updatePowerGraphs(gui.evolvingParameter);
       gui.updatePowerBalanceInfo(newSolutionID);
       gui.updateSwarmParamInfo(newSolutionID);
       gui.updateRateCoeffInfo(newSolutionID);
-      gui.addSolutionToLookUpTable(gui.solutions(newSolutionID));
       
       % refresh gui
       if mod(newSolutionID, gui.refreshFrequency) == 0
@@ -432,21 +450,25 @@ classdef GUI < handle
       
     end
     
-    function updateSwarmParamGraphs(gui, inputParameter)
+    function updateSwarmParamGraphs(gui, evolvingParameter)
       
       numberOfSolutions = length(gui.solutions);
       inputParamValues = zeros(1,numberOfSolutions);
       redDiff = zeros(1,numberOfSolutions);
       redMob = zeros(1,numberOfSolutions);
+      redDiffEnergy = zeros(1,numberOfSolutions);
+      redMobEnergy = zeros(1,numberOfSolutions);
       meanE = zeros(1,numberOfSolutions);
       charE = zeros(1,numberOfSolutions);
       redTown = zeros(1,numberOfSolutions);
       redAtt = zeros(1,numberOfSolutions);
       
       for idx = 1:numberOfSolutions
-        inputParamValues(idx) = gui.solutions(idx).workCond.(inputParameter);
+        inputParamValues(idx) = gui.solutions(idx).workCond.(evolvingParameter);
         redDiff(idx) = gui.solutions(idx).swarmParam.redDiffCoeff;
-        redMob(idx) = gui.solutions(idx).swarmParam.redMobCoeff;
+        redMob(idx) = gui.solutions(idx).swarmParam.redMobility;
+        redDiffEnergy(idx) = gui.solutions(idx).swarmParam.redDiffCoeffEnergy;
+        redMobEnergy(idx) = gui.solutions(idx).swarmParam.redMobilityEnergy;
         meanE(idx) = gui.solutions(idx).swarmParam.meanEnergy;
         charE(idx) = gui.solutions(idx).swarmParam.characEnergy;
         redTown(idx) = gui.solutions(idx).swarmParam.redTownsendCoeff;
@@ -455,13 +477,15 @@ classdef GUI < handle
       
       plot(gui.redDiffPlot, inputParamValues, redDiff, 'ko', 'Tag', 'redDiffplot');
       plot(gui.redMobPlot, inputParamValues, redMob, 'ko', 'Tag', 'redMobplot');
+      plot(gui.redDiffEnergyPlot, inputParamValues, redDiffEnergy, 'ko', 'Tag', 'redDiffEnergyplot');
+      plot(gui.redMobEnergyPlot, inputParamValues, redMobEnergy, 'ko', 'Tag', 'redMobEnergyplot');
       plot(gui.energyPlot, inputParamValues, meanE, 'ro', inputParamValues, charE, 'bo', 'Tag', 'meanEplot');
       plot(gui.redTownsendPlot, inputParamValues, redTown, 'ko', 'Tag', 'redTownsendplot');
       plot(gui.redAttachmentPlot, inputParamValues, redAtt, 'ko', 'Tag', 'redAttachmentplot');
       
     end
     
-    function updatePowerGraphs(gui, inputParameter)
+    function updatePowerGraphs(gui, evolvingParameter)
       
       numberOfSolutions = length(gui.solutions);
       inputParamValues = zeros(1,numberOfSolutions);
@@ -482,7 +506,7 @@ classdef GUI < handle
       powerRef = zeros(1,numberOfSolutions);
       
       for idx = 1:numberOfSolutions
-        inputParamValues(idx) = gui.solutions(idx).workCond.(inputParameter);
+        inputParamValues(idx) = gui.solutions(idx).workCond.(evolvingParameter);
         powerField(idx) = gui.solutions(idx).power.field;
         powerElasticGain(idx) = gui.solutions(idx).power.elasticGain;
         powerElasticLoss(idx) = gui.solutions(idx).power.elasticLoss;
@@ -737,15 +761,17 @@ classdef GUI < handle
       reducedField = gui.solutions(solutionID).workCond.reducedField;
       % create information to display
       swarmStr = cell(9);
-      swarmStr{1} = sprintf('         Reduced electric field = %#.3e (Td)', reducedField);
-      swarmStr{2} = sprintf('  Reduced diffusion coefficient = %#.3e (1/(ms))', swarmParam.redDiffCoeff);
-      swarmStr{3} = sprintf('   Reduced mobility coefficient = %#.3e (1/(msV))', swarmParam.redMobCoeff);
-      swarmStr{4} = sprintf('   Reduced Townsend coefficient = %#.3e (m2)', swarmParam.redTownsendCoeff);
-      swarmStr{5} = sprintf(' Reduced attachment coefficient = %#.3e (m2)', swarmParam.redAttCoeff);
-      swarmStr{6} = sprintf('                    Mean energy = %#.3e (eV)', swarmParam.meanEnergy);
-      swarmStr{7} = sprintf('          Characteristic energy = %#.3e (eV)', swarmParam.characEnergy);
-      swarmStr{8} = sprintf('           Electron temperature = %#.3e (eV)', swarmParam.Te);
-      swarmStr{9} = sprintf('                 Drift velocity = %#.3e (m/s)', swarmParam.driftVelocity);
+      swarmStr{1} = sprintf('               Reduced electric field = %#.3e (Td)', reducedField);
+      swarmStr{2} = sprintf('        Reduced diffusion coefficient = %#.3e (1/(ms))', swarmParam.redDiffCoeff);
+      swarmStr{3} = sprintf('                     Reduced mobility = %#.3e (1/(msV))', swarmParam.redMobility);
+      swarmStr{4} = sprintf(' Reduced energy diffusion coefficient = %#.3e (eV/(ms))', swarmParam.redDiffCoeffEnergy);
+      swarmStr{5} = sprintf('              Reduced energy mobility = %#.3e (eV/(msV))', swarmParam.redMobilityEnergy);
+      swarmStr{6} = sprintf('         Reduced Townsend coefficient = %#.3e (m2)', swarmParam.redTownsendCoeff);
+      swarmStr{7} = sprintf('       Reduced attachment coefficient = %#.3e (m2)', swarmParam.redAttCoeff);
+      swarmStr{8} = sprintf('                          Mean energy = %#.3e (eV)', swarmParam.meanEnergy);
+      swarmStr{9} = sprintf('                Characteristic energy = %#.3e (eV)', swarmParam.characEnergy);
+      swarmStr{10} = sprintf('                 Electron temperature = %#.3e (eV)', swarmParam.Te);
+      swarmStr{11} = sprintf('                       Drift velocity = %#.3e (m/s)', swarmParam.driftVelocity);
       
       %update the transportParametersInfo object (uicontrol object)
       set(gui.swarmParametersInfo, 'String', swarmStr);
@@ -800,30 +826,6 @@ classdef GUI < handle
       %update the powerBalanceInfo object (uicontrol object)
       set(gui.rateCoeffInfo, 'String', rateCoeffStr);
     
-    end
-
-    function addSolutionToLookUpTable(gui, newSolution)
-      
-      % initialize look up table string
-      if isempty(gui.lookUpTableStr)
-        gui.lookUpTableStr{1} = ['          Red.Field Red.Diff  Red.Mob   Red.Town  Red.Att   MeanE     CharE     ' ...
-          'EleTemp   Drift.Vel '];
-        gui.lookUpTableStr{2} = ['Run       (Td)      (1/(ms))  (1/(msV)) (m2)      (m2)      (eV)      (eV)      ' ...
-          '(eV)      (m/s)     '];
-        gui.lookUpTableStr{3} = repmat('-', 1,99);
-      end
-      
-      % add new solution to look up table string
-      gui.lookUpTableStr{end+1} = sprintf('%-9d %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e %9.3e', ...
-        length(gui.lookUpTableStr)-2, newSolution.workCond.reducedField, newSolution.swarmParam.redDiffCoeff, ...
-        newSolution.swarmParam.redMobCoeff, newSolution.swarmParam.redTownsendCoeff, ...
-        newSolution.swarmParam.redAttCoeff, newSolution.swarmParam.meanEnergy, newSolution.swarmParam.characEnergy, ...
-        newSolution.swarmParam.Te, newSolution.swarmParam.driftVelocity);
-      
-      % update gui with new summary info
-      set(gui.lookUpTableInfo, 'String', gui.lookUpTableStr);
-      
-      
     end
     
   end
