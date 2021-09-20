@@ -29,6 +29,8 @@ classdef EedfGas < Gas
     
     OPBParameter = [];                % 
     
+    chemEquivalent = ChemGas.empty;
+    
   end
   
   events
@@ -313,7 +315,7 @@ classdef EedfGas < Gas
       
       % check for negative values in the Elastic cross section
       if any(rawElasticCrossSection(2,:)<0)
-        rawElasticCrossSection(rawElasticCrossSection(2,:)<0,2) = 0;
+        rawElasticCrossSection(2,rawElasticCrossSection(2,:)<0) = 0;
         warning(['Negative values obtained when evaluating an Elastic cross section from an Effective one (%s).\n'...
           'Negative values have been clipped to 0 and unreliable results may be obtained.\n'...
           'Please, carefully check inputs and outputs of your simulation'], gas.name);
