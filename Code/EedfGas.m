@@ -29,8 +29,6 @@ classdef EedfGas < Gas
     
     OPBParameter = [];                % 
     
-    chemEquivalent = ChemGas.empty;
-    
   end
   
   events
