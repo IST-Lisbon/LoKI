@@ -37,8 +37,8 @@
    &ensp;&ensp;i. Default configuration files 'default_lokib_setup.in' and 'default_lokib_pulse_setup.in'
    &ensp;&ensp;ii. A subfolder "Databases" with '\*.txt' files, containing different properties (masses, energies of levels, atomic/molecular constants, ...) for the gases used in the simulations.   
    &ensp;&ensp;iii. Several subfolders "Helium", "Nitrogen", ... with '\*.txt' files, containing the electron-scattering cross sections for the different gases used in the simulations, usually obtained from the open-access website LXCat (http://www.lxcat.net/).   
-   &ensp;(c) A subfolder "PropertyFunctions", with several '\*.m' auxiliary functions for calculating the values of universal constants, some predefined distribution of species (Boltzmann, Treanor, ...), the energy of the levels according to some models, etc.
-   &ensp;(d) A subfolder "OtherAuxFunctions", with several '\*.m' auxiliary functions that provide the calculations of other properties, rate coeffcients, working conditions, etc.
+   &ensp;(c) A subfolder "PropertyFunctions", with several '\*.m' auxiliary functions for calculating the values of universal constants, some predefined distribution of species (Boltzmann, Treanor, ...), the energy of the levels according to some models, etc.    
+   &ensp;(d) A subfolder "OtherAuxFunctions", with several '\*.m' auxiliary functions that provide the calculations of other properties, rate coeffcients, working conditions, etc.       
    &ensp;(e) A subfolder "Output" (eventually), where LoKI-B will write the output files resulting from the simulations.
 
 8. How to run LoKI-B ?   
@@ -62,9 +62,9 @@
 9. How to reference the code ?   
    LoKI-B is the result of the efforts of the Portuguese group N-Plasmas Reactive: Modeling and Engineering (N-PRiME), that decided to share the outcome of its research with the members of the Low-Temperature Plasmas community.   
 
-   When using LoKI-B in your work, please give proper credits to the main developers, by adding the following citations:
-   Tejero A et al "The LisbOn KInetics Boltzmann solver" 2019 Plasma Sources Sci. Technol. 28 043001 (https://doi.org/10.1088/1361-6595/ab0537)
-   Tejero A et al "On the quasi-stationary approach to solve the electron Boltzmann equation in pulsed plasmas" 2021 Plasma Sources Sci. Technol. 30 065008 (https://doi.org/10.1088/1361-6595/abf858)
+   When using LoKI-B in your work, please give proper credits to the main developers, by adding the following citations:     
+   [] Tejero A et al "The LisbOn KInetics Boltzmann solver" 2019 Plasma Sources Sci. Technol. 28 043001 (https://doi.org/10.1088/1361-6595/ab0537)       
+   [] Tejero A et al "On the quasi-stationary approach to solve the electron Boltzmann equation in pulsed plasmas" 2021 Plasma Sources Sci. Technol. 30 065008 (https://doi.org/10.1088/1361-6595/abf858)        
    [available as open-access papers]
 
 10. Acknowledgments   
