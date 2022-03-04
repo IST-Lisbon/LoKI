@@ -33,6 +33,7 @@ classdef GUI < handle
     refreshFrequency;
     evolvingParameter;
     evolvingParameterPopUpMenuStr;
+    isSimulationHF;
     
     setupPanel;
     setupTabGroup;
@@ -55,20 +56,35 @@ classdef GUI < handle
     crossSectionPopUpMenu;
     crossSectionClearButton;
     redDiffTab;
+    redDiffLogScaleCheckBoxX;
+    redDiffLogScaleCheckBoxY;
     redDiffPlot;
     redMobTab;
+    redMobLogScaleCheckBoxX;
+    redMobLogScaleCheckBoxY;
     redMobPlot;
     redDiffEnergyTab;
+    redDiffEnergyLogScaleCheckBoxX;
+    redDiffEnergyLogScaleCheckBoxY;
     redDiffEnergyPlot;
     redMobEnergyTab;
+    redMobEnergyLogScaleCheckBoxX;
+    redMobEnergyLogScaleCheckBoxY;
     redMobEnergyPlot;
     energyTab;
+    energyLogScaleCheckBoxX;
+    energyLogScaleCheckBoxY;
     energyPlot;
     redTownsendTab;
+    redTownsendLogScaleCheckBoxX;
+    redTownsendLogScaleCheckBoxY;
     redTownsendPlot;
     redAttachmentTab;
+    redAttachmentLogScaleCheckBoxX;
+    redAttachmentLogScaleCheckBoxY;
     redAttachmentPlot;
     powerTab;
+    powerLogScaleCheckBoxX;
     powerPlot;
     powerFieldColor = [0 0 0];
     powerElasticColor = [1 0 0];
@@ -114,7 +130,10 @@ classdef GUI < handle
       
       % display the setup info in the GUI
       gui.setupFileInfo.String = setup.unparsedInfo;
-      
+
+      % evaluate flag to change the GUI in the case of HF simulations
+      gui.isSimulationHF = setup.workCond.reducedExcFreqSI>0;
+
       % add listener to update the GUI when a new solution for the EEDF is found
       addlistener(setup.electronKinetics, 'obtainedNewEedf', @gui.newEedf);
       % store handle array for all the gases in the electron kinetics
@@ -144,8 +163,10 @@ classdef GUI < handle
       gui.createRedDiffEnergyTab(xLabelText);
       gui.createRedMobEnergyTab(xLabelText);
       gui.createEnergyTab(xLabelText);
-      gui.createRedTownsendTab(xLabelText);
-      gui.createRedAttachmentTab(xLabelText);
+      if ~gui.isSimulationHF
+        gui.createRedTownsendTab(xLabelText);
+        gui.createRedAttachmentTab(xLabelText);
+      end
       gui.createPowerTab(xLabelText);
       gui.createCrossSectionTab();
       gui.createPowerBalanceTab();
@@ -188,7 +209,7 @@ classdef GUI < handle
       gui.statusTabGroup = uitabgroup('Parent', gui.statusPanel);
       gui.logTab = uitab('Parent', gui.statusTabGroup, 'Title', 'Simulation Log');
       gui.logInfo = uicontrol('Parent', gui.logTab, 'Style', 'edit', 'Units', 'normalized', ...
-        'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', 'FontName', 'FixedWidth', ...
+        'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', 'FontName', 'Monospaced', ...
         'Fontsize', 10, 'HorizontalAlignment', 'left');
       
       % create setup panel
@@ -197,7 +218,7 @@ classdef GUI < handle
       gui.setupTabGroup = uitabgroup('Parent', gui.setupPanel);
       gui.setupFileTab = uitab('Parent', gui.setupTabGroup, 'Title', 'Setup file');
       gui.setupFileInfo = uicontrol('Parent', gui.setupFileTab, 'Style', 'edit', 'Units', 'normalized', ...
-        'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', 'FontName', 'FixedWidth', ...
+        'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', 'FontName', 'Monospaced', ...
         'Fontsize', 10, 'HorizontalAlignment', 'left');
       
     end
@@ -224,6 +245,10 @@ classdef GUI < handle
     function createRedDiffTab(gui, xLabelText)
       
       gui.redDiffTab = uitab('Parent', gui.resultsGraphsTabGroup, 'Title', 'Electron Reduced Diffusion');
+      gui.redDiffLogScaleCheckBoxX = uicontrol('Parent', gui.redDiffTab, 'Style', 'checkbox', 'Units', 'normalized', ...
+        'Position', [0.75 0.90 0.3 0.05], 'String', 'X axis logscale', 'Value', 1, 'Callback', @gui.changeRedDiffXScale);
+      gui.redDiffLogScaleCheckBoxY = uicontrol('Parent', gui.redDiffTab, 'Style', 'checkbox', 'Units', 'normalized', ...
+        'Position', [0.75 0.85 0.3 0.05], 'String', 'Y axis logscale', 'Value', 0, 'Callback', @gui.changeRedDiffYScale);
       gui.redDiffPlot = axes('Parent', gui.redDiffTab, 'Units', 'normalized', 'OuterPosition', ...
         [0 0 1 0.9], 'Box', 'on', 'XScale', 'log'); 
       xlabel(xLabelText);
@@ -235,6 +260,18 @@ classdef GUI < handle
     function createRedMobTab(gui, xLabelText)
       
       gui.redMobTab = uitab('Parent', gui.resultsGraphsTabGroup, 'Title', 'Electron Reduced Mobility');
+      if gui.isSimulationHF
+        uicontrol('Parent', gui.redMobTab, 'Style', 'text', 'Units', 'normalized', 'Position', [0.20 0.85 0.15 0.05], ...
+          'HorizontalAlignment', 'left', 'ForegroundColor', 'black', 'String', 'DC reduced mobility');
+        uicontrol('Parent', gui.redMobTab, 'Style', 'text', 'Units', 'normalized', 'Position', [0.36 0.85 0.15 0.05], ...
+          'HorizontalAlignment', 'left', 'ForegroundColor', 'red', 'String', 'Re[HF reduced mobility]');
+        uicontrol('Parent', gui.redMobTab, 'Style', 'text', 'Units', 'normalized', 'Position', [0.52 0.85 0.15 0.05], ...
+          'HorizontalAlignment', 'left', 'ForegroundColor', 'blue', 'String', '-Im[HF reduced mobility]');
+      end
+      gui.redMobLogScaleCheckBoxX = uicontrol('Parent', gui.redMobTab, 'Style', 'checkbox', 'Units', 'normalized', ...
+        'Position', [0.75 0.90 0.3 0.05], 'String', 'X axis logscale', 'Value', 1, 'Callback', @gui.changeRedMobXScale);
+      gui.redMobLogScaleCheckBoxY = uicontrol('Parent', gui.redMobTab, 'Style', 'checkbox', 'Units', 'normalized', ...
+        'Position', [0.75 0.85 0.3 0.05], 'String', 'Y axis logscale', 'Value', 0, 'Callback', @gui.changeRedMobYScale);
       gui.redMobPlot = axes('Parent', gui.redMobTab, 'Units', 'normalized', 'OuterPosition', ...
         [0 0 1 0.9], 'Box', 'on', 'XScale', 'log'); 
       xlabel(xLabelText);
@@ -246,6 +283,12 @@ classdef GUI < handle
     function createRedDiffEnergyTab(gui, xLabelText)
       
       gui.redDiffEnergyTab = uitab('Parent', gui.resultsGraphsTabGroup, 'Title', 'Electron Reduced Energy Diffusion');
+      gui.redDiffEnergyLogScaleCheckBoxX = uicontrol('Parent', gui.redDiffEnergyTab, 'Style', 'checkbox', 'Units', ...
+        'normalized', 'Position', [0.75 0.90 0.3 0.05], 'String', 'X axis logscale', 'Value', 1, 'Callback', ...
+        @gui.changeRedDiffEnergyXScale);
+      gui.redDiffEnergyLogScaleCheckBoxY = uicontrol('Parent', gui.redDiffEnergyTab, 'Style', 'checkbox', 'Units', ...
+        'normalized', 'Position', [0.75 0.85 0.3 0.05], 'String', 'Y axis logscale', 'Value', 0, 'Callback', ...
+        @gui.changeRedDiffEnergyYScale);
       gui.redDiffEnergyPlot = axes('Parent', gui.redDiffEnergyTab, 'Units', 'normalized', 'OuterPosition', ...
         [0 0 1 0.9], 'Box', 'on', 'XScale', 'log'); 
       xlabel(xLabelText);
@@ -257,6 +300,12 @@ classdef GUI < handle
     function createRedMobEnergyTab(gui, xLabelText)
       
       gui.redMobEnergyTab = uitab('Parent', gui.resultsGraphsTabGroup, 'Title', 'Electron Reduced Energy Mobility');
+      gui.redMobEnergyLogScaleCheckBoxX = uicontrol('Parent', gui.redMobEnergyTab, 'Style', 'checkbox', 'Units', ...
+        'normalized', 'Position', [0.75 0.90 0.3 0.05], 'String', 'X axis logscale', 'Value', 1, 'Callback', ...
+        @gui.changeRedMobEnergyXScale);
+      gui.redMobEnergyLogScaleCheckBoxY = uicontrol('Parent', gui.redMobEnergyTab, 'Style', 'checkbox', 'Units', ...
+        'normalized', 'Position', [0.75 0.85 0.3 0.05], 'String', 'Y axis logscale', 'Value', 0, 'Callback', ...
+        @gui.changeRedMobEnergyYScale);
       gui.redMobEnergyPlot = axes('Parent', gui.redMobEnergyTab, 'Units', 'normalized', 'OuterPosition', ...
         [0 0 1 0.9], 'Box', 'on', 'XScale', 'log'); 
       xlabel(xLabelText);
@@ -268,10 +317,14 @@ classdef GUI < handle
     function createEnergyTab(gui, xLabelText)
       
       gui.energyTab = uitab('Parent', gui.resultsGraphsTabGroup, 'Title', 'Electron Energies');
-      uicontrol('Parent', gui.energyTab, 'Style', 'text', 'Units', 'normalized', 'Position', [0.15 0.85 0.1 0.05], ...
-        'HorizontalAlignment', 'left', 'ForegroundColor', 'red', 'String', 'Mean Energy');
-      uicontrol('Parent', gui.energyTab, 'Style', 'text', 'Units', 'normalized', 'Position', [0.26 0.85 0.15 0.05], ...
+      uicontrol('Parent', gui.energyTab, 'Style', 'text', 'Units', 'normalized', 'Position', [0.15 0.85 0.15 0.05], ...
+        'HorizontalAlignment', 'left', 'ForegroundColor', 'red', 'String', 'Electron Temperature');
+      uicontrol('Parent', gui.energyTab, 'Style', 'text', 'Units', 'normalized', 'Position', [0.31 0.85 0.15 0.05], ...
         'HorizontalAlignment', 'left', 'ForegroundColor', 'blue', 'String', 'Characteristic Energy');
+      gui.energyLogScaleCheckBoxX = uicontrol('Parent', gui.energyTab, 'Style', 'checkbox', 'Units', 'normalized', ...
+        'Position', [0.75 0.90 0.3 0.05], 'String', 'X axis logscale', 'Value', 1, 'Callback', @gui.changeEnergyXScale);
+      gui.energyLogScaleCheckBoxY = uicontrol('Parent', gui.energyTab, 'Style', 'checkbox', 'Units', 'normalized', ...
+        'Position', [0.75 0.85 0.3 0.05], 'String', 'Y axis logscale', 'Value', 0, 'Callback', @gui.changeEnergyYScale);
       gui.energyPlot = axes('Parent', gui.energyTab, 'Units', 'normalized', 'OuterPosition', ...
         [0 0 1 0.9], 'Box', 'on', 'XScale', 'log');
       xlabel(xLabelText);
@@ -283,6 +336,12 @@ classdef GUI < handle
     function createRedTownsendTab(gui,xLabelText)
       
       gui.redTownsendTab = uitab('Parent', gui.resultsGraphsTabGroup, 'Title', 'Townsend Coefficient');
+      gui.redTownsendLogScaleCheckBoxX = uicontrol('Parent', gui.redTownsendTab, 'Style', 'checkbox', 'Units', ...
+        'normalized', 'Position', [0.75 0.90 0.3 0.05], 'String', 'X axis logscale', 'Value', 1, 'Callback', ...
+        @gui.changeRedTownsendXScale);
+      gui.redTownsendLogScaleCheckBoxY = uicontrol('Parent', gui.redTownsendTab, 'Style', 'checkbox', 'Units', ...
+        'normalized', 'Position', [0.75 0.85 0.3 0.05], 'String', 'Y axis logscale', 'Value', 1, 'Callback', ...
+        @gui.changeRedTownsendYScale);
       gui.redTownsendPlot = axes('Parent', gui.redTownsendTab, 'Units', 'normalized', 'OuterPosition', ...
         [0 0 1 0.9], 'Box', 'on', 'XScale', 'log', 'YScale', 'log'); 
       xlabel(xLabelText);
@@ -294,6 +353,12 @@ classdef GUI < handle
     function createRedAttachmentTab(gui, xLabelText)
       
       gui.redAttachmentTab = uitab('Parent', gui.resultsGraphsTabGroup, 'Title', 'Attachment Coefficient');
+      gui.redAttachmentLogScaleCheckBoxX = uicontrol('Parent', gui.redAttachmentTab, 'Style', 'checkbox', 'Units', ...
+        'normalized', 'Position', [0.75 0.90 0.3 0.05], 'String', 'X axis logscale', 'Value', 1, 'Callback', ...
+        @gui.changeRedAttachmentXScale);
+      gui.redAttachmentLogScaleCheckBoxY = uicontrol('Parent', gui.redAttachmentTab, 'Style', 'checkbox', 'Units', ...
+        'normalized', 'Position', [0.75 0.85 0.3 0.05], 'String', 'Y axis logscale', 'Value', 1, 'Callback', ...
+        @gui.changeRedAttachmentYScale);
       gui.redAttachmentPlot = axes('Parent', gui.redAttachmentTab, 'Units', 'normalized', 'OuterPosition', ...
         [0 0 1 0.9], 'Box', 'on', 'XScale', 'log', 'YScale', 'log'); 
       xlabel(xLabelText);
@@ -323,6 +388,9 @@ classdef GUI < handle
         'HorizontalAlignment', 'left', 'ForegroundColor', gui.powerAttColor, 'String', 'Attachment');
       uicontrol('Parent', gui.powerTab, 'Style', 'text', 'Units', 'normalized', 'Position', [0.85 0.85 0.1 0.05], ...
         'HorizontalAlignment', 'left', 'ForegroundColor', gui.powerGrowthColor, 'String', 'Growth');
+      gui.powerLogScaleCheckBoxX = uicontrol('Parent', gui.powerTab, 'Style', 'checkbox', 'Units', ...
+        'normalized', 'Position', [0.75 0.90 0.3 0.05], 'String', 'X axis logscale', 'Value', 1, 'Callback', ...
+        @gui.changePowerXScale);
       gui.powerPlot = axes('Parent', gui.powerTab, 'Units', 'normalized', 'OuterPosition', ...
         [0 0 1 0.9], 'Box', 'on', 'XScale', 'log'); 
       xlabel(xLabelText);
@@ -355,7 +423,7 @@ classdef GUI < handle
       
       gui.powerBalanceTab = uitab('Parent', gui.resultsTextTabGroup, 'Title', 'Power Balance');
       gui.powerBalanceInfo = uicontrol('Parent', gui.powerBalanceTab, 'Style', 'edit', 'Units', 'normalized', ...
-        'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', 'FontName', 'FixedWidth', ...
+        'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', 'FontName', 'Monospaced', ...
         'Fontsize', 10, 'HorizontalAlignment', 'left');
       
     end
@@ -365,7 +433,7 @@ classdef GUI < handle
       gui.swarmParametersTab = uitab('Parent', gui.resultsTextTabGroup, 'Title', 'Swarm Parameters');
       gui.swarmParametersInfo = uicontrol('Parent', gui.swarmParametersTab, 'Style', 'edit', ...
         'Units', 'normalized', 'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', ...
-        'FontName', 'FixedWidth', 'Fontsize', 10, 'HorizontalAlignment', 'left');
+        'FontName', 'Monospaced', 'Fontsize', 10, 'HorizontalAlignment', 'left');
       
     end
     
@@ -374,10 +442,9 @@ classdef GUI < handle
       gui.rateCoeffTab = uitab('Parent', gui.resultsTextTabGroup, 'Title', 'Rate Coefficients');
       gui.rateCoeffInfo = uicontrol('Parent', gui.rateCoeffTab, 'Style', 'edit', ...
         'Units', 'normalized', 'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', ...
-        'FontName', 'FixedWidth', 'Fontsize', 10, 'HorizontalAlignment', 'left');
+        'FontName', 'Monospaced', 'Fontsize', 10, 'HorizontalAlignment', 'left');
       
     end
-    
     
     function newEedf(gui, electronKinetics, ~)
       
@@ -456,9 +523,10 @@ classdef GUI < handle
       inputParamValues = zeros(1,numberOfSolutions);
       redDiff = zeros(1,numberOfSolutions);
       redMob = zeros(1,numberOfSolutions);
+      redMobHF = zeros(1,numberOfSolutions);
       redDiffEnergy = zeros(1,numberOfSolutions);
       redMobEnergy = zeros(1,numberOfSolutions);
-      meanE = zeros(1,numberOfSolutions);
+      Te = zeros(1,numberOfSolutions);
       charE = zeros(1,numberOfSolutions);
       redTown = zeros(1,numberOfSolutions);
       redAtt = zeros(1,numberOfSolutions);
@@ -467,24 +535,212 @@ classdef GUI < handle
         inputParamValues(idx) = gui.solutions(idx).workCond.(evolvingParameter);
         redDiff(idx) = gui.solutions(idx).swarmParam.redDiffCoeff;
         redMob(idx) = gui.solutions(idx).swarmParam.redMobility;
+        if ~isempty(gui.solutions(idx).swarmParam.redMobilityHF)
+          redMobHF(idx) = gui.solutions(idx).swarmParam.redMobilityHF;
+        end
         redDiffEnergy(idx) = gui.solutions(idx).swarmParam.redDiffCoeffEnergy;
         redMobEnergy(idx) = gui.solutions(idx).swarmParam.redMobilityEnergy;
-        meanE(idx) = gui.solutions(idx).swarmParam.meanEnergy;
+        Te(idx) = gui.solutions(idx).swarmParam.Te;
         charE(idx) = gui.solutions(idx).swarmParam.characEnergy;
         redTown(idx) = gui.solutions(idx).swarmParam.redTownsendCoeff;
         redAtt(idx) = gui.solutions(idx).swarmParam.redAttCoeff;
       end
       
       plot(gui.redDiffPlot, inputParamValues, redDiff, 'ko', 'Tag', 'redDiffplot');
-      plot(gui.redMobPlot, inputParamValues, redMob, 'ko', 'Tag', 'redMobplot');
+      if gui.isSimulationHF
+        plot(gui.redMobPlot, inputParamValues, redMob, 'ko', inputParamValues, real(redMobHF), 'ro', ...
+          inputParamValues, -imag(redMobHF), 'bo', 'Tag', 'redMobplot');
+      else
+        plot(gui.redMobPlot, inputParamValues, redMob, 'ko', 'Tag', 'redMobplot');
+        plot(gui.redTownsendPlot, inputParamValues, redTown, 'ko', 'Tag', 'redTownsendplot');
+        plot(gui.redAttachmentPlot, inputParamValues, redAtt, 'ko', 'Tag', 'redAttachmentplot');
+      end
       plot(gui.redDiffEnergyPlot, inputParamValues, redDiffEnergy, 'ko', 'Tag', 'redDiffEnergyplot');
       plot(gui.redMobEnergyPlot, inputParamValues, redMobEnergy, 'ko', 'Tag', 'redMobEnergyplot');
-      plot(gui.energyPlot, inputParamValues, meanE, 'ro', inputParamValues, charE, 'bo', 'Tag', 'meanEplot');
-      plot(gui.redTownsendPlot, inputParamValues, redTown, 'ko', 'Tag', 'redTownsendplot');
-      plot(gui.redAttachmentPlot, inputParamValues, redAtt, 'ko', 'Tag', 'redAttachmentplot');
+      plot(gui.energyPlot, inputParamValues, Te, 'ro', inputParamValues, charE, 'bo', 'Tag', 'meanEplot');
       
     end
     
+    function changeRedDiffXScale(gui, ~, ~)
+    % changeRedDiffXScale is the callback function of the checkbox "redDiffLogScaleCheckBoxX", it sets the x axis of the 
+    % reduced diffusion plot as linear or logscale acording to the value of the checkbox.
+      
+      if get(gui.redDiffLogScaleCheckBoxX, 'Value')
+        set(gui.redDiffPlot, 'XScale', 'log');
+      else
+        set(gui.redDiffPlot, 'XScale', 'linear');
+      end
+      
+    end
+
+    function changeRedDiffYScale(gui, ~, ~)
+    % changeRedDiffYScale is the callback function of the checkbox "redDiffLogScaleCheckBoxY", it sets the y axis of the
+    % reduced diffusion plot as linear or logscale acording to the value of the checkbox.
+
+      if get(gui.redDiffLogScaleCheckBoxY, 'Value')
+        set(gui.redDiffPlot, 'YScale', 'log');
+      else
+        set(gui.redDiffPlot, 'YScale', 'linear');
+      end
+
+    end
+
+    function changeRedMobXScale(gui, ~, ~)
+    % changeRedMobXScale is the callback function of the checkbox "redMobLogScaleCheckBoxX", it sets the x axis of the 
+    % reduced mobility plot as linear or logscale acording to the value of the checkbox.
+      
+      if get(gui.redMobLogScaleCheckBoxX, 'Value')
+        set(gui.redMobPlot, 'XScale', 'log');
+      else
+        set(gui.redMobPlot, 'XScale', 'linear');
+      end
+      
+    end
+
+    function changeRedMobYScale(gui, ~, ~)
+    % changeRedMobYScale is the callback function of the checkbox "redMobLogScaleCheckBoxY", it sets the y axis of the
+    % reduced mobility plot as linear or logscale acording to the value of the checkbox.
+
+      if get(gui.redMobLogScaleCheckBoxY, 'Value')
+        set(gui.redMobPlot, 'YScale', 'log');
+      else
+        set(gui.redMobPlot, 'YScale', 'linear');
+      end
+
+    end
+
+    function changeRedDiffEnergyXScale(gui, ~, ~)
+    % changeRedDiffEnergyXScale is the callback function of the checkbox "redDiffEnergyLogScaleCheckBoxX", it sets the 
+    % x axis of the reduced diffusion energy plot as linear or logscale acording to the value of the checkbox.
+      
+      if get(gui.redDiffEnergyLogScaleCheckBoxX, 'Value')
+        set(gui.redDiffEnergyPlot, 'XScale', 'log');
+      else
+        set(gui.redDiffEnergyPlot, 'XScale', 'linear');
+      end
+      
+    end
+
+    function changeRedDiffEnergyYScale(gui, ~, ~)
+    % changeRedDiffEnergyYScale is the callback function of the checkbox "redDiffEnergyLogScaleCheckBoxY", it sets the 
+    % y axis of the reduced diffusion energy plot as linear or logscale acording to the value of the checkbox.
+
+      if get(gui.redDiffEnergyLogScaleCheckBoxY, 'Value')
+        set(gui.redDiffEnergyPlot, 'YScale', 'log');
+      else
+        set(gui.redDiffEnergyPlot, 'YScale', 'linear');
+      end
+
+    end
+
+    function changeRedMobEnergyXScale(gui, ~, ~)
+    % changeRedMobEnergyXScale is the callback function of the checkbox "redMobEnergyLogScaleCheckBoxX", it sets the 
+    % x axis of the reduced mobility energy plot as linear or logscale acording to the value of the checkbox.
+      
+      if get(gui.redMobEnergyLogScaleCheckBoxX, 'Value')
+        set(gui.redMobEnergyPlot, 'XScale', 'log');
+      else
+        set(gui.redMobEnergyPlot, 'XScale', 'linear');
+      end
+      
+    end
+
+    function changeRedMobEnergyYScale(gui, ~, ~)
+    % changeRedMobEnergyYScale is the callback function of the checkbox "redMobEnergyLogScaleCheckBoxY", it sets the 
+    % y axis of the reduced mobility energy plot as linear or logscale acording to the value of the checkbox.
+
+      if get(gui.redMobEnergyLogScaleCheckBoxY, 'Value')
+        set(gui.redMobEnergyPlot, 'YScale', 'log');
+      else
+        set(gui.redMobEnergyPlot, 'YScale', 'linear');
+      end
+
+    end
+
+    function changeEnergyXScale(gui, ~, ~)
+    % changeEnergyXScale is the callback function of the checkbox "energyLogScaleCheckBoxX", it sets the x axis of the 
+    % energy plot as linear or logscale acording to the value of the checkbox.
+      
+      if get(gui.energyLogScaleCheckBoxX, 'Value')
+        set(gui.energyPlot, 'XScale', 'log');
+      else
+        set(gui.energyPlot, 'XScale', 'linear');
+      end
+      
+    end
+
+    function changeEnergyYScale(gui, ~, ~)
+    % changeEnergyYScale is the callback function of the checkbox "energyLogScaleCheckBoxY", it sets the y axis of the 
+    % energy plot as linear or logscale acording to the value of the checkbox.
+      
+      if get(gui.energyLogScaleCheckBoxY, 'Value')
+        set(gui.energyPlot, 'YScale', 'log');
+      else
+        set(gui.energyPlot, 'YScale', 'linear');
+      end
+      
+    end
+
+    function changeRedTownsendXScale(gui, ~, ~)
+    % changeRedTownsendXScale is the callback function of the checkbox "redTownsendLogScaleCheckBoxX", it sets the x 
+    % axis of the reduced Townsend plot as linear or logscale acording to the value of the checkbox.
+      
+      if get(gui.redTownsendLogScaleCheckBoxX, 'Value')
+        set(gui.redTownsendPlot, 'XScale', 'log');
+      else
+        set(gui.redTownsendPlot, 'XScale', 'linear');
+      end
+      
+    end
+
+    function changeRedTownsendYScale(gui, ~, ~)
+    % changeRedTownsendYScale is the callback function of the checkbox "redTownsendLogScaleCheckBoxY", it sets the y 
+    % axis of the reduced Townsend plot as linear or logscale acording to the value of the checkbox.
+
+      if get(gui.redTownsendLogScaleCheckBoxY, 'Value')
+        set(gui.redTownsendPlot, 'YScale', 'log');
+      else
+        set(gui.redTownsendPlot, 'YScale', 'linear');
+      end
+
+    end
+
+    function changeRedAttachmentXScale(gui, ~, ~)
+    % changeRedAttachmentXScale is the callback function of the checkbox "redAttachmentLogScaleCheckBoxX", it sets the x 
+    % axis of the reduced Townsend plot as linear or logscale acording to the value of the checkbox.
+      
+      if get(gui.redAttachmentLogScaleCheckBoxX, 'Value')
+        set(gui.redAttachmentPlot, 'XScale', 'log');
+      else
+        set(gui.redAttachmentPlot, 'XScale', 'linear');
+      end
+      
+    end
+
+    function changeRedAttachmentYScale(gui, ~, ~)
+    % changeRedAttachmentYScale is the callback function of the checkbox "redAttachmentLogScaleCheckBoxY", it sets the y 
+    % axis of the reduced Townsend plot as linear or logscale acording to the value of the checkbox.
+
+      if get(gui.redAttachmentLogScaleCheckBoxY, 'Value')
+        set(gui.redAttachmentPlot, 'YScale', 'log');
+      else
+        set(gui.redAttachmentPlot, 'YScale', 'linear');
+      end
+
+    end
+
+    function changePowerXScale(gui, ~, ~)
+    % changePowerXScale is the callback function of the checkbox "powerLogScaleCheckBoxX", it sets the x 
+    % axis of the power plot as linear or logscale acording to the value of the checkbox.
+      
+      if get(gui.powerLogScaleCheckBoxX, 'Value')
+        set(gui.powerPlot, 'XScale', 'log');
+      else
+        set(gui.powerPlot, 'XScale', 'linear');
+      end
+      
+    end
+
     function updatePowerGraphs(gui, evolvingParameter)
       
       numberOfSolutions = length(gui.solutions);
@@ -760,18 +1016,23 @@ classdef GUI < handle
       swarmParam = gui.solutions(solutionID).swarmParam;
       reducedField = gui.solutions(solutionID).workCond.reducedField;
       % create information to display
-      swarmStr = cell(9);
-      swarmStr{1} = sprintf('               Reduced electric field = %#.3e (Td)', reducedField);
-      swarmStr{2} = sprintf('        Reduced diffusion coefficient = %#.3e (1/(ms))', swarmParam.redDiffCoeff);
-      swarmStr{3} = sprintf('                     Reduced mobility = %#.3e (1/(msV))', swarmParam.redMobility);
-      swarmStr{4} = sprintf(' Reduced energy diffusion coefficient = %#.3e (eV/(ms))', swarmParam.redDiffCoeffEnergy);
-      swarmStr{5} = sprintf('              Reduced energy mobility = %#.3e (eV/(msV))', swarmParam.redMobilityEnergy);
-      swarmStr{6} = sprintf('         Reduced Townsend coefficient = %#.3e (m2)', swarmParam.redTownsendCoeff);
-      swarmStr{7} = sprintf('       Reduced attachment coefficient = %#.3e (m2)', swarmParam.redAttCoeff);
-      swarmStr{8} = sprintf('                          Mean energy = %#.3e (eV)', swarmParam.meanEnergy);
-      swarmStr{9} = sprintf('                Characteristic energy = %#.3e (eV)', swarmParam.characEnergy);
-      swarmStr{10} = sprintf('                 Electron temperature = %#.3e (eV)', swarmParam.Te);
-      swarmStr{11} = sprintf('                       Drift velocity = %#.3e (m/s)', swarmParam.driftVelocity);
+      swarmStr = cell(0);
+      swarmStr{end+1} = sprintf('               Reduced electric field = %#.3e (Td)', reducedField);
+      swarmStr{end+1} = sprintf('        Reduced diffusion coefficient = %#.3e (1/(ms))', swarmParam.redDiffCoeff);
+      swarmStr{end+1} = sprintf('                     Reduced mobility = %#.3e (1/(msV))', swarmParam.redMobility);
+      if gui.isSimulationHF
+        swarmStr{end+1} = sprintf('                  Reduced mobility HF = %#.3e%+#.3ei (1/(msV))', ...
+          real(swarmParam.redMobilityHF), imag(swarmParam.redMobilityHF));
+      else
+        swarmStr{end+1} = sprintf('                       Drift velocity = %#.3e (m/s)', swarmParam.driftVelocity);
+        swarmStr{end+1} = sprintf('         Reduced Townsend coefficient = %#.3e (m2)', swarmParam.redTownsendCoeff);
+        swarmStr{end+1} = sprintf('       Reduced attachment coefficient = %#.3e (m2)', swarmParam.redAttCoeff);
+      end
+      swarmStr{end+1} = sprintf(' Reduced energy diffusion coefficient = %#.3e (eV/(ms))', swarmParam.redDiffCoeffEnergy);
+      swarmStr{end+1} = sprintf('              Reduced energy mobility = %#.3e (eV/(msV))', swarmParam.redMobilityEnergy);
+      swarmStr{end+1} = sprintf('                          Mean energy = %#.3e (eV)', swarmParam.meanEnergy);
+      swarmStr{end+1} = sprintf('                Characteristic energy = %#.3e (eV)', swarmParam.characEnergy);
+      swarmStr{end+1} = sprintf('                 Electron temperature = %#.3e (eV)', swarmParam.Te);
       
       %update the transportParametersInfo object (uicontrol object)
       set(gui.swarmParametersInfo, 'String', swarmStr);

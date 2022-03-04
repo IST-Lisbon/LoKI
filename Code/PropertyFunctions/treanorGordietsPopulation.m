@@ -34,7 +34,7 @@ function population = treanorGordietsPopulation(state, argumentArray, workCond)
       case 'gasTemperature'
         temp0 = workCond.gasTemperature;
       case 'electronTemperature'
-        temp0 = workCond.electronTemperature;
+        temp0 = workCond.electronTemperature/Constant.boltzmannInEV;
       otherwise
         error(['Error found when evaluating population of state %s.\nTemperature ''%s'' not defined in the ' ...
           'working conditions.\nPlease, fix the problem and run the code again.'], state.name, temp0);
@@ -45,7 +45,7 @@ function population = treanorGordietsPopulation(state, argumentArray, workCond)
       case 'gasTemperature'
         temp1 = workCond.gasTemperature;
       case 'electronTemperature'
-        temp1 = workCon.electronTemperature;
+        temp1 = workCond.electronTemperature/Constant.boltzmannInEV;
       otherwise
         error(['Error found when evaluating population of state %s.\nTemperature ''%s'' not defined in the ' ...
           'working conditions.\nPlease, fix the problem and run the code again.'], state.name, temp1);

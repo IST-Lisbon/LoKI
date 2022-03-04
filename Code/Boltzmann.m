@@ -1299,7 +1299,8 @@ classdef Boltzmann < handle
       e0 = Constant.vacuumPermittivity;           % vacuum permitivity (SI units)
       ne = boltzmann.workCond.electronDensity;    % electron density (SI units)
       n0 = boltzmann.workCond.gasDensity;         % gas density (SI units)
-      EoN = boltzmann.workCond.reducedField;      % reduced electric field (Td)
+      EoN = boltzmann.workCond.reducedFieldSI;    % reduced electric field (SI units)
+      EoNTd = boltzmann.workCond.reducedField;    % reduced electric field (Td)
       
       energyCell = boltzmann.energyGrid.cell;
       energyStep = boltzmann.energyGrid.step;
@@ -1394,7 +1395,7 @@ classdef Boltzmann < handle
           end
           if abs(ratio)>1e-9 && iter>200
             fprintf('e-e iterative scheme: EEDF has converged but the abs(ratio)=abs(Pee/Pref)= %.16g > 1e-9\n',ratio);
-            fprintf('Ionization degree:%f \t Reduced electric field:%f Td \n',ne/n0,EoN);
+            fprintf('Ionization degree:%f \t Reduced electric field:%f Td \n',ne/n0,EoNTd);
             conve = 1;
           end
         elseif iter == 300 && isempty(boltzmann.eDensGrowthModel)
@@ -1693,8 +1694,9 @@ classdef Boltzmann < handle
       end
       
       % initialize transport parameters structure
-      swarmParam = struct('redDiffCoeff', [], 'redMobility', [], 'redDiffCoeffEnergy', [], 'redMobilityEnergy', [], ...
-        'redTownsendCoeff', [], 'redAttCoeff', [], 'meanEnergy', [], 'characEnergy', [], 'Te', [], 'driftVelocity', []);
+      swarmParam = struct('redDiffCoeff', [], 'redMobility', [], 'redMobilityHF', [], 'redDiffCoeffEnergy', [], ...
+        'redMobilityEnergy', [], 'redTownsendCoeff', [], 'redAttCoeff', [], 'meanEnergy', [], 'characEnergy', [], ...
+        'Te', [], 'driftVelocity', []);
       
       % evaluate reduced diffusion coefficient
       swarmParam.redDiffCoeff = 2*factor*energyStep*sum(energyCell.*eedfLocal./...
@@ -1702,8 +1704,17 @@ classdef Boltzmann < handle
       
       % evaluate reduced mobility
       swarmParam.redMobility = -factor*sum(energyNode(2:end-1).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
-        (totalCrossSectionAux(2:end-1)+me*boltzmann.workCond.reducedExcFreqSI^2./(2*e*energyNode(2:end-1).*...
-        totalCrossSectionAux(2:end-1))));
+        (totalCrossSectionAux(2:end-1)));
+
+      % evaluate complex HF reduced mobility (in case the excitation frequency is not zero)
+      WoN = boltzmann.workCond.reducedExcFreqSI;
+      if WoN ~= 0
+        swarmParam.redMobilityHF = -factor*sum(energyNode(2:end-1).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
+          (totalCrossSectionAux(2:end-1)+me*WoN^2./(2*e*energyNode(2:end-1).*totalCrossSectionAux(2:end-1))));
+        swarmParam.redMobilityHF = swarmParam.redMobilityHF + 1i*(1/3)*sum(sqrt(energyNode(2:end-1)).*...
+          (WoN./totalCrossSectionAux(2:end-1)).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
+          (totalCrossSectionAux(2:end-1)+me*WoN^2./(2*e*energyNode(2:end-1).*totalCrossSectionAux(2:end-1))));
+      end
       
       % evaluate reduced energy diffusion coefficient
       swarmParam.redDiffCoeffEnergy = 2*factor*energyStep*sum(energyCell.^2.*eedfLocal./...
@@ -1903,8 +1914,8 @@ function derivatives = eedfTimeDerivative(time,variables,boltzmann,clearPersiste
     EoN = boltzmann.workCond.reducedFieldSI;
   end
     
-%   % renormalize EEDF
-%   eedf = eedf/sum(eedf.*sqrt(energyCell')*energyStep);
+  % renormalize EEDF
+  eedf = eedf/sum(eedf.*sqrt(energyCell')*energyStep);
   
   % evaluate time idependent elements of the Boltzmann equation (persistent for performance reasons)
   persistent matrix;

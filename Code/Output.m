@@ -25,6 +25,7 @@ classdef Output < handle
     folder = '';    % main output folder
     subFolder = ''; % sub folder for output of different jobs
     
+    isSimulationHF = false;             % boolean to know if the excitation frequency is different than zero
     eedfIsToBeSaved = false;            % boolean to know if the eedf must be saved
     powerBalanceIsToBeSaved = false;    % boolean to know if the power balance info must be saved
     swarmParamsIsToBeSaved = false;     % boolean to know if the swarm parameters info must be saved
@@ -85,6 +86,9 @@ classdef Output < handle
       
       % add listener to output results when a new solution for the EEDF is found
       addlistener(setup.electronKinetics, 'obtainedNewEedf', @output.electronKineticsSolution);
+      
+      % save the information if the simulation is HF
+      output.isSimulationHF = setup.workCond.reducedExcFreqSI>0;
       
     end
     
@@ -184,14 +188,19 @@ classdef Output < handle
       fprintf(fileID, '               Reduced electric field = %#.14e (Td)\n', reducedField);
       fprintf(fileID, '        Reduced diffusion coefficient = %#.14e (1/(ms))\n', swarmParam.redDiffCoeff);
       fprintf(fileID, '                     Reduced mobility = %#.14e (1/(msV))\n', swarmParam.redMobility);
+      if output.isSimulationHF 
+        fprintf(fileID, '                  Reduced mobility HF = %#.14e%+#.14ei (1/(msV))\n', ...
+          real(swarmParam.redMobilityHF), imag(swarmParam.redMobilityHF));
+      else
+        fprintf(fileID, '                       Drift velocity = %#.14e (m/s)\n', swarmParam.driftVelocity);
+        fprintf(fileID, '         Reduced Townsend coefficient = %#.14e (m2)\n', swarmParam.redTownsendCoeff);
+        fprintf(fileID, '       Reduced attachment coefficient = %#.14e (m2)\n', swarmParam.redAttCoeff);
+      end
       fprintf(fileID, ' Reduced energy diffusion coefficient = %#.14e (eV/(ms))\n', swarmParam.redDiffCoeffEnergy);
       fprintf(fileID, '              Reduced energy mobility = %#.14e (eV/(msV))\n', swarmParam.redMobilityEnergy);
-      fprintf(fileID, '         Reduced Townsend coefficient = %#.14e (m2)\n', swarmParam.redTownsendCoeff);
-      fprintf(fileID, '       Reduced attachment coefficient = %#.14e (m2)\n', swarmParam.redAttCoeff);
       fprintf(fileID, '                          Mean energy = %#.14e (eV)\n', swarmParam.meanEnergy);
       fprintf(fileID, '                Characteristic energy = %#.14e (eV)\n', swarmParam.characEnergy);
       fprintf(fileID, '                 Electron temperature = %#.14e (eV)\n', swarmParam.Te);
-      fprintf(fileID, '                       Drift velocity = %#.14e (m/s)\n', swarmParam.driftVelocity);
       
       % close file
       fclose(fileID);
@@ -376,9 +385,15 @@ classdef Output < handle
               fclose(fileID5);
             end
           end
-          fprintf(fileID1, [repmat('%-20s ', 1, 11) '\n'], 'RedField(Td)', 'RedDiff(1/(ms))', 'RedMob(1/(msV))', ...
-            'RedDiffE(eV/(ms))', 'RedMobE(eV/(msV))', 'RedTow(m2)', 'RedAtt(m2)', 'MeanE(eV)', 'CharE(eV)', ...
-            'EleTemp(eV)', 'DriftVelocity(m/s)');
+          if output.isSimulationHF
+            fprintf(fileID1, [repmat('%-20s ', 1, 10) '\n'], 'RedField(Td)', 'RedDiff(1/(ms))', 'RedMob(1/(msV))', ...
+              'R[RedMobHF](1/(msV))', 'I[RedMobHF](1/(msV))', 'RedDiffE(eV/(ms))', 'RedMobE(eV/(msV))', 'MeanE(eV)', ...
+              'CharE(eV)', 'EleTemp(eV)');
+          else
+            fprintf(fileID1, [repmat('%-20s ', 1, 11) '\n'], 'RedField(Td)', 'RedDiff(1/(ms))', 'RedMob(1/(msV))', ...
+              'RedDiffE(eV/(ms))', 'RedMobE(eV/(msV))', 'RedTow(m2)', 'RedAtt(m2)', 'MeanE(eV)', 'CharE(eV)', ...
+              'EleTemp(eV)', 'DriftVelocity(m/s)');
+          end
           fprintf(fileID2, [repmat('%-20s ', 1, 22) '\n'], 'RedField(Td)', 'PowerField(eVm3/s)', ...
             'PwrElaGain(eVm3/s)', 'PwrElaLoss(eVm3/s)', 'PwrElaNet(eVm3/s)', 'PwrCARGain(eVm3/s)', ...
             'PwrCARLoss(eVm3/s)', 'PwrCARNet(eVm3/s)', 'PwrEleGain(eVm3/s)', 'PwrEleLoss(eVm3/s)', ...
@@ -423,30 +438,37 @@ classdef Output < handle
       % append new lines with data
       if isa(electronKinetics, 'Boltzmann')
         if electronKinetics.isTimeDependent
-          fprintf(fileID1, '%-20.13e ', workCond.currentTime);
-          fprintf(fileID2, '%-20.13e ', workCond.currentTime);
-          fprintf(fileID3, '%-20.13e ', workCond.currentTime);
-          fprintf(fileID4, '%-20.13e ', workCond.currentTime);
+          fprintf(fileID1, '%-+20.13e ', workCond.currentTime);
+          fprintf(fileID2, '%-+20.13e ', workCond.currentTime);
+          fprintf(fileID3, '%-+20.13e ', workCond.currentTime);
+          fprintf(fileID4, '%-+20.13e ', workCond.currentTime);
         else
-          fprintf(fileID4, '%-20.13e ', workCond.reducedField);
+          fprintf(fileID4, '%-+20.13e ', workCond.reducedField);
         end
-        fprintf(fileID1, [repmat('%-20.13e ', 1, 11) '\n'], ...
-          workCond.reducedField, swarmParams.redDiffCoeff, swarmParams.redMobility, swarmParams.redDiffCoeffEnergy, ...
-          swarmParams.redMobilityEnergy, swarmParams.redTownsendCoeff, swarmParams.redAttCoeff, ...
-          swarmParams.meanEnergy, swarmParams.characEnergy, swarmParams.Te, swarmParams.driftVelocity);
-        fprintf(fileID2, [repmat('%-+20.12e ', 1, 21) '%19.14e%%\n'], workCond.reducedField, power.field, ...
+        if output.isSimulationHF
+          fprintf(fileID1, [repmat('%-+20.13e ', 1, 10) '\n'], ...
+            workCond.reducedField, swarmParams.redDiffCoeff, swarmParams.redMobility, ...
+            real(swarmParams.redMobilityHF), imag(swarmParams.redMobilityHF), swarmParams.redDiffCoeffEnergy, ...
+            swarmParams.redMobilityEnergy, swarmParams.meanEnergy, swarmParams.characEnergy, swarmParams.Te);
+        else
+          fprintf(fileID1, [repmat('%-+20.13e ', 1, 11) '\n'], ...
+            workCond.reducedField, swarmParams.redDiffCoeff, swarmParams.redMobility, swarmParams.redDiffCoeffEnergy, ...
+            swarmParams.redMobilityEnergy, swarmParams.redTownsendCoeff, swarmParams.redAttCoeff, ...
+            swarmParams.meanEnergy, swarmParams.characEnergy, swarmParams.Te, swarmParams.driftVelocity);
+        end
+        fprintf(fileID2, [repmat('%-+20.13e ', 1, 21) '%19.14e%%\n'], workCond.reducedField, power.field, ...
           power.elasticGain, power.elasticLoss, power.elasticNet, power.carGain, power.carLoss, power.carNet, ...
           power.excitationSup, power.excitationIne, power.excitationNet, power.vibrationalSup, power.vibrationalIne, ...
           power.vibrationalNet, power.rotationalSup, power.rotationalIne, power.rotationalNet, power.ionizationIne, ...
           power.attachmentIne, power.eDensGrowth, power.balance, power.relativeBalance*100);
-        fprintf(fileID3, '%-20.13e ', workCond.reducedField);
+        fprintf(fileID3, '%-+20.13e ', workCond.reducedField);
       else
-        fprintf(fileID4, '%-20.13e ', workCond.electronTemperature);
-        fprintf(fileID1, [repmat('%-20.13e ', 1, 11) '\n'], ...
+        fprintf(fileID4, '%-+20.13e ', workCond.electronTemperature);
+        fprintf(fileID1, [repmat('%-+20.13e ', 1, 11) '\n'], ...
           swarmParams.Te, workCond.reducedField, swarmParams.redDiffCoeff, swarmParams.redMobility, ...
           swarmParams.redDiffCoeffEnergy, swarmParams.redMobilityEnergy, swarmParams.redTownsendCoeff, ...
           swarmParams.redAttCoeff, swarmParams.meanEnergy, swarmParams.characEnergy, swarmParams.driftVelocity);
-        fprintf(fileID2, [repmat('%-+20.12e ', 1, 21) '%19.14e%%\n'], workCond.electronTemperature, power.field, ...
+        fprintf(fileID2, [repmat('%-+20.13e ', 1, 21) '%19.14e%%\n'], workCond.electronTemperature, power.field, ...
           power.elasticGain, power.elasticLoss, power.elasticNet, power.carGain, power.carLoss, power.carNet, ...
           power.excitationSup, power.excitationIne, power.excitationNet, power.vibrationalSup, power.vibrationalIne, ...
           power.vibrationalNet, power.rotationalSup, power.rotationalIne, power.rotationalNet, power.ionizationIne, ...

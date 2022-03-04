@@ -10,7 +10,7 @@ workingConditions:
   electronTemperature: 1                      % in eV
   chamberLength: 1.0                          % in m
   chamberRadius: 1.0                          % in m
-  reducedField: logspace(-4,2,100)            % in Td
+  reducedField: logspace(-4,3,100)            % in Td
   excitationFrequency: 0                      % in Hz
 
 % --- configuration of the electron kinetics ---
@@ -55,7 +55,7 @@ electronKinetics:
   numerics: % configuration of numerical details of the simulation
     energyGrid:             % properties of the energy grid (in eV)
       maxEnergy: 1
-      cellNumber: 1000
+      cellNumber: 2000
       smartGrid:            % configuration of the smart grid
         minEedfDecay: 20    % minimun number of decades of decay for the EEDF
         maxEedfDecay: 25    % maximum number of decades of decay for the EEDF

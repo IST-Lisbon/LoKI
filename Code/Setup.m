@@ -148,7 +148,7 @@ classdef Setup < handle
         % create the object and save handle for later use
         setup.gui = GUI(setup);
       end
-      % setting up the output object (if needed)
+      % setting up the output object
       if setup.enableOutput
         setup.output = Output(setup);
       end
@@ -264,15 +264,13 @@ classdef Setup < handle
     end
     
     function gasProperties(setup, gasArray)
-      % gasProperties fill the properties of the gases that are going to be
-      % used for solving the Boltzmann equation such as mass and fraction.
+    % gasProperties fill the properties of the gases that are going to be used for solving either the electron kinetics 
+    % or the heavy species kinetics
       
-      % seletect type of gas (electronKinetics or chemistry)
+      % seletect type of gas (electronKinetics)
       switch class(gasArray)
         case 'EedfGas'
           gasType = 'electronKinetics';
-        case 'ChemGas'
-          gasType = 'chemistry';
       end
       
       % obtain properties from the setup file
@@ -320,12 +318,10 @@ classdef Setup < handle
       % stateProperties fill the properties of the states that are necesary
       % for solving the Boltzmann equation. In particular their populations.
       
-      % seletect type of state (electronKinetics or chemistry)
+      % seletect type of state (electronKinetics)
       switch class(stateArray)
         case 'EedfState'
           stateType = 'electronKinetics';
-        case 'ChemState'
-          stateType = 'chemistry';
       end
       
       % obtain properties from the setup file
@@ -369,6 +365,11 @@ classdef Setup < handle
           end
         end
       end
+
+      % evaluate state densities
+      for state = stateArray
+        state.evaluateDensity;
+      end
       
     end
     
@@ -387,11 +388,6 @@ classdef Setup < handle
       
       % fill properties of states with the information of the input file
       setup.stateProperties(stateArray);
-      
-      % evaluate state densities
-      for state = stateArray
-        state.evaluateDensity;
-      end
       
       % check for gases for which CAR is activated to meet the appropiate conditions
       if isfield(setup.info.electronKinetics, 'CARgases')
@@ -489,7 +485,7 @@ classdef Setup < handle
       workCondStruct = setupInfo.workingConditions;
       % check input for 'reducedField' field in working conditions to know if simulation is in pulsed mode
       if ischar(workCondStruct.reducedField)
-        % configuration for pulsed simulations: pulse@functionName, firstStep, finalTime, samplingType, samplingPoints, aditionalParameters
+        % configuration for pulsed simulations: pulse@functionName, firstStep, finalTime, samplingType, samplingPoints, additionalParameters
         pulseInfoAux = regexp(workCondStruct.reducedField, ['pulse@\s*(?<function>\w+)\s*,\s*' ...
           '(?<firstStep>[\(\)^\d.eE+-]+)\s*,\s*(?<finalTime>[\(\)^\d.eE+-]+)\s*,\s*(?<samplingType>linspace|logspace)\s*,\s*' ...
           '(?<samplingPoints>\d+)\s*,?\s*(?<functionParameters>.*)?'], 'names', 'once');
@@ -536,6 +532,17 @@ classdef Setup < handle
             '''workinConditions>%s''.\nPlease, fix the problem and run the code again.'], field{1});
         end
       end
+      % check for gas pressure (needed to evaluate gas density) to be defined when performing HF simulations
+      if workCondStruct.excitationFrequency ~= 0
+        if ~isfield(workCondStruct, 'gasPressure')
+          error(['Error found in the configuration of the setup file.\n''gasPressure'' field not found in the ' ...
+            '''workingConditions'' section of the setup file.\nPlease, fix the problem and run the code again.'], field{1});
+        elseif workCondStruct.gasPressure == 0
+          error(['Error found in the configuration of the setup file.\n''gasPressure'' must be different than ' ...
+            'zero for HF simulations.\nPlease, fix the problem and run the code again.'], field{1});
+        end
+      end
+
       
       % check configuration of the electron kinetic module (in case it is present in the setup file)
       if isfield(setupInfo, 'electronKinetics')
@@ -603,6 +610,12 @@ classdef Setup < handle
             error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
               '''electronKinetics>includeEECollisions''.\nValue should be logical (''true'' or ''false'').\n' ...
               'Please, fix the problem and run the code again.'],1);
+          elseif setupInfo.electronKinetics.includeEECollisions
+            if ~isfield(workCondStruct, 'electronDensity')
+              error(['Error found in the configuration of the setup file.\n''electronDensity'' field not found ' ...
+                'in the ''workingConditions'' section of the setup file.\nPlease, fix the problem and run the ' ...
+                'code again.'],1);
+            end
           end
           % --- 'LXCatFiles' field
           if ~isfield(setupInfo.electronKinetics, 'LXCatFiles')
@@ -804,57 +817,10 @@ classdef Setup < handle
         end
       end
       
-      % check configuration of the chemistry module (in case it is present in the setup file)
-      if isfield(setupInfo, 'chemistry')
-        % check whether the isOn field is present and logical. Then in case it is true the checking continues
-        if ~isfield(setupInfo.chemistry, 'isOn')
-          error(['Error found in the configuration of the setup file.\n''isOn'' field not found in the ' ...
-            '''chemistry'' section of the setup file.\nPlease, fix the problem and run the code again.'],1);
-        elseif ~islogical(setupInfo.chemistry.isOn)
-          error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-            '''chemistry>isOn''.\nValue should be logical (''true'' or ''false'').\nPlease, fix the problem ' ...
-            'and run the code again.'],1);
-        elseif setupInfo.chemistry.isOn
-          % check whether the mandatory fields of the chemistry module (apart from isOn) are present when the
-          % chemistry module is activated
-          % --- 'includeThermalModel' field
-          if ~isfield(setupInfo.chemistry, 'includeThermalModel')
-            error(['Error found in the configuration of the setup file.\n''includeThermalModel'' field not ' ...
-              'found in the ''chemistry'' section of the setup file.\nPlease, fix the problem and run the ' ...
-              'code again.'],1);
-          elseif ~islogical(setupInfo.chemistry.includeThermalModel)
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-              '''chemistry>includeThermalModel''.\nValue should be logical (''true'' or ''false'').\n' ...
-              'Please, fix the problem and run the code again.'],1);
-          elseif setupInfo.chemistry.includeThermalModel
-            if (workCondStruct.chamberLength ~= 0 || workCondStruct.chamberRadius == 0 )
-              error(['Error found in the configuration of the setup file.\nChamber dimensions specified in the ' ...
-                'working conditions are not compatible with the thermal model.\nEither, deactivate thermal model:\n'...
-                '''chemistry>includeThermalModel: false''\n or set chamber dimensions to those of an infinitely ' ...
-                'long cylinder:\n''workingConditions>chamberLenght: 0''\n''workingConditions>chamberRadius: [any ' ...
-                'value different than zero]''\nPlease, fix the problem and run the code again.'],1);
-            elseif ~isfield(setupInfo, 'electronKinetics') || ~setupInfo.electronKinetics.isOn
-              error(['Error found in the configuration of the setup file.\nThermal model cannot be activated ' ...
-                'without antivating the electronKinetics module\nPlease, fix the problem and run the code again.'],1);
-            elseif ~isfield(setupInfo.chemistry.gasProperties, 'heatCapacity')
-              error(['Error found in the configuration of the setup file.\n''heatCapacity'' field not found ' ...
-                'in the ''chemistry>gasProperties'' section of the setup file.\n' ...
-                'Please, fix the problem and run the code again.'],1);
-            elseif ~isfield(setupInfo.chemistry.gasProperties, 'thermalConductivity')
-              error(['Error found in the configuration of the setup file.\n''thermalConductivity'' field not ' ...
-                'found in the ''chemistry>gasProperties'' section of the setup file.\n' ...
-                'Please, fix the problem and run the code again.'],1);
-            end
-          end
-          %%% CONTINUE WHEN THE CHEMISTRY MODULE DEVELOPMENT IS FINISHED
-        end
-      end
-      
       % check for 'empty' simulations (simulations with no module activated)
-      if (~isfield(setupInfo, 'electronKinetics') || ~setupInfo.electronKinetics.isOn) && ...
-          (~isfield(setupInfo, 'chemistry') || ~setupInfo.chemistry.isOn)
-        error(['Error found in the configuration of the setup file.\nNeither module, ''electronKinetics'' nor ' ...
-          '''chemistry'', is activated.\nPlease, fix the problem and run the code again.'],1);
+      if (~isfield(setupInfo, 'electronKinetics') || ~setupInfo.electronKinetics.isOn) 
+        error(['Error found in the configuration of the setup file.\nModule, ''electronKinetics'' ' ...
+          'is not activated.\nPlease, fix the problem and run the code again.'],1);
       end
       
       % check configuration of the graphical user interface (in case it is present in the setup file)
@@ -899,18 +865,9 @@ classdef Setup < handle
             if ischar(dataFiles)
               dataFiles = {dataFiles};
             end
-            if isfield(setupInfo, 'electronKinetics') && setupInfo.electronKinetics.isOn && ...
-                isfield(setupInfo, 'chemistry') && setupInfo.chemistry.isOn
-              possibleDataFiles = {'none' 'eedf' 'swarmParameters' 'rateCoefficients' 'powerBalance' ...
-                'finalDensities' 'densitiesTime' 'finalParticleBalance'};
-              possibleDataFilesStr = ['none, eedf, swarmParameters, rateCoefficients, powerBalance, ' ...
-                'finalDensities, densitiesTime or finalParticleBalance'];
-            elseif isfield(setupInfo, 'electronKinetics') && setupInfo.electronKinetics.isOn
+            if isfield(setupInfo, 'electronKinetics') && setupInfo.electronKinetics.isOn
               possibleDataFiles = {'none' 'eedf' 'swarmParameters' 'rateCoefficients' 'powerBalance' 'lookUpTable'};
               possibleDataFilesStr = 'none, eedf, swarmParameters, rateCoefficients, powerBalance or lookUpTable';
-            elseif isfield(setupInfo, 'chemistry') && setupInfo.chemistry.isOn
-              possibleDataFiles = {'none' 'finalDensities' 'densitiesTime' 'finalParticleBalance'};
-              possibleDataFilesStr = 'none, finalDensities, densitiesTime or finalParticleBalance';
             end
             for dataFile = dataFiles
               if ~any(strcmp(possibleDataFiles, dataFile))
@@ -945,4 +902,57 @@ classdef Setup < handle
     
   end
   
+end
+
+function [gasNames, gasID] = addGas(gasName, gasNames)
+
+  if isempty(gasNames)
+    gasNames{1} = gasName;
+    gasID = 1;
+  else
+    for i = 1:length(gasNames)
+      if strcmp(gasNames{i}, gasName)
+        gasID = i;
+        break;
+      elseif i == length(gasNames)
+        gasNames{end+1} = gasName;
+        gasID = length(gasNames);
+      end
+    end
+  end
+
+end
+
+function [stateGasID, stateIonLevel, stateEleLevel, stateVibLevel, stateRotLevel, stateID] = ...
+  addState(gasID, ionCharg, eleLevel, vibLevel, rotLevel, ...
+  stateGasID, stateIonLevel, stateEleLevel, stateVibLevel, stateRotLevel)
+
+if isempty(stateGasID)
+  stateGasID = gasID;
+  stateIonLevel = {ionCharg};
+  stateEleLevel = {eleLevel};
+  stateVibLevel = {vibLevel};
+  stateRotLevel = {rotLevel};
+  stateID = 1;
+else
+  for i = 1:length(stateGasID)
+    if (stateGasID(i) == gasID && ...
+        strcmp(stateIonLevel{i}, ionCharg) && ...
+        strcmp(stateEleLevel{i}, eleLevel) && ...
+        strcmp(stateVibLevel{i}, vibLevel) && ...
+        strcmp(stateRotLevel{i}, rotLevel))
+      stateID = i;
+      break;
+    elseif i == length(stateGasID)
+      stateGasID(end+1) = gasID;
+      stateIonLevel{end+1} = ionCharg;
+      stateEleLevel{end+1} = eleLevel;
+      stateVibLevel{end+1} = vibLevel;
+      stateRotLevel{end+1} = rotLevel;
+      stateID = i+1;
+      break;
+    end
+  end
+end
+
 end

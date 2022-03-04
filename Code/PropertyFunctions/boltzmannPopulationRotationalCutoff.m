@@ -33,7 +33,7 @@ function population = boltzmannPopulationRotationalCutoff(state, argumentArray, 
       case 'gasTemperature'
         temperature = workCond.gasTemperature;
       case 'electronTemperature'
-        temperature = workCond.electronTemperature;
+        temperature = workCond.electronTemperature/Constant.boltzmannInEV;
       otherwise
         error(['Error found when evaluating population of state %s.\nTemperature ''%s'' not defined in the ' ...
           'working conditions.\nPlease, fix the problem and run the code again.'], state.name, temperature);

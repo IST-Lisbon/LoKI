@@ -243,8 +243,10 @@ classdef PrescribedEedf < handle
         for collision = gas.collisionArray
           % collision type
           collType = collision.type;
-          % avoid Effective or Elastic collisions and collisions whos threshold is larger than the maximum energy
-          if strcmp(collType, 'Effective') || strcmp(collType, 'Elastic') || collision.threshold > energyNode(end)
+          % avoid Effective, Elastic, Attachment collisions and collisions whos threshold is larger than the maximum
+          % energy
+          if strcmp(collType, 'Effective') || strcmp(collType, 'Elastic') || strcmp(collType, 'Attachment') || ...
+              collision.threshold > energyNode(end)
             continue;
           end
           % switch to lower case because of aesthetical reasons
@@ -298,13 +300,20 @@ classdef PrescribedEedf < handle
       power.relativeBalance = 0;
       prescribedEedf.workCond.update('reducedField', sqrt(power.field/auxPowerField)/1e-21);
       
-      % evaluate reference power (chanel of max power)
-      powerTypes = {'field' 'elasticGain' 'carGain' 'excitationSup' 'vibrationalSup' 'rotationalSup'};
-      powerValues = [power.field power.elasticGain power.carGain power.excitationSup power.vibrationalSup ...
-        power.rotationalSup];
-      [maxPower, referencePowerIdx] = max(powerValues);
-      power.reference = maxPower;
-      power.referenceType = powerTypes{referencePowerIdx};
+      % evaluate reference power (max. energy gain)
+      powerValues = [power.field power.elasticGain power.elasticLoss power.carGain power.carLoss ...
+        power.excitationSup power.excitationIne power.vibrationalSup power.vibrationalIne ...
+        power.rotationalSup power.rotationalIne power.eDensGrowth power.electronElectron];
+      totalGain = 0;
+      totalLoss = 0;
+      for powerValue = powerValues
+        if powerValue > 0 
+          totalGain = totalGain+powerValue;
+        else
+          totalLoss = totalLoss+powerValue;
+        end
+      end
+      power.reference = totalGain;
       
       % store power balance information in the prescribedEedf properties
       prescribedEedf.power = power;

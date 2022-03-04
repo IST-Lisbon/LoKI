@@ -31,10 +31,13 @@ classdef WorkingConditions < handle
     gasTemperature = [];
     wallTemperature = [];
     gasDensity = [];
+    surfaceSiteDensity = [];
     electronDensity = [];
     electronTemperature = [];
     chamberLength = [];
     chamberRadius = [];
+    areaOverVolume = [];
+    volumeOverArea = [];
     reducedField = [];
     reducedFieldSI = [];
     excitationFrequency = [];
@@ -60,9 +63,26 @@ classdef WorkingConditions < handle
       for field = fieldnames(setup.info.workingConditions)'
         workCond.(field{1}) = setup.info.workingConditions.(field{1})(1);
       end
-      workCond.gasDensity = workCond.gasPressure/(Constant.boltzmann*workCond.gasTemperature);
+      if ~isempty(workCond.gasPressure)
+        workCond.gasDensity = workCond.gasPressure/(Constant.boltzmann*workCond.gasTemperature);
+      end
+      if workCond.excitationFrequency == 0
+        workCond.reducedExcFreqSI = 0;
+      elseif ~isempty(workCond.gasDensity)
+        workCond.reducedExcFreqSI = workCond.excitationFrequency*2*pi/workCond.gasDensity;
+      end
       workCond.reducedFieldSI = workCond.reducedField*1e-21;
-      workCond.reducedExcFreqSI = workCond.excitationFrequency*2*pi/workCond.gasDensity;
+      if ~isempty(workCond.chamberLength) && workCond.chamberLength ~=0 && ...
+          ~isempty(workCond.chamberRadius) && workCond.chamberRadius ~= 0    % regular cylinder
+        workCond.areaOverVolume = 2./workCond.chamberRadius + 2./workCond.chamberLength;
+        workCond.volumeOverArea = 1./workCond.areaOverVolume;
+      elseif ~isempty(workCond.chamberRadius) && workCond.chamberRadius ~= 0 % infinitely long cylinder
+        workCond.areaOverVolume = 2./workCond.chamberRadius;
+        workCond.volumeOverArea = 1./workCond.areaOverVolume;
+      elseif ~isempty(workCond.chamberLength) && workCond.chamberLength ~=0  % infinitely wide cylinder (slab)
+        workCond.areaOverVolume = 2./workCond.chamberLength;
+        workCond.volumeOverArea = 1./workCond.areaOverVolume;
+      end
       
     end
     
@@ -118,12 +138,9 @@ classdef WorkingConditions < handle
     function workCondStruct = struct(workCond)
     % struct returns an structure with the properties of the object workCond
     
-      workCondStruct = struct('gasPressure', workCond.gasPressure, 'gasTemperature', workCond.gasTemperature, ...
-        'gasDensity', workCond.gasDensity, 'electronDensity', workCond.electronDensity, ...
-        'electronTemperature', workCond.electronTemperature, 'chamberLength', workCond.chamberLength, ...
-        'chamberRadius', workCond.chamberRadius, 'reducedField', workCond.reducedField, ...
-        'reducedFieldSI', workCond.reducedFieldSI, 'excitationFrequency', workCond.excitationFrequency, ...
-        'reducedExcFreqSI', workCond.reducedExcFreqSI, 'currentTime', workCond.currentTime);
+      for field = fields(workCond)'
+        workCondStruct.(field{1}) = workCond.(field{1});
+      end
       
     end
     

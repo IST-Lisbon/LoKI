@@ -287,7 +287,7 @@ classdef Gas < handle
       gas.evaluateDensities();
 
     end
-    
+
     function evaluateDensities(gas)
     % evaluateDensities is a function that evaluates the densities of all the states of the gas from their
     % populations and the gas fraction. Note that the densities of the states are normalized to the total gas
@@ -519,23 +519,41 @@ classdef Gas < handle
     end
 
     function checkFractionNorm(gasArray)
-    % checkFractionsNorms checks for the fractions of the different gases
-    % in gasArray to add to one. In case the fractions of the gases are not
-    % properly normalised, an error message is thrown.
-    %
-    % Note: the function avoid dummy gases (gases created for the sake of a
-    % pretty output)
+    % checkFractionsNorms checks for the fractions of the different gases in gasArray to be properly normalized. In case
+    % of gasArray being EedfGas it checks that the sum of the fractions of non-dummy gases (gases with non empty
+    % collisionArry) add to 1. In case of gasArray being ChemGas it checks that both, volume/surface phase, gas
+    % fractions add to 1. In case of non normalized gas fractions, an error message is thrown.
 
-      norm = 0;
+      volumeNorm = 0;
+      surfaceNorm = 0;
+      volumeNormNeedsToBeChecked = false;
+      surfaceNormNeedsToBeChecked = false;
       for gas = gasArray
-        if isempty(gas.fraction) || (isa(gas, 'EedfGas') && isempty(gas.collisionArray))
-          continue;
+        if (isa(gas, 'EedfGas') && ~isempty(gas.collisionArray)) || (isa(gas, 'ChemGas') && gas.isVolumeSpecies)
+          volumeNorm = volumeNorm + gas.fraction;
+          volumeNormNeedsToBeChecked = true;
+        elseif isa(gas, 'ChemGas') && gas.isSurfaceSpecies
+          surfaceNorm = surfaceNorm + gas.fraction;
+          surfaceNormNeedsToBeChecked = true;
         end
-        norm = norm + gas.fraction;
       end
-      if abs(norm-1) > 10*eps(1)
-        error(['Gases fractions are not properly normalised (Error = %e).\n'...
-          'Please, check input file.'], norm-1);
+      if volumeNormNeedsToBeChecked
+        if abs(volumeNorm-1) > 10*eps(1)
+          switch class(gasArray)
+            case 'EedfGas'
+              auxStr = 'Electron kinetics gas';
+            case 'ChemGas'
+              auxStr = 'Chemistry volume gas';
+          end
+          error('%s fractions are not properly normalised (Error = %e).\nPlease, check input file.', auxStr, ...
+            volumeNorm-1);
+        end
+      end
+      if surfaceNormNeedsToBeChecked
+        if abs(surfaceNorm-1) > 10*eps(1)
+          error(['Chemistry surface gas fractions are not properly normalised (Error = %e).\nPlease, check input ' ...
+            'file.'], surfaceNorm-1);
+        end
       end
 
     end

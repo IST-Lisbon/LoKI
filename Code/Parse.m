@@ -50,7 +50,7 @@ classdef Parse
       
       % definition of regular expressions to parse LXCat file
       LXCatRegExp1 = 'PROCESS: (?<reactants>.+?)(?<direction>->|<->) (?<products>.+?), (?<type>\w+)';
-      LXCatRegExp2 = 'E = (?<threshold>[\d.]+) eV';
+      LXCatRegExp2 = 'E = (?<threshold>[\d.e+-]+) eV';
       LXCatRegExp3 = '\[(?<reactants>.+?)(?<direction>->|<->)(?<products>.+?), (?<type>\w+)\]';
       % create a cell array with filenames in case only one file is
       % received as input
@@ -339,7 +339,15 @@ function LXCatEntryArray = addLXCatEntry(description, parameter, rawCrossSection
   if isempty(parameter)
     LXCatEntryArray(end).threshold = 0;
   else
-    LXCatEntryArray(end).threshold = str2double(parameter.threshold);
+    threshold = str2double(parameter.threshold);
+    if isnan(threshold) 
+      error('I can not properly parse ''%s'' as the threshold of reaction ''%s''.\nPlease check your LXCat files', ...
+        parameter.threshold, [description.reactants description.direction description.products]);
+    elseif threshold<0
+      error('Reaction ''%s'' has a negative threshold (''%s'').\nPlease check your LXCat files', ...
+        [description.reactants description.direction description.products], parameter.threshold);
+    end
+    LXCatEntryArray(end).threshold = threshold;
   end
   LXCatEntryArray(end).rawCrossSection = rawCrossSection;
   
