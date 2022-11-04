@@ -71,5 +71,13 @@ classdef Constant
       
     end
 
+    function gamma = gamma()
+      % gamma sqrt(2*electron charge/electron mass) in S.I. units
+      % This parameter is extensively used throughout the code (particularly in electron kinetics related parts)
+
+      gamma = sqrt(2*Constant.electronCharge/Constant.electronMass);
+
+    end
+
   end
 end

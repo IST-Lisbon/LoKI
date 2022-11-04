@@ -5,20 +5,22 @@
 
 % --- configuration of the working conditions ---
 workingConditions:
-  reducedField: pulse@reducedFieldPulse, 1e-18, 2e-6, logspace, 200, 1e-6, 50 % pulse@functionName, firstStep, finalTime, samplingType, samplingPoints, aditionalParameters
+  reducedField: pulse@reducedFieldPulse, 1e-18, 2e-6, logspace, 100, 1e-6, 50 % pulse@functionName, firstStep, finalTime, samplingType, samplingPoints, aditionalParameters
+%   reducedField: pulse@reducedFieldRamp, 1e-18, 2e-6, logspace, 100, 1e-6, 25 % pulse@functionName, firstStep, finalTime, samplingType, samplingPoints, aditionalParameters
   electronTemperature: linspace(0.03, 5, 300) % in eV
   excitationFrequency: 0                      % in Hz
   gasPressure: 133320                         % in Pa
-  gasTemperature: 300                         % in K
-  wallTemperature: 390                        % in K
-  surfaceSiteDensity: 1e19                    % in m-2
+  gasTemperature: 300                         % in K   (average gas temperature)
+  wallTemperature: 390                        % in K   (wall temperature)
+  extTemperature: 300                         % in K   (external temperature)
+  surfaceSiteDensity: 1e19                    % in m-2 (used for surface kinetics)
   electronDensity: 1e19                       % in m-3
   chamberLength: 1.0                          % in m
   chamberRadius: 1.0                          % in m
 
 % --- configuration of the electron kinetics ---
 electronKinetics:
-  isOn: true                           % true or false (to activate of deactivate the electron kinetics)
+  isOn: true                           % true or false (to activate or deactivate the electron kinetics)
   eedfType: boltzmann                  % boltzmann or prescribedEedf (generalized expression Maxwellian/Druyvesteyn)
 %   shapeParameter: 1                  % prescribedEedf shape parameter from 1 (Maxwellian) to 2 (Druyvesteyn)
   ionizationOperatorType: usingSDCS    % conservative, oneTakesAll, equalSharing or usingSDCS
@@ -81,6 +83,8 @@ output:
   isOn: false
   folder: simulation1
   dataFiles:
+%     - inputs
+    - log
     - eedf
     - swarmParameters
     - rateCoefficients

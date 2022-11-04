@@ -1,8 +1,8 @@
 LXCat, www.lxcat.net
-Generated on 19 Mar 2018. All rights reserved.
+Generated on 23 Sep 2022. All rights reserved.
 
 RECOMMENDED REFERENCE FORMAT
-- IST-Lisbon database, www.lxcat.net, retrieved on March 19, 2018.
+- IST-Lisbon database, www.lxcat.net, retrieved on September 23, 2022.
 Be aware that some databases and solvers can additionally have instructions how to reference corresponding data.
 Please check below in the headers of databases.
 
@@ -21,14 +21,15 @@ the first name either by arrow "->" (dash + greater than) or by double-head arro
 greater than), e.g. "Ar -> Ar*" and "Ar <-> Ar*", respectively. In the later case BOLSIG+ will automatically
 define the inverse superelastic process, constructing the superelastic cross-section by detailed balancing, and
 considering the indicated excited state as the target. In this case, the ratio of statistical weights must be input in
-the 3rd line (see below).  Alternatively, superelastic collisions could be defined explicitly as excitation collisions
-with a negative electron energy loss with user input cross sections and species name, "Ar*", for example.
+the 3rd line (see below).
 3rd line
 For elastic and effective collisions, the ratio of the electron mass to the target particle mass. For excitation or
 ionization collisions, the electron energy loss (nominally the threshold energy) in eV. For attachment, the 3rd line is
 missing. In case of an excitation process where an excited state has been indicated on the 2nd line using double-head
 arrow "<->", the 3rd line must specify also ratio of the statistical weights of the final state to the initial state
-as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section.
+as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section. The
+statistical weight ratio, if given, will also be used by the automatic superelastics option in BOLSIG+. If this ratio is
+not provided then BOLSIG+ will assume it unity.
 from 4th line (optionally)
 User comments and reference information, maximum 100 lines. The only constraint on format is that these comment lines
 must not start with a number.
@@ -42,13 +43,13 @@ PERMLINK:         www.lxcat.net/IST-Lisbon
 DESCRIPTION:      IST-Lisbon database contains up-to-date electron-neutral scattering cross sections (together with the
                   measured swarm parameters used to validate these data), resulting from the research effort of the
                   Group N-Plasmas Reactive: Modelling and Engineering (N-PRiME) with IPFN/IST (Instituto de Plasmas e
-                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal. The data, compiled from the literature,
-                  correspond to contributions from different authors (see detailed references in the database). For each
-                  gas the database presents a COMPLETE SET of cross sections, validated against measured swarm
-                  parameters by solving the two-term homogeneous electron Boltzmann equation. In most cases, predictions
-                  are in agreement with measurements within 1-20%, for reduced electric fields E/N ~ 1e-4 - 500 Td. To
-                  improve predictions at low E/N, some sets need to be completed with rotational cross sections, also
-                  available in the database.
+                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal.  The data, compiled from the
+                  literature, correspond to contributions from different authors (see detailed references in the
+                  database). For each gas the database presents a COMPLETE SET of cross sections, validated against
+                  measured swarm parameters by solving the two-term homogeneous electron Boltzmann equation. In most
+                  cases, predictions are in agreement with measurements within 1-20%, for reduced electric fields E/N ~
+                  1e-4 - 500 Td. To improve predictions at low E/N, some sets need to be completed with rotational cross
+                  sections, also available in the database.
 CONTACT:          LL Alves and V Guerra
                   e-mail: llalves@@tecnico.ulisboa.pt
 HOW TO REFERENCE: L.L. Alves, ''The IST-Lisbon database on LXCat'' J. Phys. Conf. Series 2014, 565, 1
@@ -57,23 +58,23 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ************************************************************************************************************************
 
 COMMENT: M. Santos, C. Noel, T. Belmonte and L.L. Alves ''Microwave capillary plasmas in helium at atmospheric pressure'' 2014 J.
-         Phys. D: Appl. Phys. 47 265201 1-18. Cross sections were defined for energies up to 1 keV using piecewise linear
-         interpolation, and were adjusted (through the multiplication factors defined below) as to yield good agreement between
-         calculated and measured swarm parameters. The calculations use a two-term Boltzmann solver, adopting a 1000 points
-         energy-grid with constant step-sizes comprised between 0.01 and 1 eV, according to the (low/high) reduced-field values
-         considered.
+         Phys. D: Appl. Phys. 47 265201 1-18. Cross sections were defined for energies up to 1 keV and were adjusted as to yield
+         good agreement between calculated and measured swarm parameters. The calculations use a two-term Boltzmann solver with
+         the SST growth model. The cross sections are handled choosing a linear interpolation scheme with no extrapolation after
+         the last energy point, within energy-grids with 1000 points and constant step-sizes comprised between 0.01 and 1 eV,
+         according to the (low/high) reduced-field values considered.
          The present cross section set updates its previous version, published in L.L. Alves et al ''Comparisons of sets of
-         electron-neutral scattering cross sections and swarm parameters in noble gases: II. Helium and neon'' 2013 J. Phys. D:
-         Appl. Phys. 46 334002 1-22.
+         electron–neutral scattering cross sections and swarm parameters in noble gases: II. Helium and neon'' 2013 J. Phys. D:
+         Appl. Phys. 46 334002 1-22. 
          The elastic momentum-transfer cross section corresponds to the one proposed by Crompton et al at low energies, Milloy
          and Crompton at intermediate energies, and Belmonte et al at high energies. The inelastic electron cross sections for
-         transitions n(2s+1)S -> n'(2s'+1)l' with n < 3, 1 < n' < 5, l' = S,P,D,F were obtained from Belmonte et al,
-         by multiplying the excitation cross sections for the metastables and the n3P states by factors of 0.31 and 0.60,
-         respectively, and by multiplying the excitation cross sections for the n1P states by a factor of 1.66. 
-         For the rest of transitions, the cross sections were obtained from the analytical expressions proposed by Ralchenko et
+         transitions n(2s+1)S -> n’(2s’+1)l’ with n < 3, 1 < n’ < 5, l’ = S,P,D,F are obtained from
+         Belmonte et al, by multiplying the excitation cross sections for the metastables and the n3P states by factors of 0.31
+         and 0.60, respectively, and by multiplying the excitation cross sections for the n1P states by a factor of 1.66. 
+         For the rest of transitions, the cross sections are obtained from the analytical expressions proposed by Ralchenko et
          al.
          The ionization cross section is taken from the measurements of Rapp and Englander-Golden, for electron energies below
-         100 eV, and from Belmonte et al, between 100-1000 eV.
+         100 eV, and from Belmonte et al, between 100–1000 eV.
 
 ********************************************************** He **********************************************************
 
@@ -85,9 +86,9 @@ PROCESS: E + He -> E + He, Elastic
 PARAM.:  m/M = 0.00013714, complete set
 COMMENT: [e + He(1S1) -> e + He(1S1), Elastic] Crompton et al 1970 Austr. J. Phys. 23 667 (8e-3
 COMMENT: - 3 eV) Milloy and Crompton 1977 Phys. Rev. A 15 1847 (4 - 12 eV) Register et al 1980
-COMMENT: Phys. Rev. A 21 1134 (12 - 100 eV) Belmonte et al 2007  J. Phys. D: Appl. Phys. 40 7343
+COMMENT: Phys. Rev. A 21 1134 (12 - 100 eV) Belmonte et al 2007 J. Phys. D: Appl. Phys. 40 7343
 COMMENT: (100 - 1000 eV).
-UPDATED: 2017-11-14 10:22:17
+UPDATED: 2017-11-14 03:22:17
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  0.000000e+0	5.060000e-20
@@ -604,10 +605,10 @@ He <-> He(2S3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(2S3), Excitation
 PARAM.:  E = 19.82 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(2S3), Excitation]  Kato and Janev 1992 Atomic and
+COMMENT: [e + He(1S1) -> e + He(2S3), Excitation] Kato and Janev 1992 Atomic and
 COMMENT: Plasma−Material Interaction Data for Fusion (Supplement to the Journal of Nuclear
 COMMENT: Fusion) 3 33 (multiplied by 0.31).
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.982000e+1	0.000000e+0
@@ -642,9 +643,9 @@ He <-> He(2S1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(2S1), Excitation
 PARAM.:  E = 20.62 eV, g1/g0 = 1, complete set
-COMMENT: [e + He(1S1) -> e + He(2S1), Excitation]  de Heer and Jansen 1977 J. Phys. B: At. Mol.
-COMMENT: Phys. 10 3741 Belmonte et al 2007  J. Phys. D: Appl. Phys. 40 7343 (multiplied by 0.31).
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(2S1), Excitation] de Heer and Jansen 1977 J. Phys. B: At. Mol.
+COMMENT: Phys. 10 3741 Belmonte et al 2007 J. Phys. D: Appl. Phys. 40 7343 (multiplied by 0.31).
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.062000e+1	0.000000e+0
@@ -673,10 +674,10 @@ He <-> He(2P3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(2P3), Excitation
 PARAM.:  E = 20.96 eV, g1/g0 = 9, complete set
-COMMENT: [e + He(1S1) -> e + He(2P3), Excitation]  Ralchenko et al, NIFS−DATA 59 Research
-COMMENT: report NIFS−DATE serie ISSN 0915−6364 (Oct. 2000) Belmonte et al 2007  J. Phys. D:
+COMMENT: [e + He(1S1) -> e + He(2P3), Excitation] Ralchenko et al, NIFS−DATA 59 Research
+COMMENT: report NIFS−DATE serie ISSN 0915−6364 (Oct. 2000) Belmonte et al 2007 J. Phys. D:
 COMMENT: Appl. Phys. 40 7343 (multiplied by 0.6).
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.096000e+1	0.000000e+0
@@ -718,7 +719,7 @@ PARAM.:  E = 21.218 eV, g1/g0 = 3, complete set
 COMMENT: [e + He(1S1) -> e + He(2P1), Excitation] Kato and Janev 1992 Atomic and
 COMMENT: Plasma−Material Interaction Data for Fusion (Supplement to the Journal of Nuclear
 COMMENT: Fusion) 3 33 (multiplied by 1.66).
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.121800e+1	0.000000e+0
@@ -759,10 +760,10 @@ He <-> He(3S3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(3S3), Excitation
 PARAM.:  E = 22.719 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(3S3), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(3S3), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.271900e+1	0.000000e+0
@@ -805,10 +806,10 @@ He <-> He(3S1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(3S1), Excitation
 PARAM.:  E = 22.919 eV, g1/g0 = 1, complete set
-COMMENT: [e + He(1S1) -> e + He(3S1), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(3S1), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.291900e+1	0.000000e+0
@@ -850,10 +851,10 @@ He <-> He(3P3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(3P3), Excitation
 PARAM.:  E = 23.009 eV, g1/g0 = 9, complete set
-COMMENT: [e + He(1S1) -> e + He(3P3), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(3P3), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1 (multiplied by 0.6).
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.300900e+1	0.000000e+0
@@ -892,10 +893,10 @@ He <-> He(3D1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(3D1), Excitation
 PARAM.:  E = 23.069 eV, g1/g0 = 5, complete set
-COMMENT: [e + He(1S1) -> e + He(3D1), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(3D1), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.306900e+1	0.000000e+0
@@ -937,10 +938,10 @@ He <-> He(3D3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(3D3), Excitation
 PARAM.:  E = 23.069 eV, g1/g0 = 15, complete set
-COMMENT: [e + He(1S1) -> e + He(3D3), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(3D3), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.306900e+1	0.000000e+0
@@ -982,10 +983,10 @@ He <-> He(3P1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(3P1), Excitation
 PARAM.:  E = 23.09 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(3P1), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(3P1), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
-COMMENT: Atomic and Molecular Physics Amsterdam 1  (multiplied by 1.66).
-UPDATED: 2017-05-12 19:55:37
+COMMENT: Atomic and Molecular Physics Amsterdam 1 (multiplied by 1.66).
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.309000e+1	0.000000e+0
@@ -1021,10 +1022,10 @@ He <-> He(4S3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(4S3), Excitation
 PARAM.:  E = 23.589 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(4S3), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(4S3), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.358900e+1	0.000000e+0
@@ -1067,10 +1068,10 @@ He <-> He(4S1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(4S1), Excitation
 PARAM.:  E = 23.669 eV, g1/g0 = 1, complete set
-COMMENT: [e + He(1S1) -> e + He(4S1), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(4S1), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.366900e+1	0.000000e+0
@@ -1112,10 +1113,10 @@ He <-> He(4P3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(4P3), Excitation
 PARAM.:  E = 23.709 eV, g1/g0 = 9, complete set
-COMMENT: [e + He(1S1) -> e + He(4P3), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(4P3), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1 (multiplied by 0.6).
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.370900e+1	0.000000e+0
@@ -1158,10 +1159,10 @@ He <-> He(4D1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(4D1), Excitation
 PARAM.:  E = 23.739 eV, g1/g0 = 5, complete set
-COMMENT: [e + He(1S1) -> e + He(4D1), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(4D1), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.373900e+1	0.000000e+0
@@ -1203,10 +1204,10 @@ He <-> He(4D3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(4D3), Excitation
 PARAM.:  E = 23.739 eV, g1/g0 = 15, complete set
-COMMENT: [e + He(1S1) -> e + He(4D3), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(4D3), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.373900e+1	0.000000e+0
@@ -1249,10 +1250,10 @@ He <-> He(4F1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(4F1), Excitation
 PARAM.:  E = 23.739 eV, g1/g0 = 7, complete set
-COMMENT: [e + He(1S1) -> e + He(4F1), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(4F1), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.373900e+1	0.000000e+0
@@ -1294,10 +1295,10 @@ He <-> He(4F3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(4F3), Excitation
 PARAM.:  E = 23.739 eV, g1/g0 = 21, complete set
-COMMENT: [e + He(1S1) -> e + He(4F3), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(4F3), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
 COMMENT: Atomic and Molecular Physics Amsterdam 1.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.373900e+1	0.000000e+0
@@ -1340,10 +1341,10 @@ He <-> He(4P1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(4P1), Excitation
 PARAM.:  E = 23.74 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(4P1), Excitation]  de Heer 1998 INDC(NDS)−385, Critically
+COMMENT: [e + He(1S1) -> e + He(4P1), Excitation] de Heer 1998 INDC(NDS)−385, Critically
 COMMENT: Assessed Electron−Impact Excitation Cross Sections for He (11 S), FOM−Institute for
-COMMENT: Atomic and Molecular Physics Amsterdam 1  (multiplied by 1.66).
-UPDATED: 2017-05-12 19:55:37
+COMMENT: Atomic and Molecular Physics Amsterdam 1 (multiplied by 1.66).
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.374000e+1	0.000000e+0
@@ -1379,9 +1380,9 @@ He <-> He(5S3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(5S3), Excitation
 PARAM.:  E = 23.972 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(5S3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(5S3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.397200e+1	0.000000e+0
@@ -1421,9 +1422,9 @@ He <-> He(5S1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(5S1), Excitation
 PARAM.:  E = 24.011 eV, g1/g0 = 1, complete set
-COMMENT: [e + He(1S1) -> e + He(5S1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(5S1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.401100e+1	0.000000e+0
@@ -1461,9 +1462,9 @@ He <-> He(5P3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(5P3), Excitation
 PARAM.:  E = 24.028 eV, g1/g0 = 9, complete set
-COMMENT: [e + He(1S1) -> e + He(5P3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(5P3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.402800e+1	0.000000e+0
@@ -1502,9 +1503,9 @@ He <-> He(5D1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(5D1), Excitation
 PARAM.:  E = 24.043 eV, g1/g0 = 5, complete set
-COMMENT: [e + He(1S1) -> e + He(5D1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(5D1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.404300e+1	0.000000e+0
@@ -1542,9 +1543,9 @@ He <-> He(5D3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(5D3), Excitation
 PARAM.:  E = 24.043 eV, g1/g0 = 15, complete set
-COMMENT: [e + He(1S1) -> e + He(5D3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(5D3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.404300e+1	0.000000e+0
@@ -1583,9 +1584,9 @@ He <-> He(5FG1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(5FG1), Excitation
 PARAM.:  E = 24.043 eV, g1/g0 = 16, complete set
-COMMENT: [e + He(1S1) -> e + He(5FG1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
+COMMENT: [e + He(1S1) -> e + He(5FG1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V
 COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.404300e+1	0.000000e+0
@@ -1623,9 +1624,9 @@ He <-> He(5FG3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(5FG3), Excitation
 PARAM.:  E = 24.043 eV, g1/g0 = 48, complete set
-COMMENT: [e + He(1S1) -> e + He(5FG3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
+COMMENT: [e + He(1S1) -> e + He(5FG3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V
 COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.404300e+1	0.000000e+0
@@ -1664,9 +1665,9 @@ He <-> He(5P1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(5P1), Excitation
 PARAM.:  E = 24.046 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(5P1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(5P1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.404600e+1	0.000000e+0
@@ -1699,9 +1700,9 @@ He <-> He(6S3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(6S3), Excitation
 PARAM.:  E = 24.169 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(6S3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(6S3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.416900e+1	0.000000e+0
@@ -1740,9 +1741,9 @@ He <-> He(6S1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(6S1), Excitation
 PARAM.:  E = 24.191 eV, g1/g0 = 1, complete set
-COMMENT: [e + He(1S1) -> e + He(6S1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(6S1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.419100e+1	0.000000e+0
@@ -1780,9 +1781,9 @@ He <-> He(6P3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(6P3), Excitation
 PARAM.:  E = 24.201 eV, g1/g0 = 9, complete set
-COMMENT: [e + He(1S1) -> e + He(6P3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(6P3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.420100e+1	0.000000e+0
@@ -1820,9 +1821,9 @@ He <-> He(6D1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(6D1), Excitation
 PARAM.:  E = 24.209 eV, g1/g0 = 5, complete set
-COMMENT: [e + He(1S1) -> e + He(6D1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(6D1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.420900e+1	0.000000e+0
@@ -1860,9 +1861,9 @@ He <-> He(6D3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(6D3), Excitation
 PARAM.:  E = 24.209 eV, g1/g0 = 15, complete set
-COMMENT: [e + He(1S1) -> e + He(6D3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(6D3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.420900e+1	0.000000e+0
@@ -1900,9 +1901,9 @@ He <-> He(6FGH1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(6FGH1), Excitation
 PARAM.:  E = 24.21 eV, g1/g0 = 27, complete set
-COMMENT: [e + He(1S1) -> e + He(6FGH1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
+COMMENT: [e + He(1S1) -> e + He(6FGH1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V
 COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.421000e+1	0.000000e+0
@@ -1940,9 +1941,9 @@ He <-> He(6FGH3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(6FGH3), Excitation
 PARAM.:  E = 24.21 eV, g1/g0 = 81, complete set
-COMMENT: [e + He(1S1) -> e + He(6FGH3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
+COMMENT: [e + He(1S1) -> e + He(6FGH3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V
 COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.421000e+1	0.000000e+0
@@ -1980,9 +1981,9 @@ He <-> He(6P1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(6P1), Excitation
 PARAM.:  E = 24.211 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(6P1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(6P1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.421100e+1	0.000000e+0
@@ -2015,9 +2016,9 @@ He <-> He(7S3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(7S3), Excitation
 PARAM.:  E = 24.285 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(7S3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(7S3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.428500e+1	0.000000e+0
@@ -2055,9 +2056,9 @@ He <-> He(7S1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(7S1), Excitation
 PARAM.:  E = 24.298 eV, g1/g0 = 1, complete set
-COMMENT: [e + He(1S1) -> e + He(7S1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(7S1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.429800e+1	0.000000e+0
@@ -2095,9 +2096,9 @@ He <-> He(7P3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(7P3), Excitation
 PARAM.:  E = 24.304 eV, g1/g0 = 9, complete set
-COMMENT: [e + He(1S1) -> e + He(7P3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(7P3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.430400e+1	0.000000e+0
@@ -2135,9 +2136,9 @@ He <-> He(7D1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(7D1), Excitation
 PARAM.:  E = 24.31 eV, g1/g0 = 5, complete set
-COMMENT: [e + He(1S1) -> e + He(7D1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(7D1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.431000e+1	0.000000e+0
@@ -2174,9 +2175,9 @@ He <-> He(7D3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(7D3), Excitation
 PARAM.:  E = 24.31 eV, g1/g0 = 15, complete set
-COMMENT: [e + He(1S1) -> e + He(7D3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(7D3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.431000e+1	0.000000e+0
@@ -2214,9 +2215,9 @@ He <-> He(7FGHI1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(7FGHI1), Excitation
 PARAM.:  E = 24.31 eV, g1/g0 = 40, complete set
-COMMENT: [e + He(1S1) -> e + He(7FGHI1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
+COMMENT: [e + He(1S1) -> e + He(7FGHI1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V
 COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.431000e+1	0.000000e+0
@@ -2253,9 +2254,9 @@ He <-> He(7FGHI3)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(7FGHI3), Excitation
 PARAM.:  E = 24.31 eV, g1/g0 = 120, complete set
-COMMENT: [e + He(1S1) -> e + He(7FGHI3), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
+COMMENT: [e + He(1S1) -> e + He(7FGHI3), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V
 COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.431000e+1	0.000000e+0
@@ -2293,9 +2294,9 @@ He <-> He(7P1)
 SPECIES: e / He
 PROCESS: E + He <-> E + He(7P1), Excitation
 PARAM.:  E = 24.311 eV, g1/g0 = 3, complete set
-COMMENT: [e + He(1S1) -> e + He(7P1), Excitation]  Ralchenko Yu V Janev R K Kato T Fursa D V
-COMMENT: Bray I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + He(7P1), Excitation] Ralchenko Yu V Janev R K Kato T Fursa D V Bray
+COMMENT: I and de Heer F J 2008 At. Data Nucl. Data Tables 94 603.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.431100e+1	0.000000e+0
@@ -2328,9 +2329,9 @@ He -> He+
 SPECIES: e / He
 PROCESS: E + He -> E + E + He+, Ionization
 PARAM.:  E = 24.5873 eV, complete set
-COMMENT: [e + He(1S1) -> e + e + He(+,1S2), Ionization]  Rapp and Englander-Golden 1965 J. Chem.
-COMMENT: Phys. 43 1464 Belmonte et al 2007  J. Phys. D: Appl. Phys. 40 7343.
-UPDATED: 2017-05-12 19:55:37
+COMMENT: [e + He(1S1) -> e + e + He(+,1S2), Ionization] Rapp and Englander-Golden 1965 J. Chem.
+COMMENT: Phys. 43 1464 Belmonte et al 2007 J. Phys. D: Appl. Phys. 40 7343.
+UPDATED: 2017-05-12 12:55:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.458730e+1	0.000000e+0

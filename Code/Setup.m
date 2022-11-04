@@ -25,6 +25,7 @@ classdef Setup < handle
     
     % ---- configuration properties ----
     
+    fileName = '';                  % setup file name
     unparsedInfo = cell.empty;      % cell array with the unparsed setup information
     info = struct.empty;            % parsed setup information needed to set up the components of the simulation
     
@@ -43,7 +44,8 @@ classdef Setup < handle
     % ---- objects of the simulation ----
     
     workCond;                       %
-    gui;                            % -> general objectes of the simulation
+    cli;                            % -> general objectes of the simulation
+    gui;                            %
     output;                         %
     
     electronKinetics;                     %
@@ -52,56 +54,78 @@ classdef Setup < handle
     electronKineticsCollisionArray;       %
     energyGrid;                           %
     
+    % ---- time counters ----
+    simulationStartTime;
+    
+  end
+
+  events
+    genericStatusMessage;
   end
   
   methods (Access = public)
     
     function setup = Setup(fileName)
       
+      % start (and save) stopwatch for the simulation
+      setup.simulationStartTime = tic;
+
+      % create CLI object
+      setup.cli = CLI(setup);
+      
       % parse setup file
+      setup.fileName = fileName;
+      notify(setup, 'genericStatusMessage', StatusEventData('Parsing setup file ...\n', 'status'));
+      start = tic;
       [setupStruct, setupCell] = Parse.setupFile(fileName);
+      str = sprintf('  Finished (%f seconds).\\n', toc(start));
+      notify(setup, 'genericStatusMessage', StatusEventData(str, 'status'));
       % save unstructured setup info for output and GUI
       setup.unparsedInfo = setupCell;
       % save structured info to set up the different components of the simulation
       setup.info = setupStruct;
-      % Perform a diagnostic of the correctness of the configuration provided by the user
-      setup.selfDiagnostic();
       
-      % check what modules of the simulation must be enabled (everything is disabled by default)
-      % GUI
-      if isfield(setup.info, 'gui') && setup.info.gui.isOn
-        setup.enableGui = true;
-      end
-      % Output
-      if isfield(setup.info, 'output') && setup.info.output.isOn
-        setup.enableOutput = true;
-      end
-      % Electron Kinetics
-      if isfield(setup.info, 'electronKinetics') && setup.info.electronKinetics.isOn
-        setup.enableElectronKinetics = true;
-      end
+      % Perform a diagnostic of the correctness of the configuration provided by the user
+      notify(setup, 'genericStatusMessage', StatusEventData('Performing selfdiagnostic of the setup file ...\n', 'status'));
+      start = tic;
+      setup.selfDiagnostic();
+      str = sprintf('  Finished (%f seconds).\\n', toc(start));
+      notify(setup, 'genericStatusMessage', StatusEventData(str, 'status'));
       
     end
     
     function electronKinetics = initializeSimulation(setup)
     % initializeSimulation creates the objects necessary to run the simulation specified in a particular setup.
       
-      % ----- START STOPWATCH FOR THE SIMULATION -----
-      tic
-      
       % ----- INITIAL MESSAGE -----
-      disp('Starting simulation...');
+      initializationStartTime = tic;
+      notify(setup, 'genericStatusMessage', StatusEventData('Initializing simulation:\n', 'status'));
       
       % ----- SET SIMULATION PATH -----
       path(path, [pwd filesep 'PropertyFunctions']);
+      dirContent = dir('PropertyFunctions');
+      for idx = find([dirContent.isdir]==1)
+        if ~any(strcmp(dirContent(idx).name, {'.' '..'}))
+          path(path, [dirContent(idx).folder filesep dirContent(idx).name]);
+        end
+      end
       path(path, [pwd filesep 'OtherAuxFunctions']);
+      dirContent = dir('OtherAuxFunctions');
+      for idx = find([dirContent.isdir]==1)
+        if ~any(strcmp(dirContent(idx).name, {'.' '..'}))
+          path(path, [dirContent(idx).folder filesep dirContent(idx).name]);
+        end
+      end
       
       % ----- SETTING UP THE WORKING CONDITIONS OF THE SIMULATION -----
       % setting up the working conditions
       setup.workCond = WorkingConditions(setup);
       
       % ----- SETTING UP THE ELECTRON KINETICS (LoKI-B) -----
-      if setup.enableElectronKinetics
+      if isfield(setup.info, 'electronKinetics') && setup.info.electronKinetics.isOn
+        setup.enableElectronKinetics = true;
+        start = tic;
+        notify(setup, 'genericStatusMessage', StatusEventData('\t- Setting up electron kinetics ...\n', 'status'));
         % setting up the gas mixture that is going to be used to solve the electron kinetics
         setup.createElectronKineticsGasMixture();
         % create energy grid object and save handle for later use
@@ -110,11 +134,15 @@ classdef Setup < handle
         Collision.adjustToEnergyGrid(setup.energyGrid, setup.electronKineticsCollisionArray);
         % setting up (and linking) the electron kinetics solver
         electronKinetics = setup.createElectronKinetics();
+        str = sprintf('\\t    Finished (%f seconds).\\n', toc(start));
+        notify(setup, 'genericStatusMessage', StatusEventData(str, 'status'));
       else
         electronKinetics = [];
       end
       
       % ----- SETTING UP JOBS INFORMATION -----
+      start = tic;
+      notify(setup, 'genericStatusMessage', StatusEventData('\t- Setting up other components ...\n', 'status'));
       % (partially implemented if electron kinetics is enabled and chemistry is disabled)
       if setup.enableElectronKinetics
         % select working conditions eligeble for jobs
@@ -141,17 +169,42 @@ classdef Setup < handle
           setup.numberOfJobs = setup.numberOfJobs*setup.jobMatrixSize(end);
         end
       end
+      str = sprintf('\\t    Finished (%f seconds).\\n', toc(start));
+      notify(setup, 'genericStatusMessage', StatusEventData(str, 'status'));
       
+      % ----- SETTING UP THE CLI -----
+      start = tic;
+      notify(setup, 'genericStatusMessage', StatusEventData('\t- Configuring CLI ...\n', 'status'));
+      setup.cli.configure();
+      str = sprintf('\\t    Finished (%f seconds).\\n', toc(start));
+      notify(setup, 'genericStatusMessage', StatusEventData(str, 'status'));
+
       % ----- SETTING UP THE GUI AND OUTPUT OF THE SIMULATION -----
-      % create GUI (if needed)
-      if setup.enableGui
+      % setting up the GUI object
+      if isfield(setup.info, 'gui') && setup.info.gui.isOn
+        setup.enableGui = true;
+        start = tic;
+        notify(setup, 'genericStatusMessage', StatusEventData('\t- Setting up GUI ...\n', 'status'));
         % create the object and save handle for later use
         setup.gui = GUI(setup);
+        str = sprintf('\\t    Finished (%f seconds).\\n', toc(start));
+        notify(setup, 'genericStatusMessage', StatusEventData(str, 'status'));
       end
       % setting up the output object
-      if setup.enableOutput
+      if isfield(setup.info, 'output') && setup.info.output.isOn
+        setup.enableOutput = true;
+        start = tic;
+        notify(setup, 'genericStatusMessage', StatusEventData('\t- Setting up Output ...\n', 'status'));
+        % create the object and save handle for later use
         setup.output = Output(setup);
+        str = sprintf('\\t    Finished (%f seconds).\\n', toc(start));
+        notify(setup, 'genericStatusMessage', StatusEventData(str, 'status'));
       end
+      
+      % ----- NOTIFY END OF THE INITIALIZATION AND START OF THE CALCULATIONS -----
+      str = sprintf('  Finished (%f seconds).\\n', toc(initializationStartTime));
+      notify(setup, 'genericStatusMessage', StatusEventData(str, 'status'));
+      notify(setup, 'genericStatusMessage', StatusEventData('Starting calculations: ...\n', 'status'));
       
     end
     
@@ -194,6 +247,30 @@ classdef Setup < handle
       
     end
     
+    function finishSimulation(setup)
+      
+      % ----- RESTORE SEARCH PATH -----
+      rmpath([pwd filesep 'PropertyFunctions']);
+      dirContent = dir('PropertyFunctions');
+      for idx = find([dirContent.isdir]==1)
+        if ~any(strcmp(dirContent(idx).name, {'.' '..'}))
+          rmpath([dirContent(idx).folder filesep dirContent(idx).name]);
+        end
+      end
+      rmpath([pwd filesep 'OtherAuxFunctions']);
+      dirContent = dir('OtherAuxFunctions');
+      for idx = find([dirContent.isdir]==1)
+        if ~any(strcmp(dirContent(idx).name, {'.' '..'}))
+          rmpath([dirContent(idx).folder filesep dirContent(idx).name]);
+        end
+      end
+      
+      % ----- FINISH MESSAGE -----
+      str = sprintf('  Finished (%f seconds).\n', toc(setup.simulationStartTime));
+      notify(setup, 'genericStatusMessage', StatusEventData(str, 'status'));
+      
+    end
+
   end
   
   methods (Access = private)
@@ -229,8 +306,9 @@ classdef Setup < handle
           productArray(end+1) = stateArray(productID);
           productStoiCoeff(end+1) = product.quantity;
         end
-        [collisionArray, ~] = Collision.add(LXCatEntry.type, target, productArray, productStoiCoeff, ...
-          LXCatEntry.isReverse, LXCatEntry.threshold, LXCatEntry.rawCrossSection, collisionArray, false);
+        [collisionArray, ~] = Collision.add(LXCatEntry.type, LXCatEntry.isMomentumTransfer, target, productArray, ...
+          productStoiCoeff, LXCatEntry.isReverse, LXCatEntry.threshold, LXCatEntry.rawCrossSection, collisionArray, ...
+          false);
       end
       
       % create "extra" collisions (and correspponding gases/states) in case they are specified in the setup file
@@ -253,8 +331,9 @@ classdef Setup < handle
             productArray(end+1) = stateArray(productID);
             productStoiCoeff(end+1) = product.quantity;
           end
-          [collisionArray, ~] = Collision.add(LXCatEntry.type, target, productArray, productStoiCoeff, ...
-            LXCatEntry.isReverse, LXCatEntry.threshold, LXCatEntry.rawCrossSection, collisionArray, true);
+          [collisionArray, ~] = Collision.add(LXCatEntry.type, LXCatEntry.isMomentumTransfer, target, productArray, ...
+            productStoiCoeff, LXCatEntry.isReverse, LXCatEntry.threshold, LXCatEntry.rawCrossSection, collisionArray, ...
+            true);
         end
       end
       
@@ -441,6 +520,14 @@ classdef Setup < handle
         % check for an Elastic collision to be defined, for each electronic state with population
         collisionArray = gas.checkElasticCollisions(collisionArray);
       end
+
+      % check for every collision to have non empty rawCrossSection property
+      for collision = collisionArray
+        if isempty(collision.rawCrossSection)
+          error(['Raw cross section not found for collision %s.\nCheck the corresponding LXCat file(s).' ...
+            '\nPlease, fix the problem and run the code again.'], collision.description);
+        end
+      end
       
       % save handles for later use
       setup.electronKineticsGasArray = gasArray;
@@ -480,6 +567,10 @@ classdef Setup < handle
       
       % local copy of the setup configuration
       setupInfo = setup.info;
+
+      % define strings used in all error messages
+      str1 = '\nError found in the configuration of the setup file.\n';
+      str2 = '\nPlease, fix the problem and run the code again.';
       
       % check working conditions
       workCondStruct = setupInfo.workingConditions;
@@ -490,25 +581,22 @@ classdef Setup < handle
           '(?<firstStep>[\(\)^\d.eE+-]+)\s*,\s*(?<finalTime>[\(\)^\d.eE+-]+)\s*,\s*(?<samplingType>linspace|logspace)\s*,\s*' ...
           '(?<samplingPoints>\d+)\s*,?\s*(?<functionParameters>.*)?'], 'names', 'once');
         if isempty(pulseInfoAux)
-          error(['Error found in the configuration of the setup file.\nWrong configuration for the field ' ...
-            '''workingConditions>reducedField''.\nPlease, fix the problem and run the code again.'],'foo');
+          error([str1 'Wrong configuration for the field ' ...
+            '''workingConditions>reducedField''.' str2],'foo');
         end
         pulseInfoAux.function = str2func(pulseInfoAux.function);
         pulseInfoAux.firstStep = str2num(pulseInfoAux.firstStep);
         pulseInfoAux.finalTime = str2num(pulseInfoAux.finalTime);
         pulseInfoAux.samplingPoints = str2double(pulseInfoAux.samplingPoints);
         if ~isnumeric(pulseInfoAux.firstStep) || isnan(pulseInfoAux.firstStep)
-          error(['Error found in the configuration of the setup file.\nWrong configuration for the field ' ...
-            '''workingConditions>reducedField''.\n''firstStep'' parameter should be numeric\nPlease, fix the ' ...
-            'problem and run the code again.'],'foo');
+          error([str1 'Wrong configuration for the field ' ...
+            '''workingConditions>reducedField''.\n''firstStep'' parameter should be numeric.' str2],'foo');
         elseif ~isnumeric(pulseInfoAux.finalTime) || isnan(pulseInfoAux.finalTime)
-          error(['Error found in the configuration of the setup file.\nWrong configuration for the field ' ...
-            '''workingConditions>reducedField''.\n''finalTime'' parameter should be numeric\nPlease, fix the ' ...
-            'problem and run the code again.'], 'foo');
+          error([str1 'Wrong configuration for the field ' ...
+            '''workingConditions>reducedField''.\n''finalTime'' parameter should be numeric.' str2], 'foo');
         elseif ~isnumeric(pulseInfoAux.samplingPoints) || isnan(pulseInfoAux.samplingPoints)
-          error(['Error found in the configuration of the setup file.\nWrong configuration for the field ' ...
-            '''workingConditions>reducedField''.\n''samplingPoints'' parameter should be numeric\nPlease, fix the ' ...
-            'problem and run the code again.'],'foo');
+          error([str1 'Wrong configuration for the field ' ...
+            '''workingConditions>reducedField''.\n''samplingPoints'' parameter should be numeric.' str2],'foo');
         end
         pulseInfoAux.functionParameters = regexp(pulseInfoAux.functionParameters, ',', 'split');
         for idx = 1:length(pulseInfoAux.functionParameters)
@@ -528,320 +616,277 @@ classdef Setup < handle
       % check working conditions to be positive quantities
       for field = fieldnames(workCondStruct)'
         if any(workCondStruct.(field{1})<0)
-          error(['Error found in the configuration of the setup file.\nNegative value found for the field' ...
-            '''workinConditions>%s''.\nPlease, fix the problem and run the code again.'], field{1});
+          error([str1 'Negative value found for the field' ...
+            '''workinConditions>%s''.' str2], field{1});
         end
       end
       % check for gas pressure (needed to evaluate gas density) to be defined when performing HF simulations
       if workCondStruct.excitationFrequency ~= 0
         if ~isfield(workCondStruct, 'gasPressure')
-          error(['Error found in the configuration of the setup file.\n''gasPressure'' field not found in the ' ...
-            '''workingConditions'' section of the setup file.\nPlease, fix the problem and run the code again.'], field{1});
+          error([str1 '''gasPressure'' field not found in the ' ...
+            '''workingConditions'' section of the setup file.' str2], field{1});
         elseif workCondStruct.gasPressure == 0
-          error(['Error found in the configuration of the setup file.\n''gasPressure'' must be different than ' ...
-            'zero for HF simulations.\nPlease, fix the problem and run the code again.'], field{1});
+          error([str1 '''gasPressure'' must be different than ' ...
+            'zero for HF simulations.' str2], field{1});
         end
       end
 
-      
       % check configuration of the electron kinetic module (in case it is present in the setup file)
       if isfield(setupInfo, 'electronKinetics')
         % check whether the isOn field is present and logical. Then in case it is true the checking continues
         if ~isfield(setupInfo.electronKinetics, 'isOn')
-          error(['Error found in the configuration of the setup file.\n''isOn'' field not found in the ' ...
-            '''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the code again.'],1);
+          error([str1 '''isOn'' field not found in the ' ...
+            '''electronKinetics'' section of the setup file.' str2],1);
         elseif ~islogical(setupInfo.electronKinetics.isOn)
-          error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-            '''electronKinetics>isOn''.\nValue should be logical (''true'' or ''false'').\nPlease, fix the problem ' ...
-            'and run the code again.'],1);
+          error([str1 'Wrong value for the field ' ...
+            '''electronKinetics>isOn''.\nValue should be logical (''true'' or ''false'').' str2],1);
         elseif setupInfo.electronKinetics.isOn
           % check whether the mandatory fields of the electron kinetic module (apart from isOn) are present when the
           % electron kinetic module is activated
           % --- 'eedfType' field
           if ~isfield(setupInfo.electronKinetics, 'eedfType')
-            error(['Error found in the configuration of the setup file.\n''eedfType'' field not found in the ' ...
-              '''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the code again.'],1);
+            error([str1 '''eedfType'' field not found in the ' ...
+              '''electronKinetics'' section of the setup file.' str2],1);
           elseif ~any(strcmp({'boltzmann' 'prescribedEedf'}, setupInfo.electronKinetics.eedfType))
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-              '''electronKinetics>eedfType''.\nValue should be either: ''boltzmann'' or ''prescribedEedf''.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 'Wrong value for the field ' ...
+              '''electronKinetics>eedfType''.\nValue should be either: ''boltzmann'' or ''prescribedEedf''.' str2],1);
           elseif strcmp(setupInfo.electronKinetics.eedfType, 'prescribedEedf')
             % check whether the shapeParameter field is present and the value is correct (double between 1 and 2)
             if ~isfield(setupInfo.electronKinetics, 'shapeParameter')
-              error(['Error found in the configuration of the setup file.\n''shapeParameter'' field not found in ' ...
-                'the ''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the code ' ...
-                'again.'],1);
+              error([str1 '''shapeParameter'' field not found in ' ...
+                'the ''electronKinetics'' section of the setup file.' str2],1);
             elseif ~isnumeric(setupInfo.electronKinetics.shapeParameter) || ...
                 length(setupInfo.electronKinetics.shapeParameter)~=1 || ...
                 setupInfo.electronKinetics.shapeParameter < 1 || ...
                 setupInfo.electronKinetics.shapeParameter > 2
-              error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+              error([str1 'Wrong value for the field ' ...
                 '''electronKinetics>shapeParameter''.\nValue should a number between 1 and 2 (1 for Maxwellian and ' ...
-                '2 for Druyvesteyn).\nPlease, fix the problem and run the code again.'],1);
+                '2 for Druyvesteyn).' str2],1);
             end
           end
           % --- 'ionizationOperatorType' field
           if ~isfield(setupInfo.electronKinetics, 'ionizationOperatorType')
-            error(['Error found in the configuration of the setup file.\n''ionizationOperatorType'' field not ' ...
-              'found in the ''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the ' ...
-              'code again.'],1);
+            error([str1 '''ionizationOperatorType'' field not ' ...
+              'found in the ''electronKinetics'' section of the setup file.' str2],1);
           elseif ~any(strcmp({'conservative' 'oneTakesAll' 'equalSharing' 'usingSDCS'}, ...
               setupInfo.electronKinetics.ionizationOperatorType))
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+            error([str1 'Wrong value for the field ' ...
               '''electronKinetics>ionizationOperatorType''.\nValue should be either: ''conservative'', ' ...
-              '''oneTakesAll'', ''equalSharing'' or ''usingSDCS''.\nPlease, fix the problem and run the code again.'],1);
+              '''oneTakesAll'', ''equalSharing'' or ''usingSDCS''.' str2],1);
           end
           % --- 'growthModelType' field
           if ~isfield(setupInfo.electronKinetics, 'growthModelType')
-            error(['Error found in the configuration of the setup file.\n''growthModelType'' field not ' ...
-              'found in the ''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the ' ...
-              'code again.'],1);
+            error([str1 '''growthModelType'' field not ' ...
+              'found in the ''electronKinetics'' section of the setup file.' str2],1);
           elseif ~any(strcmp({'temporal' 'spatial'}, setupInfo.electronKinetics.growthModelType))
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-              '''electronKinetics>growthModelType''.\nValue should be either: ''temporal'' or ''spatial''.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 'Wrong value for the field ' ...
+              '''electronKinetics>growthModelType''.\nValue should be either: ''temporal'' or ''spatial''.' str2],1);
           end
           % --- 'includeEECollisions' field
           if ~isfield(setupInfo.electronKinetics, 'includeEECollisions')
-            error(['Error found in the configuration of the setup file.\n''includeEECollisions'' field not ' ...
-              'found in the ''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the ' ...
-              'code again.'],1);
+            error([str1 '''includeEECollisions'' field not ' ...
+              'found in the ''electronKinetics'' section of the setup file.' str2],1);
           elseif ~islogical(setupInfo.electronKinetics.includeEECollisions)
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-              '''electronKinetics>includeEECollisions''.\nValue should be logical (''true'' or ''false'').\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 'Wrong value for the field ' ...
+              '''electronKinetics>includeEECollisions''.\nValue should be logical (''true'' or ''false'').' str2],1);
           elseif setupInfo.electronKinetics.includeEECollisions
             if ~isfield(workCondStruct, 'electronDensity')
-              error(['Error found in the configuration of the setup file.\n''electronDensity'' field not found ' ...
-                'in the ''workingConditions'' section of the setup file.\nPlease, fix the problem and run the ' ...
-                'code again.'],1);
+              error([str1 '''electronDensity'' field not found ' ...
+                'in the ''workingConditions'' section of the setup file.' str2],1);
             end
           end
           % --- 'LXCatFiles' field
           if ~isfield(setupInfo.electronKinetics, 'LXCatFiles')
-            error(['Error found in the configuration of the setup file.\n''LXCatFiles'' field not ' ...
-              'found in the ''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the ' ...
-              'code again.'],1);
+            error([str1 '''LXCatFiles'' field not ' ...
+              'found in the ''electronKinetics'' section of the setup file.' str2],1);
           end
           % --- 'gasProperties' field
           if ~isfield(setupInfo.electronKinetics, 'gasProperties')
-            error(['Error found in the configuration of the setup file.\n''gasProperties'' field not ' ...
-              'found in the ''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the ' ...
-              'code again.'],1);
+            error([str1 '''gasProperties'' field not ' ...
+              'found in the ''electronKinetics'' section of the setup file.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.gasProperties, 'mass')
-            error(['Error found in the configuration of the setup file.\n''mass'' field not found in the ' ...
-              '''electronKinetics>gasProperties'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''mass'' field not found in the ' ...
+              '''electronKinetics>gasProperties'' section of the setup file.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.gasProperties, 'fraction')
-            error(['Error found in the configuration of the setup file.\n''fraction'' field not found in the ' ...
-              '''electronKinetics>gasProperties'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''fraction'' field not found in the ' ...
+              '''electronKinetics>gasProperties'' section of the setup file.' str2],1);
           end
           % --- 'stateProperties' field
           if ~isfield(setupInfo.electronKinetics, 'stateProperties')
-            error(['Error found in the configuration of the setup file.\n''stateProperties'' field not ' ...
-              'found in the ''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the ' ...
-              'code again.'],1);
+            error([str1 '''stateProperties'' field not ' ...
+              'found in the ''electronKinetics'' section of the setup file.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.stateProperties, 'population')
-            error(['Error found in the configuration of the setup file.\n''population'' field not found in the ' ...
-              '''electronKinetics>stateProperties'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''population'' field not found in the ' ...
+              '''electronKinetics>stateProperties'' section of the setup file.' str2],1);
           end
           % --- 'numerics' field
           if ~isfield(setupInfo.electronKinetics, 'numerics')
-            error(['Error found in the configuration of the setup file.\n''numerics'' field not ' ...
-              'found in the ''electronKinetics'' section of the setup file.\nPlease, fix the problem and run the ' ...
-              'code again.'],1);
+            error([str1 '''numerics'' field not ' ...
+              'found in the ''electronKinetics'' section of the setup file.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.numerics, 'energyGrid')
-            error(['Error found in the configuration of the setup file.\n''energyGrid'' field not found in the ' ...
-              '''electronKinetics>numerics'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''energyGrid'' field not found in the ' ...
+              '''electronKinetics>numerics'' section of the setup file.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.numerics.energyGrid, 'maxEnergy')
-            error(['Error found in the configuration of the setup file.\n''maxEnergy'' field not found in the ' ...
-              '''electronKinetics>numerics>energyGrid'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''maxEnergy'' field not found in the ' ...
+              '''electronKinetics>numerics>energyGrid'' section of the setup file.' str2],1);
           elseif ~isnumeric(setupInfo.electronKinetics.numerics.energyGrid.maxEnergy) || ...
               length(setupInfo.electronKinetics.numerics.energyGrid.maxEnergy)~=1 || ...
               setupInfo.electronKinetics.numerics.energyGrid.maxEnergy <= 0
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-              '''electronKinetics>numerics>energyGrid>maxEnergy''.\nValue should be a single positive number.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 'Wrong value for the field ' ...
+              '''electronKinetics>numerics>energyGrid>maxEnergy''.\nValue should be a single positive number.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.numerics.energyGrid, 'cellNumber')
-            error(['Error found in the configuration of the setup file.\n''cellNumber'' field not found in the ' ...
-              '''electronKinetics>numerics>energyGrid'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''cellNumber'' field not found in the ' ...
+              '''electronKinetics>numerics>energyGrid'' section of the setup file.' str2],1);
           elseif ~isnumeric(setupInfo.electronKinetics.numerics.energyGrid.cellNumber) || ...
               length(setupInfo.electronKinetics.numerics.energyGrid.cellNumber)~=1 || ...
               setupInfo.electronKinetics.numerics.energyGrid.cellNumber <= 0 || ...
               mod(setupInfo.electronKinetics.numerics.energyGrid.cellNumber,1) ~= 0
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-              '''electronKinetics>numerics>energyGrid>cellNumber''.\nValue should be a single positive integer.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 'Wrong value for the field ' ...
+              '''electronKinetics>numerics>energyGrid>cellNumber''.\nValue should be a single positive integer.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.numerics, 'maxPowerBalanceRelError')
-            error(['Error found in the configuration of the setup file.\n''maxPowerBalanceRelError'' field not ' ...
-              'found in the ''electronKinetics>numerics'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''maxPowerBalanceRelError'' field not ' ...
+              'found in the ''electronKinetics>numerics'' section of the setup file.' str2],1);
           elseif ~isnumeric(setupInfo.electronKinetics.numerics.maxPowerBalanceRelError) || ...
               length(setupInfo.electronKinetics.numerics.maxPowerBalanceRelError) ~= 1 || ...
               setupInfo.electronKinetics.numerics.maxPowerBalanceRelError < 1e-15
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+            error([str1 'Wrong value for the field ' ...
               '''electronKinetics>numerics>energyGrid>maxPowerBalanceRelError''.\nValue should be a number ' ...
-              'larger than 1e-15.\nPlease, fix the problem and run the code again.'],1);
+              'larger than 1e-15.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.numerics, 'nonLinearRoutines')
-            error(['Error found in the configuration of the setup file.\n''nonLinearRoutines'' field not ' ...
-              'found in the ''electronKinetics>numerics'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''nonLinearRoutines'' field not ' ...
+              'found in the ''electronKinetics>numerics'' section of the setup file.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.numerics.nonLinearRoutines, 'algorithm')
-            error(['Error found in the configuration of the setup file.\n''algorithm'' field not ' ...
-              'found in the ''electronKinetics>numerics>nonLinearRoutines'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''algorithm'' field not ' ...
+              'found in the ''electronKinetics>numerics>nonLinearRoutines'' section of the setup file.' str2],1);
           elseif ~any(strcmp({'mixingDirectSolutions' 'temporalIntegration'}, ...
               setupInfo.electronKinetics.numerics.nonLinearRoutines.algorithm))
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+            error([str1 'Wrong value for the field ' ...
               '''electronKinetics>numerics>nonLinearRoutines>algorithm''.\nValue should be either: ' ...
-              '''mixingDirectSolutions'' or ''temporalIntegration''.\nPlease, fix the problem and run the code again.'],1);
+              '''mixingDirectSolutions'' or ''temporalIntegration''.' str2],1);
           elseif ~isfield(setupInfo.electronKinetics.numerics.nonLinearRoutines, 'maxEedfRelError')
-            error(['Error found in the configuration of the setup file.\n''maxEedfRelError'' field not ' ...
-              'found in the ''electronKinetics>numerics>nonLinearRoutines'' section of the setup file.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 '''maxEedfRelError'' field not ' ...
+              'found in the ''electronKinetics>numerics>nonLinearRoutines'' section of the setup file.' str2],1);
           elseif ~isnumeric(setupInfo.electronKinetics.numerics.nonLinearRoutines.maxEedfRelError) || ...
               length(setupInfo.electronKinetics.numerics.nonLinearRoutines.maxEedfRelError) ~= 1 || ...
               setupInfo.electronKinetics.numerics.nonLinearRoutines.maxEedfRelError < 1e-15
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+            error([str1 'Wrong value for the field ' ...
               '''electronKinetics>numerics>nonLinearRoutines>maxEedfRelError''.\nValue should be a number ' ...
-              'larger than 1e-15.\nPlease, fix the problem and run the code again.'],1);
+              'larger than 1e-15.' str2],1);
           end
           % check configuration of the CAR in case it is activated
           if isfield(setupInfo.electronKinetics, 'CARgases')
             if ~isfield(setupInfo.electronKinetics.gasProperties, 'rotationalConstant')
-              error(['Error found in the configuration of the setup file.\n''rotationalConstant'' field not found ' ...
-                'in the ''electronKinetics>gasProperties'' section of the setup file.\n' ...
-                'Please, fix the problem and run the code again.'],1);
+              error([str1 '''rotationalConstant'' field not found ' ...
+                'in the ''electronKinetics>gasProperties'' section of the setup file.' str2],1);
             elseif ~isfield(setupInfo.electronKinetics.gasProperties, 'electricQuadrupoleMoment')
-              error(['Error found in the configuration of the setup file.\n''electricQuadrupoleMoment'' field not ' ...
-                'found in the ''electronKinetics>gasProperties'' section of the setup file.\n' ...
-                'Please, fix the problem and run the code again.'],1);
+              error([str1 '''electricQuadrupoleMoment'' field not ' ...
+                'found in the ''electronKinetics>gasProperties'' section of the setup file.' str2],1);
             end
           end
           % check the configuration of pulsed simulations (when simulating field pulses)
           if setup.pulsedSimulation
             % pulsed simulations only implemented for the electron kinetics
             if isfield(setupInfo, 'chemistry') && setupInfo.chemistry.isOn
-              error(['Error found in the configuration of the setup file.\nPulsed simulations are not implemented ...'
-                'for the chemistry module.\nPlease, fix the problem and run the code again.'],1);
+              error([str1 'Pulsed simulations are not implemented for the chemistry module.' str2],1);
             end
             % pulsed simulations not allowed for oscillating fields
             if any(workCondStruct.excitationFrequency~=0)
-              error(['Error found in the configuration of the setup file.\nPulsed simulations are not allowed for ...'
-                'oscillating fields.\nPlease, fix the problem and run the code again.'],1);
+              error([str1 'Pulsed simulations are not allowed for oscillating fields.' str2],1);
             end
             % smart grid not inplemented for pulsed simulations
             if isfield(setupInfo.electronKinetics.numerics.energyGrid, 'smartGrid')
-              error(['Error found in the configuration of the setup file.\n''smartGrid'' feature not implemented ' ...
-                'for pulsed simulations.\nPlease, fix the problem and run the code again.'],1);
+              error([str1 '''smartGrid'' feature not implemented for pulsed simulations.' str2],1);
             end
             % pulsed simulations must use the "temporalIntegration" algorithm
             if ~strcmp(setupInfo.electronKinetics.numerics.nonLinearRoutines.algorithm, 'temporalIntegration')
-              error(['Error found in the configuration of the setup file.\nWhen doing pulsed simulations the ' ...
+              error([str1 'When doing pulsed simulations the ' ...
                 'parameter ''electronKinetics>numerics>nonLinearRoutines>algorithm'' must be set to ' ...
-                '''temporalIntegration''.\nPlease, fix the problem and run the code again.'],1);
+                '''temporalIntegration''.' str2],1);
             end
             % pulsed simulations must use either: conservative ionization or temporal growth for the electron density
             if ~strcmp(setupInfo.electronKinetics.ionizationOperatorType, 'conservative') && ...
                 strcmp(setupInfo.electronKinetics.growthModelType, 'spatial')
-              error(['Error found in the configuration of the setup file.\nWhen doing pulsed simulations the ' ...
-                'parameter ''electronKinetics>growthModelType'' must be set to ''temporal''.\nPlease, fix the ' ...
-                'problem and run the code again.'],1);
+              error([str1 'When doing pulsed simulations the ' ...
+                'parameter ''electronKinetics>growthModelType'' must be set to ''temporal''.' str2],1);
             end
           end
           % check configuration of the smart grid in case it is activated
           if isfield(setupInfo.electronKinetics.numerics.energyGrid, 'smartGrid')
             if ~isfield(setupInfo.electronKinetics.numerics.energyGrid.smartGrid, 'minEedfDecay')
-              error(['Error found in the configuration of the setup file.\n''minEedfDecay'' field not found in the ' ...
-                '''electronKinetics>numerics>energyGrid>smartGrid'' section of the setup file.\n' ...
-                'Please, fix the problem and run the code again.'],1);
+              error([str1 '''minEedfDecay'' field not found in the ' ...
+                '''electronKinetics>numerics>energyGrid>smartGrid'' section of the setup file.' str2],1);
             elseif ~isnumeric(setupInfo.electronKinetics.numerics.energyGrid.smartGrid.minEedfDecay) || ...
                 length(setupInfo.electronKinetics.numerics.energyGrid.smartGrid.minEedfDecay)~=1 || ...
                 setupInfo.electronKinetics.numerics.energyGrid.smartGrid.minEedfDecay <= 0 || ...
                 mod(setupInfo.electronKinetics.numerics.energyGrid.smartGrid.minEedfDecay,1) ~= 0
-              error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+              error([str1 'Wrong value for the field ' ...
                 '''electronKinetics>numerics>energyGrid>smartGrid>minEedfDecay''.\nValue should be a single ' ...
-                'positive integer.\nPlease, fix the problem and run the code again.'],1);
+                'positive integer.' str2],1);
             elseif ~isfield(setupInfo.electronKinetics.numerics.energyGrid.smartGrid, 'maxEedfDecay')
-              error(['Error found in the configuration of the setup file.\n''maxEedfDecay'' field not found in the ' ...
-                '''electronKinetics>numerics>energyGrid>smartGrid'' section of the setup file.\n' ...
-                'Please, fix the problem and run the code again.'],1);
+              error([str1 '''maxEedfDecay'' field not found in the ' ...
+                '''electronKinetics>numerics>energyGrid>smartGrid'' section of the setup file.' str2],1);
             elseif ~isnumeric(setupInfo.electronKinetics.numerics.energyGrid.smartGrid.maxEedfDecay) || ...
                 length(setupInfo.electronKinetics.numerics.energyGrid.smartGrid.maxEedfDecay)~=1 || ...
                 setupInfo.electronKinetics.numerics.energyGrid.smartGrid.maxEedfDecay <= 0 || ...
                 mod(setupInfo.electronKinetics.numerics.energyGrid.smartGrid.maxEedfDecay,1) ~= 0 || ...
                 setupInfo.electronKinetics.numerics.energyGrid.smartGrid.minEedfDecay >= ...
                 setupInfo.electronKinetics.numerics.energyGrid.smartGrid.maxEedfDecay
-              error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+              error([str1 'Wrong value for the field ' ...
                 '''electronKinetics>numerics>energyGrid>smartGrid>maxEedfDecay''.\nValue should be a single ' ...
-                'positive integer (larger than minEedfDecay).\nPlease, fix the problem and run the code again.'],1);
+                'positive integer (larger than minEedfDecay).' str2],1);
             elseif ~isfield(setupInfo.electronKinetics.numerics.energyGrid.smartGrid, 'updateFactor')
-              error(['Error found in the configuration of the setup file.\n''updateFactor'' field not found in the ' ...
-                '''electronKinetics>numerics>energyGrid>smartGrid'' section of the setup file.\n' ...
-                'Please, fix the problem and run the code again.'],1);
+              error([str1 '''updateFactor'' field not found in the ' ...
+                '''electronKinetics>numerics>energyGrid>smartGrid'' section of the setup file.' str2],1);
             elseif ~isnumeric(setupInfo.electronKinetics.numerics.energyGrid.smartGrid.updateFactor) || ...
                 length(setupInfo.electronKinetics.numerics.energyGrid.smartGrid.updateFactor)~=1 || ...
                 setupInfo.electronKinetics.numerics.energyGrid.smartGrid.updateFactor <= 0 || ...
                 setupInfo.electronKinetics.numerics.energyGrid.smartGrid.updateFactor >= 1
-              error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+              error([str1 'Wrong value for the field ' ...
                 '''electronKinetics>numerics>energyGrid>smartGrid>updateFactor''.\nValue should be a number ' ...
-                'larger than 0 and smaller than 1.\nPlease, fix the problem and run the code again.'],1);
+                'larger than 0 and smaller than 1.' str2],1);
             end
           end
           % check configuration of the mixingDirectSolutions algorithm in case it is selected
           if strcmp(setupInfo.electronKinetics.numerics.nonLinearRoutines.algorithm, 'mixingDirectSolutions')
             if ~isfield(setupInfo.electronKinetics.numerics.nonLinearRoutines, 'mixingParameter')
-              error(['Error found in the configuration of the setup file.\n''mixingParameter'' field not ' ...
-                'found in the ''electronKinetics>numerics>nonLinearRoutines'' section of the setup file.\n' ...
-                'Please, fix the problem and run the code again.'],1);
+              error([str1 '''mixingParameter'' field not ' ...
+                'found in the ''electronKinetics>numerics>nonLinearRoutines'' section of the setup file.' str2],1);
             elseif ~isnumeric(setupInfo.electronKinetics.numerics.nonLinearRoutines.mixingParameter) || ...
                 length(setupInfo.electronKinetics.numerics.nonLinearRoutines.mixingParameter) ~= 1 || ...
                 setupInfo.electronKinetics.numerics.nonLinearRoutines.mixingParameter < 0 || ...
                 setupInfo.electronKinetics.numerics.nonLinearRoutines.mixingParameter > 1
-              error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
+              error([str1 'Wrong value for the field ' ...
                 '''electronKinetics>numerics>energyGrid>numerics>nonLinearRoutines>mixingParameter''.\nValue ' ...
-                'should be a number between 0 and 1.\nPlease, fix the problem and run the code again.'],1);
+                'should be a number between 0 and 1.' str2],1);
             end
           end
           % check the model for electron density growth when simulating time oscillating fields
           if strcmp(setupInfo.electronKinetics.growthModelType, 'spatial') && any(workCondStruct.excitationFrequency~=0)
-            error(['Error found in the configuration of the setup file.\nThe spatial electron density growth ' ...
-              'model can not be selected when an HF field is to be used.\nPlease, fix the problem and run the ' ...
-              'code again.'],1);
+            error([str1 'The spatial electron density growth model can not be selected with an HF field.' str2],1);
           end
         end
       end
       
       % check for 'empty' simulations (simulations with no module activated)
       if (~isfield(setupInfo, 'electronKinetics') || ~setupInfo.electronKinetics.isOn) 
-        error(['Error found in the configuration of the setup file.\nModule, ''electronKinetics'' ' ...
-          'is not activated.\nPlease, fix the problem and run the code again.'],1);
+        error([str1 'Module ''electronKinetics'' is not activated.' str2],1);
       end
       
       % check configuration of the graphical user interface (in case it is present in the setup file)
       if isfield(setupInfo, 'gui')
         % check whether the isOn field is present and logical. Then in case it is true the checking continues
         if ~isfield(setupInfo.gui, 'isOn')
-          error(['Error found in the configuration of the setup file.\n''isOn'' field not found in the ' ...
-            '''gui'' section of the setup file.\nPlease, fix the problem and run the code again.'],1);
+          error([str1 '''isOn'' field not found in the ''gui'' section of the setup file.' str2],1);
         elseif ~islogical(setupInfo.gui.isOn)
-          error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-            '''gui>isOn''.\nValue should be logical (''true'' or ''false'').\nPlease, fix the problem ' ...
-            'and run the code again.'],1);
+          error([str1 'Wrong value for the field ''gui>isOn''.\nValue should be logical (''true'' or ' ...
+            '''false'').' str2],1);
         elseif setupInfo.gui.isOn
           if ~isfield(setupInfo.gui, 'refreshFrequency')
-            error(['Error found in the configuration of the setup file.\n''refreshFrequency'' field not found ' ...
-              'in the ''gui'' section of the setup file.\nPlease, fix the problem and run the code again.'],1);
+            error([str1 '''refreshFrequency'' field not found in the ''gui'' section of the setup file.' str2],1);
           elseif ~isnumeric(setupInfo.gui.refreshFrequency) || length(setupInfo.gui.refreshFrequency)~=1 || ...
               setupInfo.gui.refreshFrequency <= 0 || mod(setupInfo.gui.refreshFrequency,1) ~= 0
-            error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-              '''gui>refreshFrequency''.\nValue should be a single positive integer.\n' ...
-              'Please, fix the problem and run the code again.'],1);
+            error([str1 'Wrong value for the field ''gui>refreshFrequency''.\nValue should be a single positive ' ...
+              'integer.' str2],1);
           end
         end
       end
@@ -850,53 +895,37 @@ classdef Setup < handle
       if isfield(setupInfo, 'output')
         % check whether the isOn field is present and logical. Then in case it is true the checking continues
         if ~isfield(setupInfo.output, 'isOn')
-          error(['Error found in the configuration of the setup file.\n''isOn'' field not found in the ' ...
-            '''output'' section of the setup file.\nPlease, fix the problem and run the code again.'],1);
+          error([str1 '''isOn'' field not found in the ''output'' section of the setup file.' str2],1);
         elseif ~islogical(setupInfo.output.isOn)
-          error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-            '''output>isOn''.\nValue should be logical (''true'' or ''false'').\nPlease, fix the problem ' ...
-            'and run the code again.'],1);
+          error([str1 'Wrong value for the field ''output>isOn''.\nValue should be logical (''true'' or ' ...
+            '''false'').' str2],1);
         elseif setupInfo.output.isOn
           if ~isfield(setupInfo.output, 'dataFiles')
-            error(['Error found in the configuration of the setup file.\n''dataFiles'' field not found ' ...
-              'in the ''output'' section of the setup file.\nPlease, fix the problem and run the code again.'],1);
+            error([str1 '''dataFiles'' field not found in the ''output'' section of the setup file.' str2],1);
           else
             dataFiles = setupInfo.output.dataFiles;
             if ischar(dataFiles)
               dataFiles = {dataFiles};
             end
+            possibleDataFiles = {'none' 'inputs' 'log'};
             if isfield(setupInfo, 'electronKinetics') && setupInfo.electronKinetics.isOn
-              possibleDataFiles = {'none' 'eedf' 'swarmParameters' 'rateCoefficients' 'powerBalance' 'lookUpTable'};
-              possibleDataFilesStr = 'none, eedf, swarmParameters, rateCoefficients, powerBalance or lookUpTable';
+              possibleDataFiles = [possibleDataFiles 'eedf' 'swarmParameters' 'rateCoefficients' 'powerBalance' ...
+                'lookUpTable'];
             end
+            possibleDataFilesStr = possibleDataFiles{1};
+            for idx = 2:length(possibleDataFiles)-1
+              possibleDataFilesStr = [possibleDataFilesStr ', ' possibleDataFiles{idx}];
+            end
+            possibleDataFilesStr = [possibleDataFilesStr ' or ' possibleDataFiles{end}];
             for dataFile = dataFiles
               if ~any(strcmp(possibleDataFiles, dataFile))
-                error(['Error found in the configuration of the setup file.\nWrong value for the field ' ...
-                  '''output>dataFiles''.\nPossible data files are: %s.\nPlease, fix the problem and run the ' ...
-                  'code again.'], possibleDataFilesStr);
+                error([str1 'Wrong value for the field ''output>dataFiles''.\nPossible data files are: %s.' str2], ...
+                  possibleDataFilesStr);
               end
             end
           end
         end
       end
-      
-    end
-    
-  end
-  
-  methods (Static)
-    
-    function finishSimulation()
-      
-      % ----- RESTORE SEARCH PATH -----
-      rmpath([pwd filesep 'PropertyFunctions']);
-      rmpath([pwd filesep 'OtherAuxFunctions']);
-      
-      % ----- FINISH MESSAGE -----
-      disp('Finished!');
-      
-      % ----- STOP STOPWATCH FOR THE SIMULATION -----
-      toc
       
     end
     

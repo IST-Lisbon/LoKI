@@ -1,8 +1,8 @@
 LXCat, www.lxcat.net
-Generated on 02 Apr 2018. All rights reserved.
+Generated on 23 Sep 2022. All rights reserved.
 
 RECOMMENDED REFERENCE FORMAT
-- IST-Lisbon database, www.lxcat.net, retrieved on April 2, 2018.
+- IST-Lisbon database, www.lxcat.net, retrieved on September 23, 2022.
 Be aware that some databases and solvers can additionally have instructions how to reference corresponding data.
 Please check below in the headers of databases.
 
@@ -21,14 +21,15 @@ the first name either by arrow "->" (dash + greater than) or by double-head arro
 greater than), e.g. "Ar -> Ar*" and "Ar <-> Ar*", respectively. In the later case BOLSIG+ will automatically
 define the inverse superelastic process, constructing the superelastic cross-section by detailed balancing, and
 considering the indicated excited state as the target. In this case, the ratio of statistical weights must be input in
-the 3rd line (see below).  Alternatively, superelastic collisions could be defined explicitly as excitation collisions
-with a negative electron energy loss with user input cross sections and species name, "Ar*", for example.
+the 3rd line (see below).
 3rd line
 For elastic and effective collisions, the ratio of the electron mass to the target particle mass. For excitation or
 ionization collisions, the electron energy loss (nominally the threshold energy) in eV. For attachment, the 3rd line is
 missing. In case of an excitation process where an excited state has been indicated on the 2nd line using double-head
 arrow "<->", the 3rd line must specify also ratio of the statistical weights of the final state to the initial state
-as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section.
+as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section. The
+statistical weight ratio, if given, will also be used by the automatic superelastics option in BOLSIG+. If this ratio is
+not provided then BOLSIG+ will assume it unity.
 from 4th line (optionally)
 User comments and reference information, maximum 100 lines. The only constraint on format is that these comment lines
 must not start with a number.
@@ -42,13 +43,13 @@ PERMLINK:         www.lxcat.net/IST-Lisbon
 DESCRIPTION:      IST-Lisbon database contains up-to-date electron-neutral scattering cross sections (together with the
                   measured swarm parameters used to validate these data), resulting from the research effort of the
                   Group N-Plasmas Reactive: Modelling and Engineering (N-PRiME) with IPFN/IST (Instituto de Plasmas e
-                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal. The data, compiled from the literature,
-                  correspond to contributions from different authors (see detailed references in the database). For each
-                  gas the database presents a COMPLETE SET of cross sections, validated against measured swarm
-                  parameters by solving the two-term homogeneous electron Boltzmann equation. In most cases, predictions
-                  are in agreement with measurements within 1-20%, for reduced electric fields E/N ~ 1e-4 - 500 Td. To
-                  improve predictions at low E/N, some sets need to be completed with rotational cross sections, also
-                  available in the database.
+                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal.  The data, compiled from the
+                  literature, correspond to contributions from different authors (see detailed references in the
+                  database). For each gas the database presents a COMPLETE SET of cross sections, validated against
+                  measured swarm parameters by solving the two-term homogeneous electron Boltzmann equation. In most
+                  cases, predictions are in agreement with measurements within 1-20%, for reduced electric fields E/N ~
+                  1e-4 - 500 Td. To improve predictions at low E/N, some sets need to be completed with rotational cross
+                  sections, also available in the database.
 CONTACT:          LL Alves and V Guerra
                   e-mail: llalves@@tecnico.ulisboa.pt
 HOW TO REFERENCE: L.L. Alves, ''The IST-Lisbon database on LXCat'' J. Phys. Conf. Series 2014, 565, 1
@@ -61,24 +62,24 @@ COMMENT: E. Gerjouy and S. Stein, ''Rotational Excitation by Slow Electrons'' 19
          N2(X,v=0,J+2) (J=0,1,.,30), which complements the COMPLETE set of N2 cross sections, available in this database under
          group N2.
          Calculations using these cross sections should include inelastic-stepwise and superelastic transitions between
-         rotational states N2(J=0), N2(J=1),.., N2(J=32), assuming a Boltzmann distribution for their populations: n_J/N =
-         (g_J/P_rot) exp[-E_J/(k_B T_g)] with P_rot = Sum_(J=0)^30 g_J exp[-E_J/(k_B T_g)] [cf. L.S. Frost and A.V. Phelps 1962
-         Phys. Rev. 127 1621]. At T_g=300K, these populations are n_0/N=1.29E-02 n_1/N=1.89E-02 n_2/N=6.07E-02 n_3/N=4.01E-02
-         n_4/N=9.54E-02 n_5/N=5.29E-02 n_6/N=1.11E-01 n_7/N=5.61E-02 n_8/N=1.09E-01 n_9/N=5.11E-02 n_10/N=9.32E-02
+         rotational states N2(J=0), N2(J=1),.., N2(J=32), assuming a Boltzmann distribution for their populations: 
+         n_J/N = (g_J/P_rot) exp[-E_J/(k_B T_g)] with P_rot = Sum_(J=0)^30 g_J exp[-E_J/(k_B T_g)] [cf. L.S. Frost and A.V.
+         Phelps 1962 Phys. Rev. 127 1621]. At T_g=300K, these populations are n_0/N=1.29E-02 n_1/N=1.89E-02 n_2/N=6.07E-02
+         n_3/N=4.01E-02 n_4/N=9.54E-02 n_5/N=5.29E-02 n_6/N=1.11E-01 n_7/N=5.61E-02 n_8/N=1.09E-01 n_9/N=5.11E-02 n_10/N=9.32E-02
          n_11/N=4.12E-02 n_12/N=7.11E-02 n_13/N=2.98E-02 n_14/N=4.89E-02 n_15/N=1.96E-02 n_16/N=3.05E-02 n_17/N=1.17E-02
          n_18/N=1.74E-02 n_19/N=6.35E-03 n_20/N=9.07E-03 n_21/N=3.17E-03 n_22/N=4.33E-03 n_23/N=1.45E-03 n_24/N=1.90E-03
          n_25/N=6.09E-04 n_26/N=7.66E-04 n_27/N=2.36E-04 n_28/N=2.84E-04 n_29/N=8.39E-05 n_30/N=9.72E-05 n_31/N=2.75E-05
          n_32/N=3.06E-05.
 
-******************************************************** N2-rot ********************************************************
+******************************************************* Nitrogen *******************************************************
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=0-J=2), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=0-J=2), Rotational
 PARAM.:  E = 0.0015 eV, g1/g0 = 5, complete set
-COMMENT: [e + N2(X,v=0,J=0) <-> e + N2(X,v=0,J=2), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=0) <-> e + N2(X,v=0,J=2), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:21:27
+UPDATED: 2022-07-22 04:00:39
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.500000e-3	0.000000e+0
@@ -194,12 +195,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=1-J=3), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=1-J=3), Rotational
 PARAM.:  E = 0.0025 eV, g1/g0 = 2.33333, complete set
-COMMENT: [e + N2(X,v=0,J=1) <-> e + N2(X,v=0,J=3), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=1) <-> e + N2(X,v=0,J=3), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:21:53
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.500000e-3	0.000000e+0
@@ -305,12 +306,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=2-J=4), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=2-J=4), Rotational
 PARAM.:  E = 0.0035 eV, g1/g0 = 1.8, complete set
-COMMENT: [e + N2(X,v=0,J=2) <-> e + N2(X,v=0,J=4), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=2) <-> e + N2(X,v=0,J=4), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:28:44
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.500000e-3	0.000000e+0
@@ -406,12 +407,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=3-J=5), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=3-J=5), Rotational
 PARAM.:  E = 0.0045 eV, g1/g0 = 1.57143, complete set
-COMMENT: [e + N2(X,v=0,J=3) <-> e + N2(X,v=0,J=5), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=3) <-> e + N2(X,v=0,J=5), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:31:33
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  4.500000e-3	0.000000e+0
@@ -497,12 +498,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=4-J=6), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=4-J=6), Rotational
 PARAM.:  E = 0.0055 eV, g1/g0 = 1.44444, complete set
-COMMENT: [e + N2(X,v=0,J=4) <-> e + N2(X,v=0,J=6), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=4) <-> e + N2(X,v=0,J=6), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:33:27
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  5.500000e-3	0.000000e+0
@@ -578,12 +579,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=5-J=7), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=5-J=7), Rotational
 PARAM.:  E = 0.0065 eV, g1/g0 = 1.36364, complete set
-COMMENT: [e + N2(X,v=0,J=5) <-> e + N2(X,v=0,J=7), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=5) <-> e + N2(X,v=0,J=7), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:34:55
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  6.500000e-3	0.000000e+0
@@ -649,12 +650,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=6-J=8), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=6-J=8), Rotational
 PARAM.:  E = 0.0075 eV, g1/g0 = 1.30769, complete set
-COMMENT: [e + N2(X,v=0,J=6) <-> e + N2(X,v=0,J=8), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=6) <-> e + N2(X,v=0,J=8), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:36:23
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  7.500000e-3	0.000000e+0
@@ -710,12 +711,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=7-J=9), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=7-J=9), Rotational
 PARAM.:  E = 0.0085 eV, g1/g0 = 1.26667, complete set
-COMMENT: [e + N2(X,v=0,J=7) <-> e + N2(X,v=0,J=9), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=7) <-> e + N2(X,v=0,J=9), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:38:10
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.500000e-3	0.000000e+0
@@ -761,12 +762,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=8-J=10), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=8-J=10), Rotational
 PARAM.:  E = 0.0095 eV, g1/g0 = 1.23529, complete set
-COMMENT: [e + N2(X,v=0,J=8) <-> e + N2(X,v=0,J=10), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=8) <-> e + N2(X,v=0,J=10), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:39:51
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  9.500000e-3	0.000000e+0
@@ -802,12 +803,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=9-J=11), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=9-J=11), Rotational
 PARAM.:  E = 0.0105 eV, g1/g0 = 1.21053, complete set
-COMMENT: [e + N2(X,v=0,J=9) <-> e + N2(X,v=0,J=11), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=9) <-> e + N2(X,v=0,J=11), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:41:54
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.050000e-2	0.000000e+0
@@ -848,12 +849,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=10-J=12), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=10-J=12), Rotational
 PARAM.:  E = 0.0115 eV, g1/g0 = 1.19048, complete set
-COMMENT: [e + N2(X,v=0,J=10) <-> e + N2(X,v=0,J=12), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=10) <-> e + N2(X,v=0,J=12), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:43:23
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.150000e-2	0.000000e+0
@@ -893,12 +894,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=11-J=13), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=11-J=13), Rotational
 PARAM.:  E = 0.0125 eV, g1/g0 = 1.17391, complete set
-COMMENT: [e + N2(X,v=0,J=11) <-> e + N2(X,v=0,J=13), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=11) <-> e + N2(X,v=0,J=13), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:45:05
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.250000e-2	0.000000e+0
@@ -937,12 +938,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=12-J=14), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=12-J=14), Rotational
 PARAM.:  E = 0.0135 eV, g1/g0 = 1.16, complete set
-COMMENT: [e + N2(X,v=0,J=12) <-> e + N2(X,v=0,J=14), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=12) <-> e + N2(X,v=0,J=14), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:46:15
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.350000e-2	0.000000e+0
@@ -980,12 +981,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=13-J=15), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=13-J=15), Rotational
 PARAM.:  E = 0.0145 eV, g1/g0 = 1.14815, complete set
-COMMENT: [e + N2(X,v=0,J=13) <-> e + N2(X,v=0,J=15), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=13) <-> e + N2(X,v=0,J=15), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:47:45
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.450000e-2	0.000000e+0
@@ -1022,12 +1023,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=14-J=16), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=14-J=16), Rotational
 PARAM.:  E = 0.0155 eV, g1/g0 = 1.13793, complete set
-COMMENT: [e + N2(X,v=0,J=14) <-> e + N2(X,v=0,J=16), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=14) <-> e + N2(X,v=0,J=16), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:51:22
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.550000e-2	0.000000e+0
@@ -1063,12 +1064,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=15-J=17), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=15-J=17), Rotational
 PARAM.:  E = 0.0165 eV, g1/g0 = 1.12903, complete set
-COMMENT: [e + N2(X,v=0,J=15) <-> e + N2(X,v=0,J=17), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=15) <-> e + N2(X,v=0,J=17), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:53:17
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.650000e-2	0.000000e+0
@@ -1103,12 +1104,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=16-J=18), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=16-J=18), Rotational
 PARAM.:  E = 0.0175 eV, g1/g0 = 1.12121, complete set
-COMMENT: [e + N2(X,v=0,J=16) <-> e + N2(X,v=0,J=18), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=16) <-> e + N2(X,v=0,J=18), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:54:36
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.750000e-2	0.000000e+0
@@ -1142,12 +1143,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=17-J=19), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=17-J=19), Rotational
 PARAM.:  E = 0.0185 eV, g1/g0 = 1.11429, complete set
-COMMENT: [e + N2(X,v=0,J=17) <-> e + N2(X,v=0,J=19), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=17) <-> e + N2(X,v=0,J=19), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:56:01
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.850000e-2	0.000000e+0
@@ -1180,12 +1181,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=18-J=20), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=18-J=20), Rotational
 PARAM.:  E = 0.0195 eV, g1/g0 = 1.10811, complete set
-COMMENT: [e + N2(X,v=0,J=18) <-> e + N2(X,v=0,J=20), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=18) <-> e + N2(X,v=0,J=20), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:57:58
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.950000e-2	0.000000e+0
@@ -1226,12 +1227,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=19-J=21), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=19-J=21), Rotational
 PARAM.:  E = 0.0205 eV, g1/g0 = 1.10256, complete set
-COMMENT: [e + N2(X,v=0,J=19) <-> e + N2(X,v=0,J=21), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=19) <-> e + N2(X,v=0,J=21), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 18:59:42
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.050000e-2	0.000000e+0
@@ -1271,12 +1272,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=20-J=22), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=20-J=22), Rotational
 PARAM.:  E = 0.0215 eV, g1/g0 = 1.09756, complete set
-COMMENT: [e + N2(X,v=0,J=20) <-> e + N2(X,v=0,J=22), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=20) <-> e + N2(X,v=0,J=22), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:01:15
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.150000e-2	0.000000e+0
@@ -1315,12 +1316,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=21-J=23), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=21-J=23), Rotational
 PARAM.:  E = 0.0225 eV, g1/g0 = 1.09302, complete set
-COMMENT: [e + N2(X,v=0,J=21) <-> e + N2(X,v=0,J=23), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=21) <-> e + N2(X,v=0,J=23), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:02:58
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.250000e-2	0.000000e+0
@@ -1358,12 +1359,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=22-J=24), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=22-J=24), Rotational
 PARAM.:  E = 0.0235 eV, g1/g0 = 1.08889, complete set
-COMMENT: [e + N2(X,v=0,J=22) <-> e + N2(X,v=0,J=24), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=22) <-> e + N2(X,v=0,J=24), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:04:16
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.350000e-2	0.000000e+0
@@ -1400,12 +1401,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=23-J=25), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=23-J=25), Rotational
 PARAM.:  E = 0.0245 eV, g1/g0 = 1.08511, complete set
-COMMENT: [e + N2(X,v=0,J=23) <-> e + N2(X,v=0,J=25), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=23) <-> e + N2(X,v=0,J=25), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:05:30
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.450000e-2	0.000000e+0
@@ -1441,12 +1442,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=24-J=26), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=24-J=26), Rotational
 PARAM.:  E = 0.0255 eV, g1/g0 = 1.08163, complete set
-COMMENT: [e + N2(X,v=0,J=24) <-> e + N2(X,v=0,J=26), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=24) <-> e + N2(X,v=0,J=26), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:14:27
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.550000e-2	0.000000e+0
@@ -1481,12 +1482,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=25-J=27), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=25-J=27), Rotational
 PARAM.:  E = 0.0265 eV, g1/g0 = 1.07843, complete set
-COMMENT: [e + N2(X,v=0,J=25) <-> e + N2(X,v=0,J=27), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=25) <-> e + N2(X,v=0,J=27), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:14:56
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.650000e-2	0.000000e+0
@@ -1520,12 +1521,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=26-J=28), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=26-J=28), Rotational
 PARAM.:  E = 0.0275 eV, g1/g0 = 1.07547, complete set
-COMMENT: [e + N2(X,v=0,J=26) <-> e + N2(X,v=0,J=28), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=26) <-> e + N2(X,v=0,J=28), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:16:59
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.750000e-2	0.000000e+0
@@ -1558,12 +1559,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=27-J=29), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=27-J=29), Rotational
 PARAM.:  E = 0.0285 eV, g1/g0 = 1.07273, complete set
-COMMENT: [e + N2(X,v=0,J=27) <-> e + N2(X,v=0,J=29), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=27) <-> e + N2(X,v=0,J=29), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:19:00
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.850000e-2	0.000000e+0
@@ -1595,12 +1596,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=28-J=30), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=28-J=30), Rotational
 PARAM.:  E = 0.0295 eV, g1/g0 = 1.07018, complete set
-COMMENT: [e + N2(X,v=0,J=28) <-> e + N2(X,v=0,J=30), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=28) <-> e + N2(X,v=0,J=30), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:20:40
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.950000e-2	0.000000e+0
@@ -1631,12 +1632,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=29-J=31), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=29-J=31), Rotational
 PARAM.:  E = 0.0305 eV, g1/g0 = 1.0678, complete set
-COMMENT: [e + N2(X,v=0,J=29) <-> e + N2(X,v=0,J=31), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=29) <-> e + N2(X,v=0,J=31), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:23:15
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.050000e-2	0.000000e+0
@@ -1671,12 +1672,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 ROTATIONAL
-SPECIES: e / N2-rot
-PROCESS: E + N2-rot <-> E + N2 (J=30-J=32), Rotational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (J=30-J=32), Rotational
 PARAM.:  E = 0.0315 eV, g1/g0 = 1.06557, complete set
-COMMENT: [e + N2(X,v=0,J=30) <-> e + N2(X,v=0,J=32), Rotational] E. Gerjuoy and S. Stein 1955
+COMMENT: [e + N2(X,v=0,J=30) <-> e + N2(X,v=0,J=32), Rotational] Gerjuoy E and Stein S 1955
 COMMENT: Phys. Rev. 97 1671.
-UPDATED: 2017-09-03 19:25:00
+UPDATED: 2022-07-22 04:16:07
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.150000e-2	0.000000e+0

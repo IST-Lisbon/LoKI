@@ -1,8 +1,10 @@
 LXCat, www.lxcat.net
-Generated on 28 Jun 2020. All rights reserved.
+Generated on 23 Sep 2022. All rights reserved.
 
 RECOMMENDED REFERENCE FORMAT
-- Alves database, www.lxcat.net, retrieved on June 28, 2020.
+- IST-Lisbon database, www.lxcat.net, retrieved on September 23, 2022.
+Be aware that some databases and solvers can additionally have instructions how to reference corresponding data.
+Please check below in the headers of databases.
 
 CROSS SECTION DATA FORMAT
 In downloaded files, each collision process is defined by a block consisting of
@@ -36,19 +38,31 @@ Table of the cross section as a function of energy. The table starts and ends by
 and has otherwise two numbers per line: the energy in eV and the cross section in m2.
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-DATABASE:         Alves (Alves's test table)
-PERMLINK:         www.lxcat.net/Alves
-DESCRIPTION:      Luis Lemos Alves
+DATABASE:         IST-Lisbon database
+PERMLINK:         www.lxcat.net/IST-Lisbon
+DESCRIPTION:      IST-Lisbon database contains up-to-date electron-neutral scattering cross sections (together with the
+                  measured swarm parameters used to validate these data), resulting from the research effort of the
+                  Group N-Plasmas Reactive: Modelling and Engineering (N-PRiME) with IPFN/IST (Instituto de Plasmas e
+                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal.  The data, compiled from the
+                  literature, correspond to contributions from different authors (see detailed references in the
+                  database). For each gas the database presents a COMPLETE SET of cross sections, validated against
+                  measured swarm parameters by solving the two-term homogeneous electron Boltzmann equation. In most
+                  cases, predictions are in agreement with measurements within 1-20%, for reduced electric fields E/N ~
+                  1e-4 - 500 Td. To improve predictions at low E/N, some sets need to be completed with rotational cross
+                  sections, also available in the database.
+CONTACT:          LL Alves and V Guerra
+                  e-mail: llalves@@tecnico.ulisboa.pt
+HOW TO REFERENCE: L.L. Alves, ''The IST-Lisbon database on LXCat'' J. Phys. Conf. Series 2014, 565, 1
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ************************************************************************************************************************
 
-COMMENT: Ogloblina P, Tejero-del-Caz A, Guerra V and Alves L L, quotElectron impact cross sections for carbon monoxide and
-         their importance in the electron kinetics of CO2-CO mixturesquot 2020 Plasma Sources Sci Technol. 29 015002.
+COMMENT: Ogloblina P, Tejero-del-Caz A, Guerra V and Alves L L, ''Electron impact cross sections for carbon monoxide and their
+         importance in the electron kinetics of CO2-CO mixtures'' 2020 Plasma Sources Sci Technol. 29 015002.
          CO-rot is a set of rotational excitation cross sections by electron impact, for transitions CO(X,v=0,J) -->
          CO(X,v=0,J+1) (J=0,1, … ,16), which complements the COMPLETE set of CO cross sections, available in this database
          under group CO. The cross sections were based on the work of Hake R D and Phelps A V, ‘’Momentum-transfer and
-         inelastic-collision cross sections for electrons in O  CO, and CO2’’ 1967 Phys. Rev. 158 70. For the first five
+         inelastic-collision cross sections for electrons in O2, CO, and CO2’’ 1967 Phys. Rev. 158 70. For the first five
          rotational excitations, the cross sections were adjusted near the threshold in order to yield an effective
          momentum-transfer cross section similar to that of Land J E 1978 J. Appl. Phys. 49 5716. For the other transitions, we
          used the analytical expression proposed by Hake and Phelps for a dipole moment of 4.4e-2 (in units of ea_0).

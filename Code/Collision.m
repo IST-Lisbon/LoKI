@@ -30,46 +30,65 @@ classdef Collision < handle
     ID = -1;    % ID that identifies the collision in the collision 
                 %  array of the gas
     
-		type = '';  % type of collision as defined in LXCat file posible values  
-                %  are: 'Elastic', 'Effective', 'Excitation', 'Vibrational', 
-                %  'Rotational', 'Ionization' and 'Attachment'
+		type = '';  % type of collision. Supported types defined in constant property supportedCollisions
 
     target = State.empty;       % handle to the target of the collision
     productArray = State.empty; % handle to the products of the collision
     productStoiCoeff = [];      % array of stoichiometric coefficients for the products
     
-    isExtra = false;            % true when the collision is not meant to be used in the electron kinetics calculations
-    isReverse = false;          % true when super elastic collision is defined
-    threshold = 0.0;            % energy threshold of the collision (eV)
-    rawCrossSection = [];       % as read from LXCat file, 2 rows (eV m^2)
+    isExtra = false;                      % true when the collision is not to be used in the electron kinetics calculations
+    isReverse = false;                    % true when super elastic collision is defined
+    threshold = 0.0;                      % energy threshold of the collision (eV)
+    rawCrossSection = [];                 % integral cross section as read from LXCat file, 2 rows (eV m^2)
+    rawMomentumTransferCrossSection = []; % momentum-transfer cross section as read from LXCat file, 2 rows (eV m^2)
     
-    energyGrid = Grid.empty;    % handle to the energy grid of the simulation
-    energyGridListener;         % handle to the listener of changes in the energy grid
-    crossSection = [];          % interpolated into the grid, 1 row (m^2)
+    energyGrid = Grid.empty;            % handle to the energy grid of the simulation
+    energyGridListener;                 % handle to the listener of changes in the energy grid
+    crossSection = [];                  % integral cross section interpolated into the grid, 1 row (m^2)
+    momentumTransferCrossSection = [];  % momentum-transfer cross section interpolated into the grid, 1 row (m^2)
+
     
     ineRateCoeff = [];  % inelastic rate coefficient of the collision obtained once the eedf is known (->)
     supRateCoeff = [];  % superelastic rate coefficient of the collision obtained once the eedf is known (if <->)
     
   end
 
+  properties (Constant = true)
+    supportedCollisions = {'Effective' 'Elastic' 'Rotational' 'Vibrational' 'Excitation' 'Ionization' 'Attachment'};
+  end
+
   methods (Access = public)
 
-    function collision = Collision(type, target, productArray, productStoiCoeff, isReverse, threshold, ...
-        rawCrossSection, isExtra)
+    function collision = Collision(type, isMomentumTransfer, target, productArray, productStoiCoeff, isReverse, ...
+        threshold, rawCrossSection, isExtra)
       persistent lastID;
       if isempty(lastID)
         lastID = 0;
       end
       lastID = lastID + 1;
       collision.ID = lastID;
-      collision.type = type;
       collision.target = target;
       collision.productArray = productArray;
       collision.productStoiCoeff = productStoiCoeff;
       collision.isExtra = isExtra;
       collision.isReverse = isReverse;
       collision.threshold = threshold;
-      collision.rawCrossSection = rawCrossSection;
+      collision.type = type;
+      if strcmp('Elastic', type) || strcmp('Effective', type) || ~isMomentumTransfer
+        collision.rawCrossSection = rawCrossSection;
+      else
+        collision.rawMomentumTransferCrossSection = rawCrossSection;
+      end
+      if ~any(strcmp(type, collision.supportedCollisions))
+        strSupportedCollisions = '';
+        for idx = 1:length(collision.supportedCollisions)-1
+          strSupportedCollisions = [strSupportedCollisions collision.supportedCollisions{idx} ', '];
+        end
+        strSupportedCollisions = [strSupportedCollisions(1:end-2) ' and ' collision.supportedCollisions{end}];
+        error(['Error while creating collision ''%s''.\n''%s'' collisions are not supported by LoKI.\nPlease, ' ...
+          'check your LXCat files.\nSupported collisions are: %s\n'], collision.description, type, ...
+          strSupportedCollisions);
+      end
       if isExtra
         target.gas.collisionArrayExtra(end+1) = collision;
         target.collisionArrayExtra(end+1) = collision;
@@ -87,15 +106,13 @@ classdef Collision < handle
             productArray.isTarget = true;
           end
         else
-          error(['Error while creating collision ''%s''. Klein-Rosseland microreversibility relation valid only ' ...
+          error(['Error while creating collision ''%s''.\nKlein-Rosseland microreversibility relation valid only ' ...
             'for binary collisions'], collision.description);
         end
       end
-      if strcmp(type, 'Effective') || strcmp(type, 'Elastic')
-        if ~strcmp(target.type, 'ele')
-          error(['Found ''%s'' collision with ''%s'' as target [%s].\n%s collisions are only allowed for ' ...
-            'electronic states, please check LXCat files.\n'], type, target.name, collision.description, type);
-        end
+      if any(strcmp(type, {'Effective' 'Elastic'})) && ~strcmp(target.type, 'ele')
+        error(['Found ''%s'' collision with ''%s'' as target [%s].\n%s collisions are only allowed for ' ...
+          'electronic states, please check LXCat files.\n'], type, target.name, collision.description, type);
       end
     end
     
@@ -182,11 +199,12 @@ classdef Collision < handle
       end
       
       % save interpolated values of the cross section in crossSection property
-      collision.crossSection = collision.interpolatedCrossSection(energyGrid.node);
+      [collision.crossSection, collision.momentumTransferCrossSection] = ...
+        collision.interpolatedCrossSection(energyGrid.node);
       
     end
         
-    function crossSection = interpolatedCrossSection(collision, energyValues)
+    function [crossSection, momentumTransferCrossSection] = interpolatedCrossSection(collision, energyValues)
     % interpolatedCrossSection returns the values of the cross section of a
     % "collision" interpolated at certain "energyValues". The interpolation
     % is performed with the interp1 matlab function, with linear
@@ -203,17 +221,36 @@ classdef Collision < handle
             break;
           end
         end
-        if minIndex == 0
-          return;
-        end
       end
-      crossSection(minIndex:end) = interp1(collision.rawCrossSection(1,:), ...
-        collision.rawCrossSection(2,:),energyValues(minIndex:end), 'linear', ...
-        0.0);
+      if minIndex > 0
+        crossSection(minIndex:end) = interp1(collision.rawCrossSection(1,:), collision.rawCrossSection(2,:), ...
+          energyValues(minIndex:end), 'linear', 0.0);
+      end
+
+      if ~isempty(collision.rawMomentumTransferCrossSection)
+        momentumTransferCrossSection = zeros(1,length(energyValues));
+        minIndex = 0;
+        if strcmp(collision.type, 'Effective') || strcmp(collision.type, 'Elastic')
+          minIndex = 1;
+        else
+          for i = 1:length(energyValues)
+            if energyValues(i)>collision.threshold
+              minIndex = i;
+              break;
+            end
+          end
+        end
+        if minIndex > 0
+          momentumTransferCrossSection(minIndex:end) = interp1(collision.rawMomentumTransferCrossSection(1,:), ...
+            collision.rawMomentumTransferCrossSection(2,:), energyValues(minIndex:end), 'linear', 0.0);
+        end
+      else
+        momentumTransferCrossSection = [];
+      end
       
     end
     
-    function crossSection = superElasticCrossSection(collision, energyValue)
+    function [crossSection, momentumTransferCrossSection] = superElasticCrossSection(collision, energyValue)
     % superElasticCrossSection returns the super elastic cross section of a certain collision at the specified 
     % energyValues by using the Klein-Rosseland michroreversivility relation:
     % 
@@ -243,9 +280,6 @@ classdef Collision < handle
         end
       end
       
-      % initialization of the super elastic cross section
-      crossSection = zeros(1,length(energyValue));
-      
       % Klein-Rosseland microreversivility relation (super elastic cross
       %  section is zero at zero energy)
       if energyValue(1)==0
@@ -257,10 +291,18 @@ classdef Collision < handle
       else
         minIndex = 1;
       end
-      crossSection(minIndex:end) = (collision.target.statisticalWeight/...
-        collision.productArray.statisticalWeight)*(1+collision.threshold./...
-        energyValue(minIndex:end)).*collision.interpolatedCrossSection(energyValue(minIndex:end)+collision.threshold);
-
+      aux = (collision.target.statisticalWeight/collision.productArray.statisticalWeight)*...
+        (1+collision.threshold./energyValue(minIndex:end));
+      [directCrossSection, directMomentumTransferCrossSection] = ...
+        collision.interpolatedCrossSection(energyValue(minIndex:end)+collision.threshold);
+      crossSection = zeros(1,length(energyValue));
+      crossSection(minIndex:end) = aux.*directCrossSection;
+      if isempty(directMomentumTransferCrossSection)
+        momentumTransferCrossSection = [];
+      else
+        momentumTransferCrossSection = zeros(1,length(energyValue));
+        momentumTransferCrossSection(minIndex:end) = aux.*directMomentumTransferCrossSection;
+      end
       
     end
     
@@ -270,13 +312,13 @@ classdef Collision < handle
     % is (are) also stored in the collision properties.
     
       % evaluate auxiliary variables
-      factor = sqrt(2.0*Constant.electronCharge/Constant.electronMass);
+      gamma = Constant.gamma;
       lmin = floor(collision.threshold/collision.energyGrid.step);
       cellCrossSection = (collision.crossSection(lmin+1:end-1)+collision.crossSection(lmin+2:end))./2;
       aux = cellCrossSection.*collision.energyGrid.cell(lmin+1:end);
     
       % evaluate inelastic rate coefficient
-      ineRateCoeff = factor*sum(aux.*eedf(lmin+1:end))*collision.energyGrid.step;
+      ineRateCoeff = gamma*sum(aux.*eedf(lmin+1:end))*collision.energyGrid.step;
       collision.ineRateCoeff = ineRateCoeff;
       
       % evaluate superelastic rate coefficient (if collision is reverse)
@@ -292,7 +334,7 @@ classdef Collision < handle
         else
           statWeightRatio = targetStatWeight/productStatWeight;
         end
-        supRateCoeff = factor*statWeightRatio*sum(aux.*eedf(1:end-lmin))*collision.energyGrid.step;
+        supRateCoeff = gamma*statWeightRatio*sum(aux.*eedf(1:end-lmin))*collision.energyGrid.step;
         collision.supRateCoeff = supRateCoeff;
       else
         supRateCoeff = [];
@@ -319,7 +361,8 @@ classdef Collision < handle
       end
       
       % save new interpolated values of the cross section in crossSection property
-      collision.crossSection = collision.interpolatedCrossSection(energyGrid.node);
+      [collision.crossSection, collision.momentumTransferCrossSection] = ...
+        collision.interpolatedCrossSection(energyGrid.node);
       
     end
     
@@ -327,15 +370,19 @@ classdef Collision < handle
   
   methods (Static)
     
-    function [collisionArray, collisionID] = add(type, target, productArray, productStoiCoeff, isReverse, ...
-        threshold, rawCrossSection, collisionArray, isExtra)
+    function [collisionArray, collisionID] = add(type, isMomentumTransfer, target, productArray, productStoiCoeff, ...
+        isReverse, threshold, rawCrossSection, collisionArray, isExtra)
     % addCollision (needs to be written)
       
       collisionID = Collision.find(type, target, productArray, productStoiCoeff, isReverse, threshold);
       if collisionID == -1
-        collisionArray(end+1) = Collision(type, target, productArray, productStoiCoeff, isReverse, threshold, ...
-          rawCrossSection, isExtra);
+        collisionArray(end+1) = Collision(type, isMomentumTransfer, target, productArray, productStoiCoeff, ...
+          isReverse, threshold, rawCrossSection, isExtra);
         collisionID = collisionArray(end).ID;
+      elseif isMomentumTransfer && isempty(collisionArray(collisionID).rawMomentumTransferCrossSection)
+        collisionArray(collisionID).rawMomentumTransferCrossSection = rawCrossSection;
+      elseif ~isMomentumTransfer && isempty(collisionArray(collisionID).rawCrossSection)
+        collisionArray(collisionID).rawCrossSection = rawCrossSection;
       else
         warning('Avoiding duplicated electron impact collision:\n\t''%s''\n', collisionArray(collisionID).description);
       end

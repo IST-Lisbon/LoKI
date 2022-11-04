@@ -51,7 +51,8 @@ classdef Parse
       % definition of regular expressions to parse LXCat file
       LXCatRegExp1 = 'PROCESS: (?<reactants>.+?)(?<direction>->|<->) (?<products>.+?), (?<type>\w+)';
       LXCatRegExp2 = 'E = (?<threshold>[\d.e+-]+) eV';
-      LXCatRegExp3 = '\[(?<reactants>.+?)(?<direction>->|<->)(?<products>.+?), (?<type>\w+)\]';
+      LXCatRegExp3 = ['\[(?<reactants>.+?)(?<direction>->|<->)(?<products>.+?), (?<type>\w+)' ...
+        '(?<subtype>, momentum-transfer)?\]'];
       % create a cell array with filenames in case only one file is
       % received as input
       if ischar(fileName)
@@ -300,6 +301,11 @@ function LXCatEntryArray = addLXCatEntry(description, parameter, rawCrossSection
 % LXCatEntryArray.
       
   LXCatEntryArray(end+1).type = description.type;
+  if isempty(description.subtype)
+    LXCatEntryArray(end).isMomentumTransfer = false;
+  else
+    LXCatEntryArray(end).isMomentumTransfer = true;
+  end
   if strcmp(description.direction, '->')
     LXCatEntryArray(end).isReverse = false;
   elseif strcmp(description.direction, '<->')

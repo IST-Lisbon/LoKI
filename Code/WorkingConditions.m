@@ -29,7 +29,9 @@ classdef WorkingConditions < handle
   properties
     gasPressure = [];
     gasTemperature = [];
+    nearWallTemperature = [];
     wallTemperature = [];
+    extTemperature = [];
     gasDensity = [];
     surfaceSiteDensity = [];
     electronDensity = [];
@@ -54,6 +56,7 @@ classdef WorkingConditions < handle
     updatedChamberLength
     updatedReducedField
     updatedExcitationFrequency
+    genericStatusMessage
   end
   
   methods (Access = public)
@@ -103,34 +106,46 @@ classdef WorkingConditions < handle
             notify(workCond, 'updatedGasPressure');
             notify(workCond, 'updatedGasDensity');
             notify(workCond, 'updatedExcitationFrequency');
-            
+            str = sprintf('\\t- Updated gas pressure (%g Pa).\\n', newValues(idx));
+
           case 'gasTemperature'
             workCond.gasDensity = workCond.gasPressure/(Constant.boltzmann*workCond.gasTemperature);
             workCond.reducedExcFreqSI = workCond.excitationFrequency*2*pi/workCond.gasDensity;
             notify(workCond, 'updatedGasTemperature'); 
             notify(workCond, 'updatedGasDensity');
             notify(workCond, 'updatedExcitationFrequency');
-            
+            str = sprintf('\\t- Updated gas temperature (%g K).\\n', newValues(idx));
+
           case 'electronDensity'
             notify(workCond, 'updatedElectronDensity');
+            str = sprintf('\\t- Updated electron density (%g m^-3).\\n', newValues(idx));
             
           case 'electronTemperature'
             notify(workCond, 'updatedElectronTemperature');
+            str = sprintf('\\t- Updated electron temperature (%g eV).\\n', newValues(idx));
             
           case 'chamberLength'
             notify(workCond, 'updatedChamberLength');
+            str = sprintf('\\t- Updated chamber length (%g m).\\n', newValues(idx));
             
           case 'chamberRadius'
             notify(workCond, 'updatedChamberRadius');
+            str = sprintf('\\t- Updated chamber radius (%g m).\\n', newValues(idx));
             
           case 'reducedField'
             workCond.reducedFieldSI = workCond.reducedField*1e-21;
             notify(workCond, 'updatedReducedField');
+            str = sprintf('\\t- Updated reduced field (%g Td).\\n', newValues(idx));
             
           case 'excitationFrequency'
             workCond.reducedExcFreqSI = workCond.excitationFrequency*2*pi/workCond.gasDensity;
             notify(workCond, 'updatedExcitationFrequency');
+            str = sprintf('\\t- Updated excitation frequency (%g s^-1).\\n', newValues(idx));
+
         end
+
+        % notify change of property for logging purpose 
+        notify(workCond, 'genericStatusMessage', StatusEventData(str, 'status'));
       end
       
     end

@@ -27,13 +27,14 @@ classdef GUI < handle
   properties (Access = private)
     
     handle;
+    cli;
+    eedfGasArray;
     collisionArray;
     solutions = struct.empty;
-    eedfGasArray;
     refreshFrequency;
     evolvingParameter;
     evolvingParameterPopUpMenuStr;
-    isSimulationHF;
+    isSimulationHF = false;
     
     setupPanel;
     setupTabGroup;
@@ -55,6 +56,13 @@ classdef GUI < handle
     crossSectionLegend;
     crossSectionPopUpMenu;
     crossSectionClearButton;
+    inputRateCoeffTab;
+    inputRateCoeffList;
+    inputRateCoeffInfo1;
+    inputRateCoeffInfo2;
+    inputRateCoeffInfo3;
+    inputRateCoeffInfo4;
+    inputRateCoeffInfo5;
     redDiffTab;
     redDiffLogScaleCheckBoxX;
     redDiffLogScaleCheckBoxY;
@@ -104,8 +112,8 @@ classdef GUI < handle
     powerBalanceInfo;
     swarmParametersTab;
     swarmParametersInfo;
-    rateCoeffTab;
-    rateCoeffInfo;
+    electronImpactRateCoeffOutputTab;
+    electronImpactRateCoeffOutputInfo;
 
     statusPanel;
     statusTabGroup;
@@ -118,6 +126,15 @@ classdef GUI < handle
     
     function gui = GUI(setup)
       
+      % store handle to the CLI
+      gui.cli = setup.cli;
+
+      % add listener to status messages of the setup object
+      addlistener(setup, 'genericStatusMessage', @gui.genericStatusMessage);
+
+      % add listener of the working conditions object
+      addlistener(setup.workCond, 'genericStatusMessage', @gui.genericStatusMessage);
+
       % store refresh frequency of the GUI
       if isfield(setup.info.gui, 'refreshFrequency')
         gui.refreshFrequency = setup.info.gui.refreshFrequency; 
@@ -131,15 +148,19 @@ classdef GUI < handle
       % display the setup info in the GUI
       gui.setupFileInfo.String = setup.unparsedInfo;
 
-      % evaluate flag to change the GUI in the case of HF simulations
-      gui.isSimulationHF = setup.workCond.reducedExcFreqSI>0;
-
-      % add listener to update the GUI when a new solution for the EEDF is found
-      addlistener(setup.electronKinetics, 'obtainedNewEedf', @gui.newEedf);
       % store handle array for all the gases in the electron kinetics
       gui.eedfGasArray = setup.electronKineticsGasArray;
       % store handle array for all the collisions in order to display their cross sections
       gui.collisionArray = setup.electronKineticsCollisionArray;
+      % add listener to status messages of the electron kinetics object
+      addlistener(setup.electronKinetics, 'genericStatusMessage', @gui.genericStatusMessage);
+      % add listener to update the GUI when a new solution for the EEDF is found
+      addlistener(setup.electronKinetics, 'obtainedNewEedf', @gui.newEedf);
+      % evaluate flag to change the GUI in the case of HF simulations (initialized as false)
+      if setup.workCond.reducedExcFreqSI>0
+        gui.isSimulationHF = true;
+      end
+
       % create electronKinetics related tabs
       switch class(setup.electronKinetics)
         case 'Boltzmann'
@@ -171,7 +192,7 @@ classdef GUI < handle
       gui.createCrossSectionTab();
       gui.createPowerBalanceTab();
       gui.createSwarmParametersTab();
-      gui.createRateCoeffTab();
+      gui.createElectronImpactRateCoeffOutputTab();
 
       % display the gui
       drawnow;
@@ -210,7 +231,7 @@ classdef GUI < handle
       gui.logTab = uitab('Parent', gui.statusTabGroup, 'Title', 'Simulation Log');
       gui.logInfo = uicontrol('Parent', gui.logTab, 'Style', 'edit', 'Units', 'normalized', ...
         'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', 'FontName', 'Monospaced', ...
-        'Fontsize', 10, 'HorizontalAlignment', 'left');
+        'Fontsize', 10, 'HorizontalAlignment', 'left', 'String', gui.cli.logStr);
       
       % create setup panel
       gui.setupPanel = uipanel('Parent', gui.handle, 'FontSize', 12, 'FontWeight', 'Bold', 'Title', 'Setup', ...
@@ -437,11 +458,11 @@ classdef GUI < handle
       
     end
     
-    function createRateCoeffTab(gui)
+    function createElectronImpactRateCoeffOutputTab(gui)
       
-      gui.rateCoeffTab = uitab('Parent', gui.resultsTextTabGroup, 'Title', 'Rate Coefficients');
-      gui.rateCoeffInfo = uicontrol('Parent', gui.rateCoeffTab, 'Style', 'edit', ...
-        'Units', 'normalized', 'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', ...
+      gui.electronImpactRateCoeffOutputTab = uitab('Parent', gui.resultsTextTabGroup, 'Title', 'Rate Coefficients');
+      gui.electronImpactRateCoeffOutputInfo = uicontrol('Parent', gui.electronImpactRateCoeffOutputTab, ...
+        'Style', 'edit', 'Units', 'normalized', 'Position', [0.01 0.01 0.98 0.98], 'Max', 2, 'Enable', 'inactive', ...
         'FontName', 'Monospaced', 'Fontsize', 10, 'HorizontalAlignment', 'left');
       
     end
@@ -535,7 +556,7 @@ classdef GUI < handle
         inputParamValues(idx) = gui.solutions(idx).workCond.(evolvingParameter);
         redDiff(idx) = gui.solutions(idx).swarmParam.redDiffCoeff;
         redMob(idx) = gui.solutions(idx).swarmParam.redMobility;
-        if ~isempty(gui.solutions(idx).swarmParam.redMobilityHF)
+        if gui.isSimulationHF
           redMobHF(idx) = gui.solutions(idx).swarmParam.redMobilityHF;
         end
         redDiffEnergy(idx) = gui.solutions(idx).swarmParam.redDiffCoeffEnergy;
@@ -836,7 +857,7 @@ classdef GUI < handle
       end
       
     end
-    
+
     function eedfPopUpMenuHandler(gui, ~, ~)
     
       % evaluate solution(s) to plot
@@ -887,19 +908,13 @@ classdef GUI < handle
       drawnow;
     
     end
-    
+
     function resultsTextPopUpMenuHandler(gui, ~, ~)
     
       % evaluate solution to show
       solutionID = gui.resultsTextPopUpMenu.Value;
     
       % show selected solution(s)
-      if isfield(gui.solutions(solutionID), 'densitiesTime')
-        gui.updateFinalDensitiesInfo(solutionID);
-      end
-      if isfield(gui.solutions(solutionID), 'reactionRates')
-        gui.updateFinalBalanceInfo(solutionID);
-      end
       if isfield(gui.solutions(solutionID), 'power')
         gui.updatePowerBalanceInfo(solutionID);
       end
@@ -922,49 +937,49 @@ classdef GUI < handle
       % create information to display
       gases = fields(power.gases);
       powerStr = cell(1,44+length(gases)*20);
-      powerStr{1} = sprintf('                               Field = %#+.3e (eVm3/s)', power.field);
-      powerStr{2} = sprintf('           Elastic collisions (gain) = %#+.3e (eVm3/s)', power.elasticGain);
-      powerStr{3} = sprintf('           Elastic collisions (loss) = %#+.3e (eVm3/s)', power.elasticLoss);
-      powerStr{4} = sprintf('                          CAR (gain) = %#+.3e (eVm3/s)', power.carGain);
-      powerStr{5} = sprintf('                          CAR (loss) = %#+.3e (eVm3/s)', power.carLoss);
-      powerStr{6} = sprintf('     Excitation inelastic collisions = %#+.3e (eVm3/s)', power.excitationIne);
-      powerStr{7} = sprintf('  Excitation superelastic collisions = %#+.3e (eVm3/s)', power.excitationSup);
-      powerStr{8} = sprintf('    Vibrational inelastic collisions = %#+.3e (eVm3/s)', power.vibrationalIne);
-      powerStr{9} = sprintf(' Vibrational superelastic collisions = %#+.3e (eVm3/s)', power.vibrationalSup);
-      powerStr{10} = sprintf('     Rotational inelastic collisions = %#+.3e (eVm3/s)', power.rotationalIne);
-      powerStr{11} = sprintf('  Rotational superelastic collisions = %#+.3e (eVm3/s)', power.rotationalSup);
-      powerStr{12} = sprintf('               Ionization collisions = %#+.3e (eVm3/s)', power.ionizationIne);
-      powerStr{13} = sprintf('               Attachment collisions = %#+.3e (eVm3/s) +', power.attachmentIne);
-      powerStr{14} = sprintf('             Electron density growth = %#+.3e (eVm3/s)', power.eDensGrowth);
+      powerStr{1} = sprintf('                               Field = %#+.3e (eVm^3s^-1)', power.field);
+      powerStr{2} = sprintf('           Elastic collisions (gain) = %#+.3e (eVm^3s^-1)', power.elasticGain);
+      powerStr{3} = sprintf('           Elastic collisions (loss) = %#+.3e (eVm^3s^-1)', power.elasticLoss);
+      powerStr{4} = sprintf('                          CAR (gain) = %#+.3e (eVm^3s^-1)', power.carGain);
+      powerStr{5} = sprintf('                          CAR (loss) = %#+.3e (eVm^3s^-1)', power.carLoss);
+      powerStr{6} = sprintf('     Excitation inelastic collisions = %#+.3e (eVm^3s^-1)', power.excitationIne);
+      powerStr{7} = sprintf('  Excitation superelastic collisions = %#+.3e (eVm^3s^-1)', power.excitationSup);
+      powerStr{8} = sprintf('    Vibrational inelastic collisions = %#+.3e (eVm^3s^-1)', power.vibrationalIne);
+      powerStr{9} = sprintf(' Vibrational superelastic collisions = %#+.3e (eVm^3s^-1)', power.vibrationalSup);
+      powerStr{10} = sprintf('     Rotational inelastic collisions = %#+.3e (eVm^3s^-1)', power.rotationalIne);
+      powerStr{11} = sprintf('  Rotational superelastic collisions = %#+.3e (eVm^3s^-1)', power.rotationalSup);
+      powerStr{12} = sprintf('               Ionization collisions = %#+.3e (eVm^3s^-1)', power.ionizationIne);
+      powerStr{13} = sprintf('               Attachment collisions = %#+.3e (eVm^3s^-1)', power.attachmentIne);
+      powerStr{14} = sprintf('             Electron density growth = %#+.3e (eVm^3s^-1) +', power.eDensGrowth);
       powerStr{15} = [' ' repmat('-', 1, 69)];
-      powerStr{16} = sprintf('                       Power Balance = %#+.3e (eVm3/s)', power.balance);
+      powerStr{16} = sprintf('                       Power Balance = %#+.3e (eVm^3s^-1)', power.balance);
       powerStr{17} = sprintf('              Relative Power Balance = % #.3e%%', power.relativeBalance*100);
       powerStr{18} = '';
       powerStr{19} = '';
-      powerStr{20} = sprintf('           Elastic collisions (gain) = %#+.3e (eVm3/s)', power.elasticGain);
-      powerStr{21} = sprintf('           Elastic collisions (loss) = %#+.3e (eVm3/s) +', power.elasticLoss);
+      powerStr{20} = sprintf('           Elastic collisions (gain) = %#+.3e (eVm^3s^-1)', power.elasticGain);
+      powerStr{21} = sprintf('           Elastic collisions (loss) = %#+.3e (eVm^3s^-1) +', power.elasticLoss);
       powerStr{22} = [' ' repmat('-', 1, 69)];
-      powerStr{23} = sprintf('           Elastic collisions (net) = %#+.3e (eVm3/s)', power.elasticNet);
+      powerStr{23} = sprintf('           Elastic collisions (net) = %#+.3e (eVm^3s^-1)', power.elasticNet);
       powerStr{24} = '';
-      powerStr{25} = sprintf('                          CAR (gain) = %#+.3e (eVm3/s)', power.carGain);
-      powerStr{26} = sprintf('                          CAR (loss) = %#+.3e (eVm3/s) +', power.carLoss);
+      powerStr{25} = sprintf('                          CAR (gain) = %#+.3e (eVm^3s^-1)', power.carGain);
+      powerStr{26} = sprintf('                          CAR (loss) = %#+.3e (eVm^3s^-1) +', power.carLoss);
       powerStr{27} = [' ' repmat('-', 1, 69)];
-      powerStr{28} = sprintf('                           CAR (net) = %#+.3e (eVm3/s)', power.carNet);
+      powerStr{28} = sprintf('                           CAR (net) = %#+.3e (eVm^3s^-1)', power.carNet);
       powerStr{29} = '';
-      powerStr{30} = sprintf('     Excitation inelastic collisions = %#+.3e (eVm3/s)', power.excitationIne);
-      powerStr{31} = sprintf('  Excitation superelastic collisions = %#+.3e (eVm3/s) +', power.excitationSup);
+      powerStr{30} = sprintf('     Excitation inelastic collisions = %#+.3e (eVm^3s^-1)', power.excitationIne);
+      powerStr{31} = sprintf('  Excitation superelastic collisions = %#+.3e (eVm^3s^-1) +', power.excitationSup);
       powerStr{32} = [' ' repmat('-', 1, 69)];
-      powerStr{33} = sprintf('         Excitation collisions (net) = %#+.3e (eVm3/s)', power.excitationNet);
+      powerStr{33} = sprintf('         Excitation collisions (net) = %#+.3e (eVm^3s^-1)', power.excitationNet);
       powerStr{34} = '';
-      powerStr{35} = sprintf('    Vibrational inelastic collisions = %#+.3e (eVm3/s)', power.vibrationalIne);
-      powerStr{36} = sprintf(' Vibrational superelastic collisions = %#+.3e (eVm3/s) +', power.vibrationalSup);
+      powerStr{35} = sprintf('    Vibrational inelastic collisions = %#+.3e (eVm^3s^-1)', power.vibrationalIne);
+      powerStr{36} = sprintf(' Vibrational superelastic collisions = %#+.3e (eVm^3s^-1) +', power.vibrationalSup);
       powerStr{37} = [' ' repmat('-', 1, 69)];
-      powerStr{38} = sprintf('        Vibrational collisions (net) = %#+.3e (eVm3/s)', power.vibrationalNet);
+      powerStr{38} = sprintf('        Vibrational collisions (net) = %#+.3e (eVm^3s^-1)', power.vibrationalNet);
       powerStr{39} = '';
-      powerStr{40} = sprintf('     Rotational inelastic collisions = %#+.3e (eVm3/s)', power.rotationalIne);
-      powerStr{41} = sprintf('  Rotational superelastic collisions = %#+.3e (eVm3/s) +', power.rotationalSup);
+      powerStr{40} = sprintf('     Rotational inelastic collisions = %#+.3e (eVm^3s^-1)', power.rotationalIne);
+      powerStr{41} = sprintf('  Rotational superelastic collisions = %#+.3e (eVm^3s^-1) +', power.rotationalSup);
       powerStr{42} = [' ' repmat('-', 1, 69)];
-      powerStr{43} = sprintf('         Rotational collisions (net) = %#+.3e (eVm3/s)', power.rotationalNet);
+      powerStr{43} = sprintf('         Rotational collisions (net) = %#+.3e (eVm^3s^-1)', power.rotationalNet);
       
       %power balance by gases
       powerByGas = power.gases;
@@ -974,33 +989,33 @@ classdef GUI < handle
         powerStr{index} = '';
         powerStr{index+1} = [repmat('*', 1, 35) ' ' gas ' ' repmat('*', 1, 37-length(gas))];
         powerStr{index+2} = '';
-        powerStr{index+3} = sprintf('     Excitation inelastic collisions = %#+.3e (eVm3/s)', ...
+        powerStr{index+3} = sprintf('     Excitation inelastic collisions = %#+.3e (eVm^3s^-1)', ...
           powerByGas.(gas).excitationIne);
-        powerStr{index+4} = sprintf('  Excitation superelastic collisions = %#+.3e (eVm3/s) +', ...
+        powerStr{index+4} = sprintf('  Excitation superelastic collisions = %#+.3e (eVm^3s^-1) +', ...
           powerByGas.(gas).excitationSup);
         powerStr{index+5} = [' ' repmat('-', 1, 69)];
-        powerStr{index+6} = sprintf('         Excitation collisions (net) = %#+.3e (eVm3/s)', ...
+        powerStr{index+6} = sprintf('         Excitation collisions (net) = %#+.3e (eVm^3s^-1)', ...
           powerByGas.(gas).excitationNet);
         powerStr{index+7} = '';
-        powerStr{index+8} = sprintf('    Vibrational inelastic collisions = %#+.3e (eVm3/s)', ...
+        powerStr{index+8} = sprintf('    Vibrational inelastic collisions = %#+.3e (eVm^3s^-1)', ...
           powerByGas.(gas).vibrationalIne);
-        powerStr{index+9} = sprintf(' Vibrational superelastic collisions = %#+.3e (eVm3/s) +', ...
+        powerStr{index+9} = sprintf(' Vibrational superelastic collisions = %#+.3e (eVm^3s^-1) +', ...
           powerByGas.(gas).vibrationalSup);
         powerStr{index+10} = [' ' repmat('-', 1, 69)];
-        powerStr{index+11} = sprintf('        Vibrational collisions (net) = %#+.3e (eVm3/s)', ...
+        powerStr{index+11} = sprintf('        Vibrational collisions (net) = %#+.3e (eVm^3s^-1)', ...
           powerByGas.(gas).vibrationalNet);
         powerStr{index+12} = '';
-        powerStr{index+13} = sprintf('     Rotational inelastic collisions = %#+.3e (eVm3/s)', ...
+        powerStr{index+13} = sprintf('     Rotational inelastic collisions = %#+.3e (eVm^3s^-1)', ...
           powerByGas.(gas).rotationalIne);
-        powerStr{index+14} = sprintf('  Rotational superelastic collisions = %#+.3e (eVm3/s) +', ...
+        powerStr{index+14} = sprintf('  Rotational superelastic collisions = %#+.3e (eVm^3s^-1) +', ...
           powerByGas.(gas).rotationalSup);
         powerStr{index+15} = [' ' repmat('-', 1, 69)];
-        powerStr{index+16} = sprintf('         Rotational collisions (net) = %#+.3e (eVm3/s)', ...
+        powerStr{index+16} = sprintf('         Rotational collisions (net) = %#+.3e (eVm^3s^-1)', ...
           powerByGas.(gas).rotationalNet);
         powerStr{index+17} = '';
-        powerStr{index+18} = sprintf('               Ionization collisions = %#+.3e (eVm3/s)', ...
+        powerStr{index+18} = sprintf('               Ionization collisions = %#+.3e (eVm^3s^-1)', ...
           powerByGas.(gas).ionizationIne);
-        powerStr{index+19} = sprintf('               Attachment collisions = %#+.3e (eVm3/s)', ...
+        powerStr{index+19} = sprintf('               Attachment collisions = %#+.3e (eVm^3s^-1)', ...
           powerByGas.(gas).attachmentIne);
         index = index+20;
       end
@@ -1018,18 +1033,18 @@ classdef GUI < handle
       % create information to display
       swarmStr = cell(0);
       swarmStr{end+1} = sprintf('               Reduced electric field = %#.3e (Td)', reducedField);
-      swarmStr{end+1} = sprintf('        Reduced diffusion coefficient = %#.3e (1/(ms))', swarmParam.redDiffCoeff);
-      swarmStr{end+1} = sprintf('                     Reduced mobility = %#.3e (1/(msV))', swarmParam.redMobility);
+      swarmStr{end+1} = sprintf('        Reduced diffusion coefficient = %#.3e ((ms)^-1)', swarmParam.redDiffCoeff);
+      swarmStr{end+1} = sprintf('                     Reduced mobility = %#.3e ((msV)^-1)', swarmParam.redMobility);
       if gui.isSimulationHF
-        swarmStr{end+1} = sprintf('                  Reduced mobility HF = %#.3e%+#.3ei (1/(msV))', ...
+        swarmStr{end+1} = sprintf('                  Reduced mobility HF = %#.3e%+#.3ei ((msV)^-1)', ...
           real(swarmParam.redMobilityHF), imag(swarmParam.redMobilityHF));
       else
-        swarmStr{end+1} = sprintf('                       Drift velocity = %#.3e (m/s)', swarmParam.driftVelocity);
-        swarmStr{end+1} = sprintf('         Reduced Townsend coefficient = %#.3e (m2)', swarmParam.redTownsendCoeff);
-        swarmStr{end+1} = sprintf('       Reduced attachment coefficient = %#.3e (m2)', swarmParam.redAttCoeff);
+        swarmStr{end+1} = sprintf('                       Drift velocity = %#.3e (ms^-1)', swarmParam.driftVelocity);
+        swarmStr{end+1} = sprintf('         Reduced Townsend coefficient = %#.3e (m^2)', swarmParam.redTownsendCoeff);
+        swarmStr{end+1} = sprintf('       Reduced attachment coefficient = %#.3e (m^2)', swarmParam.redAttCoeff);
       end
-      swarmStr{end+1} = sprintf(' Reduced energy diffusion coefficient = %#.3e (eV/(ms))', swarmParam.redDiffCoeffEnergy);
-      swarmStr{end+1} = sprintf('              Reduced energy mobility = %#.3e (eV/(msV))', swarmParam.redMobilityEnergy);
+      swarmStr{end+1} = sprintf(' Reduced energy diffusion coefficient = %#.3e (eV(ms)^-1)', swarmParam.redDiffCoeffEnergy);
+      swarmStr{end+1} = sprintf('              Reduced energy mobility = %#.3e (eV(msV)^-1)', swarmParam.redMobilityEnergy);
       swarmStr{end+1} = sprintf('                          Mean energy = %#.3e (eV)', swarmParam.meanEnergy);
       swarmStr{end+1} = sprintf('                Characteristic energy = %#.3e (eV)', swarmParam.characEnergy);
       swarmStr{end+1} = sprintf('                 Electron temperature = %#.3e (eV)', swarmParam.Te);
@@ -1049,46 +1064,75 @@ classdef GUI < handle
       numberOfExtraCollisions = length(rateCoeffExtra);
       
       % create information to display
-      rateCoeffStr = cell(1,13+numberOfCollisions+numberOfExtraCollisions);
-      rateCoeffStr{1} = 'ID   Inel.     Superel.  Description';
-      rateCoeffStr{2} = '     (m3/s)    (m3/s)';
-      rateCoeffStr{3} = repmat('-', 1,80);
-      for idx = 1:numberOfCollisions
-        if length(rateCoeffAll(idx).value) == 1
-          rateCoeffStr{3+idx} = sprintf('%4d %9.3e (N/A)     %s', rateCoeffAll(idx).collID, ...
-            rateCoeffAll(idx).value, rateCoeffAll(idx).collDescription);
-        else
-          rateCoeffStr{3+idx} = sprintf('%4d %9.3e %9.3e %s', rateCoeffAll(idx).collID, ...
-            rateCoeffAll(idx).value(1), rateCoeffAll(idx).value(2), rateCoeffAll(idx).collDescription);
-        end
+      numberOfCells = numberOfCollisions+numberOfExtraCollisions;
+      if ~isempty(rateCoeffAll)
+        numberOfCells = numberOfCells + 9;
       end
-      rateCoeffStr{4+numberOfCollisions} = repmat('-', 1,80);
-      rateCoeffStr{5+numberOfCollisions} = '';
       if ~isempty(rateCoeffExtra)
-        rateCoeffStr{6+numberOfCollisions} = repmat('*', 1,27);
-        rateCoeffStr{7+numberOfCollisions} = '* Extra Rate Coefficients *';
-        rateCoeffStr{8+numberOfCollisions} = repmat('*', 1,27);
+        numberOfCells = numberOfCells + 9;
+      end
+      rateCoeffStr = cell(1,numberOfCells);
+      if ~isempty(rateCoeffAll)
+        rateCoeffStr{1} = repmat('*', 1,38);
+        rateCoeffStr{2} = '*    e-Kinetics Rate Coefficients    *';
+        rateCoeffStr{3} = repmat('*', 1,38);
+        rateCoeffStr{4} = '';
+        rateCoeffStr{5} = 'ID   Inel.     Superel.  Description';
+        rateCoeffStr{6} = '     (m^3s^-1) (m^3s^-1)';
+        rateCoeffStr{7} = repmat('-', 1,80);
+        for idx = 1:numberOfCollisions
+          if length(rateCoeffAll(idx).value) == 1
+            rateCoeffStr{7+idx} = sprintf('%4d %9.3e (N/A)     %s', rateCoeffAll(idx).collID, ...
+              rateCoeffAll(idx).value, rateCoeffAll(idx).collDescription);
+          else
+            rateCoeffStr{7+idx} = sprintf('%4d %9.3e %9.3e %s', rateCoeffAll(idx).collID, ...
+              rateCoeffAll(idx).value(1), rateCoeffAll(idx).value(2), rateCoeffAll(idx).collDescription);
+          end
+        end
+        rateCoeffStr{8+numberOfCollisions} = repmat('-', 1,80);
         rateCoeffStr{9+numberOfCollisions} = '';
-        rateCoeffStr{10+numberOfCollisions} = 'ID   Inel.     Superel.  Description';
-        rateCoeffStr{11+numberOfCollisions} = '     (m3/s)    (m3/s)';
-        rateCoeffStr{12+numberOfCollisions} = repmat('-', 1,80);
+      end
+      if ~isempty(rateCoeffExtra)
+        if isempty(rateCoeffAll)
+          initialIdx = 0;
+        else
+          initialIdx = 9+numberOfCollisions;
+        end
+        rateCoeffStr{initialIdx+1} = repmat('*', 1,38);
+        rateCoeffStr{initialIdx+2} = '* e-Kinetics Extra Rate Coefficients *';
+        rateCoeffStr{initialIdx+3} = repmat('*', 1,38);
+        rateCoeffStr{initialIdx+4} = '';
+        rateCoeffStr{initialIdx+5} = 'ID   Inel.     Superel.  Description';
+        rateCoeffStr{initialIdx+6} = '     (m^3s^-1) (m^3s^-1)';
+        rateCoeffStr{initialIdx+7} = repmat('-', 1,80);
         for idx = 1:numberOfExtraCollisions
           if length(rateCoeffExtra(idx).value) == 1
-            rateCoeffStr{12+numberOfCollisions+idx} = sprintf('%4d %9.3e (N/A)     %s', rateCoeffExtra(idx).collID, ...
+            rateCoeffStr{initialIdx+7+idx} = sprintf('%4d %9.3e (N/A)     %s', rateCoeffExtra(idx).collID, ...
               rateCoeffExtra(idx).value, rateCoeffExtra(idx).collDescription);
           else
-            rateCoeffStr{12+numberOfCollisions+idx} = sprintf('%4d %9.3e %9.3e %s', rateCoeffExtra(idx).collID, ...
+            rateCoeffStr{initialIdx+7+idx} = sprintf('%4d %9.3e %9.3e %s', rateCoeffExtra(idx).collID, ...
               rateCoeffExtra(idx).value(1), rateCoeffExtra(idx).value(2), rateCoeffExtra(idx).collDescription);
           end
         end
-        rateCoeffStr{13+numberOfCollisions+numberOfExtraCollisions} = repmat('-', 1,80);
+        rateCoeffStr{initialIdx+8+numberOfExtraCollisions} = repmat('-', 1,80);
+        rateCoeffStr{initialIdx+9+numberOfExtraCollisions} = '';
       end
       
       %update the powerBalanceInfo object (uicontrol object)
-      set(gui.rateCoeffInfo, 'String', rateCoeffStr);
+      set(gui.electronImpactRateCoeffOutputInfo, 'String', rateCoeffStr);
     
     end
     
+    function genericStatusMessage(gui, ~, statusEventData)
+
+      str = statusEventData.message;
+      if endsWith(str, '\n')
+        str = str(1:end-2);
+      end
+      gui.logInfo.String{end+1} = sprintf(str);
+
+    end
+
   end
   
 end

@@ -1,6 +1,6 @@
 <p align="center">----------------------------- README FILE FOR THE LoKI-B SIMULATION TOOL -----------------------------<br>
 <align="center">-----------------------------  10 steps to get acquainted with the tool  -----------------------------<br>
-<align="center">(updated for version LoKI-B_v2.1.0)</p>
+<align="center">(updated for version LoKI-B_v2.2.0)</p>
 
 1. What's LoKI-B distribution license ?   
    The LisbOn KInetics Boltzmann (LoKI-B) is an open-source tool, licensed under the GNU general public license.  
@@ -15,7 +15,7 @@
    just giving your <b>name</b> and <b>affiliation</b>.   
 
 3. What's LoKI-B ?   
-   LoKI-B solves a time and space independent form of the two-term electron Boltzmann equation (EBE), for non-magnetised non-equilibrium low-temperature plasmas excited by DC/HF electric fields from different gases or gas mixtures. LoKI-B can also solve the two-term EBE for time-dependent (non-oscillatory) electric fields.
+   LoKI-B solves the space independent form of the two-term electron Boltzmann equation (EBE), for non-magnetised non-equilibrium low-temperature plasmas excited by DC/HF electric fields or time-dependent (non-oscillatory) electric fields (a new feature introduced in version 2.0.0) from different gases or gas mixtures.
    LoKI-B includes electron-electron collisions, it handles rotational collisions adopting either a discrete formulation or a more convenient continuous approximation, and it accounts for variations in the number of electrons due to non-conservative events (ionisation and attachment) by assuming either a space-homogeneous exponential temporal growth or a time-constant exponential spatial growth of the electron density.
 
 4. What's the programming language of LoKI-B ?   
@@ -38,7 +38,7 @@
    &ensp;&ensp;ii. A subfolder "Databases" with '\*.txt' files, containing different properties (masses, energies of levels, atomic/molecular constants, ...) for the gases used in the simulations.   
    &ensp;&ensp;iii. Several subfolders "Helium", "Nitrogen", ... with '\*.txt' files, containing the electron-scattering cross sections for the different gases used in the simulations, usually obtained from the open-access website LXCat (http://www.lxcat.net/).   
    &ensp;(c) A subfolder "PropertyFunctions", with several '\*.m' auxiliary functions for calculating the values of universal constants, some predefined distribution of species (Boltzmann, Treanor, ...), the energy of the levels according to some models, etc.    
-   &ensp;(d) A subfolder "OtherAuxFunctions", with several '\*.m' auxiliary functions that provide the calculations of other properties, rate coeffcients, working conditions, etc.       
+   &ensp;(d) A subfolder "OtherAuxFunctions", with several '\*.m' auxiliary functions that provide the calculations of other properties, rate coefficients, working conditions, etc.       
    &ensp;(e) A subfolder "Output" (eventually), where LoKI-B will write the output files resulting from the simulations.
 
 8. How to run LoKI-B ?   

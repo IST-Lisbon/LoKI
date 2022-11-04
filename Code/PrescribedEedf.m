@@ -54,6 +54,7 @@ classdef PrescribedEedf < handle
   end
 
   events
+    genericStatusMessage;
     obtainedNewEedf;
   end
 
@@ -85,7 +86,11 @@ classdef PrescribedEedf < handle
     end
 
     function solve(prescribedEedf)
-            
+
+      % logging start of the EEDF evaluation
+      start = tic;
+      notify(prescribedEedf, 'genericStatusMessage', StatusEventData('\t- Evaluating prescribed EEDF ...\n', 'status'));
+      
       % when the smart grid is activated the minimum number of decades of decay in the eedf is ensured
       if prescribedEedf.energyGrid.isSmart
         g = prescribedEedf.shapeParameter;
@@ -109,6 +114,10 @@ classdef PrescribedEedf < handle
 
       % bradcast obtention of a solution for the EEDF
       notify(prescribedEedf, 'obtainedNewEedf');
+      
+      % logging end of the EEDF evaluation
+      str = sprintf('\\t    Finished (%f seconds).\\n', toc(start));
+      notify(prescribedEedf, 'genericStatusMessage', StatusEventData(str, 'status'));
 
     end
     
@@ -181,7 +190,7 @@ classdef PrescribedEedf < handle
         'carLoss', 0, 'excitationIne', 0, 'excitationSup', 0, 'excitationNet', 0, 'vibrationalIne', 0, ...
         'vibrationalSup', 0, 'vibrationalNet', 0, 'rotationalIne', 0, 'rotationalSup', 0, 'rotationalNet', 0, ...
         'ionizationIne', 0, 'attachmentIne', 0, 'inelastic', 0, 'superelastic', 0, 'eDensGrowth', 0, ...
-        'electronElectron', 0, 'gases', '');
+        'electronElectronNet', 0, 'electronElectronGain', 0, 'electronElectronLoss', 0, 'gases', '');
       
       % save a local copy of the EEDF because of performance reasons
       eedfLocal = prescribedEedf.eedf;
@@ -192,14 +201,20 @@ classdef PrescribedEedf < handle
       energyStep = energyGridLocal.step;              % energy step
       energyCell = energyGridLocal.cell;              % value of the energy at the cells
       energyNode = energyGridLocal.node;              % value of the energy at the nodes
+
+      % save a local copy of the reduced angular exitation frequency (SI units)
+      WoN = prescribedEedf.workCond.reducedExcFreqSI;    
       
       % multiplicative constant to obtain the right units
-      factor = sqrt(2*Constant.electronCharge/Constant.electronMass);
+      gamma = Constant.gamma;
       
       % evaluate power absorved per electron at unit gas density due to the electric field (auxiliary value)
       % evaluation of the elements of the electric field operator (Boltzmann)
-      g_E = energyNode./(3*prescribedEedf.totalCrossSection);
-      auxPowerField = factor*sum(eedfLocal.*(g_E(2:end)-g_E(1:end-1)));
+      g_E = energyNode./(3*prescribedEedf.totalCrossSection.*(1+(WoN/gamma)^2./...
+        (energyNode.*prescribedEedf.totalCrossSection.^2)));
+      g_E(1) = 0;
+      g_E(end) = 0;
+      auxPowerField = gamma*sum(eedfLocal.*(g_E(2:end)-g_E(1:end-1)));
       power.field = [];
       
       % auxiliary quantities needed to evaluate the elastic and CAR powers
@@ -212,8 +227,8 @@ classdef PrescribedEedf < handle
       g_c = 2*energyNode.^2.*prescribedEedf.elasticCrossSection;
       g_c(1) = 0;
       g_c(end) = 0;
-      power.elasticNet = factor*sum(eedfLocal.*(g_c(2:end)*aux2-g_c(1:end-1)*aux1));
-      power.elasticGain = factor*kTg*sum(eedfLocal.*(g_c(2:end)-g_c(1:end-1)));
+      power.elasticNet = gamma*sum(eedfLocal.*(g_c(2:end)*aux2-g_c(1:end-1)*aux1));
+      power.elasticGain = gamma*kTg*sum(eedfLocal.*(g_c(2:end)-g_c(1:end-1)));
       power.elasticLoss = power.elasticNet-power.elasticGain;
       
       % evaluate power absorved per electron at unit gas density due to rotations CAR
@@ -226,8 +241,8 @@ classdef PrescribedEedf < handle
           sigma0B = sigma0B + gas.fraction*gas.electricQuadrupoleMoment*gas.rotationalConstant;
         end
         g_car =4*energyNode.*(8.0*pi*sigma0B/(15.0*Constant.electronCharge));
-        power.carNet = factor*sum(eedfLocal.*(g_car(2:end)*aux2-g_car(1:end-1)*aux1));
-        power.carGain = factor*kTg*sum(eedfLocal.*(g_car(2:end)-g_car(1:end-1)));
+        power.carNet = gamma*sum(eedfLocal.*(g_car(2:end)*aux2-g_car(1:end-1)*aux1));
+        power.carGain = gamma*kTg*sum(eedfLocal.*(g_car(2:end)-g_car(1:end-1)));
         power.carLoss = power.carNet-power.carGain;
       end
       
@@ -256,12 +271,12 @@ classdef PrescribedEedf < handle
           % evaluate departure cell
           lmin=floor(collision.threshold/energyStep);
           % add contribution to the power due to the inelastic collisions
-          gasPower.([lower(collType) 'Ine']) = gasPower.([lower(collType) 'Ine']) - factor*collision.target.density*...
+          gasPower.([lower(collType) 'Ine']) = gasPower.([lower(collType) 'Ine']) - gamma*collision.target.density*...
             energyStep*energyNode(lmin+1)*sum(eedfLocal(1+lmin:N).*energyCell(1+lmin:N).*cellCrossSection(1+lmin:N));
           % add contribution to the power due to the superelastic collisions
           if collision.isReverse
             statWeightRatio = collision.target.statisticalWeight/collision.productArray.statisticalWeight;
-            gasPower.([lower(collType) 'Sup']) = gasPower.([lower(collType) 'Sup']) + factor*statWeightRatio*...
+            gasPower.([lower(collType) 'Sup']) = gasPower.([lower(collType) 'Sup']) + gamma*statWeightRatio*...
               collision.productArray.density*energyStep*energyNode(lmin+1)*sum(eedfLocal(1:N-lmin).*...
               energyCell(1+lmin:N).*cellCrossSection(1+lmin:N));
           end
@@ -303,7 +318,8 @@ classdef PrescribedEedf < handle
       % evaluate reference power (max. energy gain)
       powerValues = [power.field power.elasticGain power.elasticLoss power.carGain power.carLoss ...
         power.excitationSup power.excitationIne power.vibrationalSup power.vibrationalIne ...
-        power.rotationalSup power.rotationalIne power.eDensGrowth power.electronElectron];
+        power.rotationalSup power.rotationalIne power.eDensGrowth power.electronElectronGain ...
+        power.electronElectronLoss];
       totalGain = 0;
       totalLoss = 0;
       for powerValue = powerValues
@@ -322,31 +338,45 @@ classdef PrescribedEedf < handle
 
     function swarmParam = evaluateSwarmParameters(prescribedEedf)
       
+      % save local copies of different constants and variables
+      gamma = Constant.gamma;
+      energyNode = prescribedEedf.energyGrid.node;
+      energyCell = prescribedEedf.energyGrid.cell;
+      energyStep = prescribedEedf.energyGrid.step;
+      eedfLocal = prescribedEedf.eedf;
+      WoN = prescribedEedf.workCond.reducedExcFreqSI;
+      
       % save local copy of total momentum transfer cross section
       totalCrossSectionAux = prescribedEedf.totalCrossSection;
       
       % initialize transport parameters structure
-      swarmParam = struct('redDiffCoeff', [], 'redMobility', [], 'redDiffCoeffEnergy', [], 'redMobilityEnergy', [], ...
-        'redTownsendCoeff', [], 'redAttCoeff', [], 'meanEnergy', [], 'characEnergy', [], 'Te', [], 'driftVelocity', []);
+      swarmParam = struct('redDiffCoeff', [], 'redMobility', [], 'redMobilityHF', [], 'redDiffCoeffEnergy', [], ...
+        'redMobilityEnergy', [], 'redTownsendCoeff', [], 'redAttCoeff', [], 'meanEnergy', [], 'characEnergy', [], ...
+        'Te', [], 'driftVelocity', []);
 
       % evaluate reduced diffusion coefficient
-      swarmParam.redDiffCoeff = (2.0/3.0)*sqrt(2.0*Constant.electronCharge/Constant.electronMass)*...
-        sum(prescribedEedf.energyGrid.cell.*prescribedEedf.eedf./(prescribedEedf.totalCrossSection(1:end-1)+...
-        totalCrossSectionAux(2:end)))*prescribedEedf.energyGrid.step;
+      swarmParam.redDiffCoeff = 2*gamma/3*energyStep*sum(energyCell.*eedfLocal./...
+        (totalCrossSectionAux(1:end-1)+totalCrossSectionAux(2:end)));
 
-      % evaluate reduced mobility
-      swarmParam.redMobility = -sqrt(2.0*Constant.electronCharge/Constant.electronMass)/3.0*...
-        sum(prescribedEedf.energyGrid.node(2:end-1).*(prescribedEedf.eedf(2:end)-prescribedEedf.eedf(1:end-1))./...
-        totalCrossSectionAux(2:end-1));
+      % evaluate reduced mobility (DC expression)
+      swarmParam.redMobility = -gamma/3*sum(energyNode(2:end-1).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
+        (totalCrossSectionAux(2:end-1)));
+
+      % evaluate complex HF reduced mobility (in case the excitation frequency is not zero)
+      if WoN ~= 0
+        swarmParam.redMobilityHF = -gamma/3*sum(energyNode(2:end-1).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
+          (totalCrossSectionAux(2:end-1)+(WoN/gamma)^2./(energyNode(2:end-1).*totalCrossSectionAux(2:end-1))));
+        swarmParam.redMobilityHF = swarmParam.redMobilityHF + 1i*(1/3)*sum(sqrt(energyNode(2:end-1)).*...
+          (WoN./totalCrossSectionAux(2:end-1)).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
+          (totalCrossSectionAux(2:end-1)+(WoN/gamma)^2./(energyNode(2:end-1).*totalCrossSectionAux(2:end-1))));
+      end
       
       % evaluate reduced energy diffusion coefficient
-      swarmParam.redDiffCoeffEnergy = (2.0/3.0)*sqrt(2.0*Constant.electronCharge/Constant.electronMass)*...
-        sum(prescribedEedf.energyGrid.cell.^2.*prescribedEedf.eedf./(totalCrossSectionAux(1:end-1)+...
-        totalCrossSectionAux(2:end)))*prescribedEedf.energyGrid.step;
+      swarmParam.redDiffCoeffEnergy = 2*gamma/3*energyStep*sum(energyCell.^2.*eedfLocal./...
+        (totalCrossSectionAux(1:end-1)+totalCrossSectionAux(2:end)));
       
       % evaluate reduced energy mobility
-      swarmParam.redMobilityEnergy = -sqrt(2.0*Constant.electronCharge/Constant.electronMass)/3.0*...
-        sum(prescribedEedf.energyGrid.node(2:end-1).^2.*(prescribedEedf.eedf(2:end)-prescribedEedf.eedf(1:end-1))./...
+      swarmParam.redMobilityEnergy = -gamma/3*sum(energyNode(2:end-1).^2.*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
         totalCrossSectionAux(2:end-1));
       
       % evaluate drift velocity
@@ -375,14 +405,13 @@ classdef PrescribedEedf < handle
       swarmParam.redAttCoeff = totalAttRateCoeff / swarmParam.driftVelocity;
 
       % evaluate mean energy
-      swarmParam.meanEnergy = sum(prescribedEedf.energyGrid.cell(1:end).^(1.5).*prescribedEedf.eedf(1:end))*...
-        prescribedEedf.energyGrid.step;
+      swarmParam.meanEnergy = sum(energyCell(1:end).^(1.5).*eedfLocal(1:end))*energyStep;
 
       % evaluate characteristic energy
       swarmParam.characEnergy = swarmParam.redDiffCoeff/swarmParam.redMobility;
 
       % evaluate electron temperature
-      swarmParam.Te = prescribedEedf.workCond.electronTemperature; %swarmParam.meanEnergy*2/3;
+      swarmParam.Te = prescribedEedf.workCond.electronTemperature;
 
       % store swarm parameters information in the prescribedEedf properties
       prescribedEedf.swarmParam = swarmParam;
@@ -402,6 +431,7 @@ classdef PrescribedEedf < handle
           rateCoeffAll(end+1).collID = collision.ID;
           [ineRate, supRate] = collision.evaluateRateCoeff(prescribedEedf.eedf);
           rateCoeffAll(end).value = [ineRate, supRate];
+          rateCoeffAll(end).energy = collision.threshold;
           rateCoeffAll(end).collDescription = collision.description;
         end
         % collisions not taken into account for solving the eedf
@@ -409,6 +439,7 @@ classdef PrescribedEedf < handle
           rateCoeffExtra(end+1).collID = collision.ID;
           [ineRate, supRate] = collision.evaluateRateCoeff(prescribedEedf.eedf);
           rateCoeffExtra(end).value = [ineRate, supRate];
+          rateCoeffExtra(end).energy = collision.threshold;
           rateCoeffExtra(end).collDescription = collision.description;
         end
       end

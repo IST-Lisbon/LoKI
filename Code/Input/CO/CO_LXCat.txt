@@ -1,8 +1,10 @@
 LXCat, www.lxcat.net
-Generated on 28 Jun 2020. All rights reserved.
+Generated on 23 Sep 2022. All rights reserved.
 
 RECOMMENDED REFERENCE FORMAT
-- Alves database, www.lxcat.net, retrieved on June 28, 2020.
+- IST-Lisbon database, www.lxcat.net, retrieved on September 23, 2022.
+Be aware that some databases and solvers can additionally have instructions how to reference corresponding data.
+Please check below in the headers of databases.
 
 CROSS SECTION DATA FORMAT
 In downloaded files, each collision process is defined by a block consisting of
@@ -36,25 +38,37 @@ Table of the cross section as a function of energy. The table starts and ends by
 and has otherwise two numbers per line: the energy in eV and the cross section in m2.
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-DATABASE:         Alves (Alves's test table)
-PERMLINK:         www.lxcat.net/Alves
-DESCRIPTION:      Luis Lemos Alves
+DATABASE:         IST-Lisbon database
+PERMLINK:         www.lxcat.net/IST-Lisbon
+DESCRIPTION:      IST-Lisbon database contains up-to-date electron-neutral scattering cross sections (together with the
+                  measured swarm parameters used to validate these data), resulting from the research effort of the
+                  Group N-Plasmas Reactive: Modelling and Engineering (N-PRiME) with IPFN/IST (Instituto de Plasmas e
+                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal.  The data, compiled from the
+                  literature, correspond to contributions from different authors (see detailed references in the
+                  database). For each gas the database presents a COMPLETE SET of cross sections, validated against
+                  measured swarm parameters by solving the two-term homogeneous electron Boltzmann equation. In most
+                  cases, predictions are in agreement with measurements within 1-20%, for reduced electric fields E/N ~
+                  1e-4 - 500 Td. To improve predictions at low E/N, some sets need to be completed with rotational cross
+                  sections, also available in the database.
+CONTACT:          LL Alves and V Guerra
+                  e-mail: llalves@@tecnico.ulisboa.pt
+HOW TO REFERENCE: L.L. Alves, ''The IST-Lisbon database on LXCat'' J. Phys. Conf. Series 2014, 565, 1
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ************************************************************************************************************************
 
-COMMENT: Ogloblina P, Tejero-del-Caz A, Guerra V and Alves L L, quotElectron impact cross sections for carbon monoxide and
-         their importance in the electron kinetics of CO2-CO mixturesquot 2020 Plasma Sources Sci Technol. 29 015002. The set
-         includes 21 cross sections defined up to 1 keV, and it was compiled from the following references: (i) the elastic
-         momentum-transfer cross section is taken from Itikawa above 0.1 eV and extrapolated at low energy values (ii) the cross
-         section for the v=0 -> v=1 vibrational excitation is taken from Phelps up to 1 eV and from Laporta et al beyond this
-         value. All other vibrational excitation cross sections (v=0 -> v =2-10) are taken from Laporta et al. Superelastic
-         vibrational deexcitations should be considered as part of the set, adopting a Boltzmann distribution at gas temperature
-         (e.g. 300K or 77K) for the v=0-10 vibrational states (iii) the cross sections for electron-impact excitation of the
-         electronic states are based on the works by Itikawa and Sawada et al (iv) the dissociation cross section is measured by
-         Cosby up to 200 eV and extended up to 1000 eV using linear extrapolation in log-log space (v) the dissociative
-         attachment and the total ionization cross sections are the ones obtained by Rapp and Briglia and by Rapp and
-         Englander-Golden, respectively. The cross sections were defined adopting piecewise linear interpolation.
+COMMENT: Ogloblina P, Tejero-del-Caz A, Guerra V and Alves L L, ''Electron impact cross sections for carbon monoxide and their
+         importance in the electron kinetics of CO2-CO mixtures'' 2020 Plasma Sources Sci Technol. 29 015002. The set includes 21
+         cross sections defined up to 1 keV, and it was compiled from the following references: (i) the elastic momentum-transfer
+         cross section is taken from Itikawa above 0.1 eV and extrapolated at low energy values (ii) the cross section for the
+         v=0 -> v=1 vibrational excitation is taken from Phelps up to 1 eV and from Laporta et al beyond this value. All other
+         vibrational excitation cross sections (v=0 -> v =2-10) are taken from Laporta et al. Superelastic vibrational
+         deexcitations should be considered as part of the set, adopting a Boltzmann distribution at gas temperature (e.g. 300K
+         or 77K) for the v=0-10 vibrational states (iii) the cross sections for electron-impact excitation of the electronic
+         states are based on the works by Itikawa and Sawada et al (iv) the dissociation cross section is measured by Cosby up
+         to 200 eV and extended up to 1000 eV using linear extrapolation in log-log space (v) the dissociative attachment and
+         the total ionization cross sections are the ones obtained by Rapp and Briglia and by Rapp and Englander-Golden,
+         respectively. The cross sections were defined adopting piecewise linear interpolation.
          For E/N < 1 Td at Tg = 300K (10 Td at 77K), the set must be further completed to include rotational excitation
          mechanisms (see below), in order to reproduce measured swarm data.
          IMPORTANT NOTICE ABOUT ROTATIONAL TRANSITIONS
@@ -73,9 +87,9 @@ CO -> C(X) + O(-,gnd)
 SPECIES: e / CO
 PROCESS: E + CO -> C(X) + O(-,gnd), Attachment
 PARAM.:  E = 9.2 eV, complete set
-COMMENT: [e + CO(X) -> C(X) + O(-,gnd), Attachment] Rapp D and Briglia D D 1965 J. Chem. Phys.
-COMMENT: 43 1480.
-UPDATED: 2020-06-28 11:40:14
+COMMENT: [e + CO(X,v=0) -> C(X) + O(-,gnd), Attachment] Rapp D and Briglia D D 1965 J. Chem.
+COMMENT: Phys. 43 1480.
+UPDATED: 2019-12-15 07:46:53
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  9.200000e+0	8.800000e-25
@@ -213,87 +227,6 @@ COLUMNS: Energy (eV) | Cross section (m2)
  1.000000e+3	4.300000e-21
 -----------------------------
 
-ELASTIC
-CO-elec
- 1.950000e-5
-SPECIES: e / CO-elec
-PROCESS: E + CO-elec -> E + CO-elec, Elastic
-PARAM.:  m/M = 0.0000195, complete set
-COMMENT: [e + CO(a3P) -> e + CO(a3P), Elastic] Itikawa Y 2015 J. Phys. Chem. Ref. Data 44 013105
-COMMENT: (extrapolated below 0.1 eV).
-UPDATED: 2019-12-19 02:37:09
-COLUMNS: Energy (eV) | Cross section (m2)
------------------------------
- 0.000000e+0	1.000000e-25
- 2.000000e-4	1.802300e-20
- 4.000000e-4	1.217000e-20
- 6.000000e-4	1.000000e-20
- 1.000000e-3	8.000000e-21
- 2.000000e-3	6.800020e-21
- 3.000000e-3	6.120000e-21
- 5.000000e-3	5.832000e-21
- 7.000000e-3	6.000000e-21
- 1.000000e-2	6.600000e-21
- 1.500000e-2	7.300000e-21
- 2.000000e-2	8.041000e-21
- 3.000000e-2	1.000000e-20
- 4.500000e-2	1.200000e-20
- 5.000000e-2	1.300000e-20
- 7.000000e-2	2.251430e-20
- 1.000000e-1	4.376030e-20
- 1.500000e-1	6.691780e-20
- 1.700000e-1	7.396250e-20
- 2.000000e-1	8.333620e-20
- 2.500000e-1	9.813780e-20
- 3.000000e-1	1.080350e-19
- 3.500000e-1	1.180840e-19
- 4.000000e-1	1.275730e-19
- 5.000000e-1	1.442380e-19
- 7.000000e-1	1.567110e-19
- 1.000000e+0	1.773950e-19
- 1.100000e+0	1.979000e-19
- 1.200000e+0	2.160000e-19
- 1.300000e+0	2.500000e-19
- 1.400000e+0	2.910000e-19
- 1.500000e+0	3.320000e-19
- 1.600000e+0	3.520000e-19
- 1.700000e+0	3.560000e-19
- 1.900000e+0	3.200000e-19
- 2.100000e+0	2.350000e-19
- 2.200000e+0	2.150000e-19
- 2.500000e+0	1.750000e-19
- 2.800000e+0	1.600000e-19
- 3.000000e+0	1.540000e-19
- 4.000000e+0	1.210000e-19
- 5.000000e+0	1.070000e-19
- 6.000000e+0	9.790000e-20
- 7.000000e+0	9.250000e-20
- 8.000000e+0	8.870000e-20
- 9.000000e+0	8.530000e-20
- 1.000000e+1	8.170000e-20
- 1.200000e+1	7.640000e-20
- 1.500000e+1	7.070000e-20
- 1.800000e+1	6.500000e-20
- 2.000000e+1	6.270000e-20
- 2.500000e+1	5.590000e-20
- 3.000000e+1	5.110000e-20
- 4.000000e+1	4.270000e-20
- 5.000000e+1	3.660000e-20
- 6.000000e+1	3.170000e-20
- 7.000000e+1	2.690000e-20
- 8.000000e+1	2.310000e-20
- 9.000000e+1	1.970000e-20
- 1.000000e+2	1.690000e-20
- 2.000000e+2	8.000000e-21
- 3.000000e+2	6.300000e-21
- 5.000000e+2	5.200000e-21
- 6.000000e+2	5.029720e-21
- 7.000000e+2	4.800000e-21
- 8.000000e+2	4.565410e-21
- 9.000000e+2	4.380540e-21
- 1.000000e+3	4.300000e-21
------------------------------
-
 EXCITATION
 CO <-> CO (v=0-v=1)
  2.660000e-1  1.000000e+0
@@ -303,7 +236,7 @@ PARAM.:  E = 0.266 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=1), Vibrational] Phelps A V 1968 Rev. Mod. Phys. 40
 COMMENT: 399 (up to 1 eV) Laporta V, Cassidy C M, Tennyson J and Celiberto R 2012 Plasma Sources
 COMMENT: Sci. Technol. 21 045005 (beyond 1 eV).
-UPDATED: 2020-06-28 11:47:54
+UPDATED: 2019-12-15 06:07:54
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.660000e-1	0.000000e+0
@@ -801,7 +734,7 @@ PROCESS: E + CO <-> E + CO (v=0-v=2), Excitation
 PARAM.:  E = 0.54 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=2), Vibrational] Laporta V, Cassidy C M, Tennyson J
 COMMENT: and Celiberto R 2012 Plasma Sources Sci. Technol. 21 045005.
-UPDATED: 2020-06-28 11:49:46
+UPDATED: 2019-12-15 06:08:40
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  5.400000e-1	0.000000e+0
@@ -1186,7 +1119,7 @@ PROCESS: E + CO <-> E + CO (v=0-v=3), Excitation
 PARAM.:  E = 0.81 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=3), Vibrational] Laporta V, Cassidy C M, Tennyson J
 COMMENT: and Celiberto R 2012 Plasma Sources Sci. Technol. 21 045005.
-UPDATED: 2020-06-28 11:49:46
+UPDATED: 2019-12-15 06:09:14
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.100000e-1	0.000000e+0
@@ -1564,7 +1497,7 @@ PROCESS: E + CO <-> E + CO (v=0-v=4), Excitation
 PARAM.:  E = 1.07 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=4), Vibrational] Laporta V, Cassidy C M, Tennyson J
 COMMENT: and Celiberto R 2012 Plasma Sources Sci. Technol. 21 045005.
-UPDATED: 2020-06-28 11:49:46
+UPDATED: 2019-12-15 06:09:49
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.070000e+0	0.000000e+0
@@ -1936,7 +1869,7 @@ PROCESS: E + CO <-> E + CO (v=0-v=5), Excitation
 PARAM.:  E = 1.33 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=5), Vibrational] Laporta V, Cassidy C M, Tennyson J
 COMMENT: and Celiberto R 2012 Plasma Sources Sci. Technol. 21 045005.
-UPDATED: 2020-06-28 11:49:46
+UPDATED: 2019-12-15 06:10:23
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.330000e+0	0.000000e+0
@@ -2301,7 +2234,7 @@ PROCESS: E + CO <-> E + CO (v=0-v=6), Excitation
 PARAM.:  E = 1.59 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=6), Vibrational] Laporta V, Cassidy C M, Tennyson J
 COMMENT: and Celiberto R 2012 Plasma Sources Sci. Technol. 21 045005.
-UPDATED: 2020-06-28 11:49:46
+UPDATED: 2019-12-15 06:10:52
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.590000e+0	0.000000e+0
@@ -2660,7 +2593,7 @@ PROCESS: E + CO <-> E + CO (v=0-v=7), Excitation
 PARAM.:  E = 1.84 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=7), Vibrational] Laporta V, Cassidy C M, Tennyson J
 COMMENT: and Celiberto R 2012 Plasma Sources Sci. Technol. 21 045005.
-UPDATED: 2020-06-28 11:49:46
+UPDATED: 2019-12-15 06:11:23
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.840000e+0	0.000000e+0
@@ -3013,7 +2946,7 @@ PROCESS: E + CO <-> E + CO (v=0-v=8), Excitation
 PARAM.:  E = 2.09 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=8), Vibrational] Laporta V, Cassidy C M, Tennyson J
 COMMENT: and Celiberto R 2012 Plasma Sources Sci. Technol. 21 045005.
-UPDATED: 2020-06-28 11:49:46
+UPDATED: 2019-12-15 06:11:57
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.090000e+0	0.000000e+0
@@ -3359,7 +3292,7 @@ PROCESS: E + CO <-> E + CO (v=0-v=9), Excitation
 PARAM.:  E = 2.33 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=9), Vibrational] Laporta V, Cassidy C M, Tennyson J
 COMMENT: and Celiberto R 2012 Plasma Sources Sci. Technol. 21 045005.
-UPDATED: 2020-06-28 11:49:46
+UPDATED: 2019-12-15 06:12:24
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.330000e+0	0.000000e+0
@@ -3699,7 +3632,7 @@ PROCESS: E + CO <-> E + CO (v=0-v=10), Excitation
 PARAM.:  E = 2.58 eV, g1/g0 = 1, complete set
 COMMENT: [e + CO(X,v=0) <-> e + CO(X,v=10), Vibrational] Laporta V, Cassidy C M, Tennyson J
 COMMENT: and Celiberto R 2012 Plasma Sources Sci. Technol. 21 045005.
-UPDATED: 2020-06-28 11:49:46
+UPDATED: 2019-12-15 06:12:52
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.580000e+0	0.000000e+0
@@ -4031,9 +3964,9 @@ CO -> CO(a3P)
 SPECIES: e / CO
 PROCESS: E + CO -> E + CO(a3P), Excitation
 PARAM.:  E = 6.006 eV, complete set
-COMMENT: [e + CO(X) <-> e + CO(a3P), Excitation] Sawada T, Sellin D L and Green A E S 1972 J.
+COMMENT: [e + CO(X,v=0) -> e + CO(a3P), Excitation] Sawada T, Sellin D L and Green A E S 1972 J.
 COMMENT: Geophys. Res. 77 4819.
-UPDATED: 2020-06-28 11:37:31
+UPDATED: 2019-12-15 06:13:18
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  6.006000e+0	0.000000e+0
@@ -4064,10 +3997,10 @@ CO -> CO(a'3Su+)
 SPECIES: e / CO
 PROCESS: E + CO -> E + CO(a'3Su+), Excitation
 PARAM.:  E = 6.8 eV, complete set
-COMMENT: [e + CO(X) -> e + CO(a'3Su+), Excitation] Sawada T, Sellin D L and Green A E S 1972 J.
-COMMENT: Geophys. Res. 77 4819 (below 15 eV rescaled to reproduce Zobel J Mayer U and Ehrhardt H
+COMMENT: [e + CO(X,v=0) -> e + CO(a'3Su+), Excitation] Sawada T, Sellin D L and Green A E S 1972
+COMMENT: J. Geophys. Res. 77 4819 (below 15 eV rescaled to reproduce Zobel J Mayer U and Ehrhardt H
 COMMENT: 1996 J. Phys. B: At. Mol. Opt. Phys. 29 813).
-UPDATED: 2020-06-28 11:37:52
+UPDATED: 2019-12-19 02:29:16
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  6.800000e+0	0.000000e+0
@@ -4097,10 +4030,10 @@ CO -> CO(A1P)
 SPECIES: e / CO
 PROCESS: E + CO -> E + CO(A1P), Excitation
 PARAM.:  E = 8.024 eV, complete set
-COMMENT: [e + CO(X) -> e + CO(A1P), Excitation] Kato H, Kawahara H, Hoshino M, Tanaka H, Brunger
-COMMENT: M J and Kim Y-K 2007 J. Chem. Phys. 126 064307 as reported in Itikawa Y 2015 J. Phys.
-COMMENT: Chem. Ref. Data 44 013105.
-UPDATED: 2020-06-28 11:38:13
+COMMENT: [e + CO(X,v=0) -> e + CO(A1P), Excitation] Kato H, Kawahara H, Hoshino M, Tanaka H,
+COMMENT: Brunger M J and Kim Y-K 2007 J. Chem. Phys. 126 064307 as reported in Itikawa Y 2015 J.
+COMMENT: Phys. Chem. Ref. Data 44 013105.
+UPDATED: 2019-12-19 02:29:44
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.024000e+0	0.000000e+0
@@ -4130,9 +4063,9 @@ CO -> CO(b3Su+)
 SPECIES: e / CO
 PROCESS: E + CO -> E + CO(b3Su+), Excitation
 PARAM.:  E = 10.399 eV, complete set
-COMMENT: [e + CO(X) -> e + CO(b3Su+), Excitation] Sawada T, Sellin D L and Green A E S 1972 J.
-COMMENT: Geophys. Res. 77 4819.
-UPDATED: 2020-06-28 11:38:27
+COMMENT: [e + CO(X,v=0) -> e + CO(b3Su+), Excitation] Sawada T, Sellin D L and Green A E S 1972
+COMMENT: J. Geophys. Res. 77 4819.
+UPDATED: 2019-12-15 06:14:36
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.039900e+1	0.000000e+0
@@ -4156,9 +4089,9 @@ CO -> CO(B1Su+)
 SPECIES: e / CO
 PROCESS: E + CO -> E + CO(B1Su+), Excitation
 PARAM.:  E = 10.777 eV, complete set
-COMMENT: [e + CO(X) -> e + CO(B1Su+), Excitation] Kanik I, Trajmar S and Nickel J C 1993 J.
+COMMENT: [e + CO(X,v=0) -> e + CO(B1Su+), Excitation] Kanik I, Trajmar S and Nickel J C 1993 J.
 COMMENT: Geophys. Res. 98 7447 as reported in Itikawa Y 2015 J. Phys. Chem. Ref. Data 44 013105.
-UPDATED: 2020-06-28 11:38:43
+UPDATED: 2019-12-19 02:30:59
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.077700e+1	0.000000e+0
@@ -4201,9 +4134,9 @@ CO -> C(X) + O(3P)
 SPECIES: e / CO
 PROCESS: E + CO -> E + C(X) + O(3P), Excitation
 PARAM.:  E = 11.1 eV, complete set
-COMMENT: [e + CO(X) -> e + C(X) + O(3P), Excitation] Cosby P C 1993 J. Chem. Phys. 98 7804
+COMMENT: [e + CO(X,v=0) -> e + C(X) + O(3P), Excitation] Cosby P C 1993 J. Chem. Phys. 98 7804
 COMMENT: (extrapolated up to 1keV).
-UPDATED: 2020-06-28 11:39:41
+UPDATED: 2019-12-15 07:45:23
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.110000e+1	0.000000e+0
@@ -4234,10 +4167,10 @@ CO -> CO(C1Su+)
 SPECIES: e / CO
 PROCESS: E + CO -> E + CO(C1Su+), Excitation
 PARAM.:  E = 11.396 eV, complete set
-COMMENT: [e + CO(X) -> e + CO(C1Su+), Excitation]  Kawanhara H, Kato H, Hoshino M, Tanaka H and
-COMMENT: Brunger M J 2008 Phys. Rev. A 77 012713 as reported in Itikawa Y 2015 J. Phys. Chem. Ref.
-COMMENT: Data 44 013105.
-UPDATED: 2020-06-28 11:39:02
+COMMENT: [e + CO(X,v=0) -> e + CO(C1Su+), Excitation]  Kawanhara H, Kato H, Hoshino M, Tanaka H
+COMMENT: and Brunger M J 2008 Phys. Rev. A 77 012713 as reported in Itikawa Y 2015 J. Phys. Chem.
+COMMENT: Ref. Data 44 013105.
+UPDATED: 2019-12-19 02:31:51
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.139600e+1	0.000000e+0
@@ -4279,10 +4212,10 @@ CO -> CO(E1P)
 SPECIES: e / CO
 PROCESS: E + CO -> E + CO(E1P), Excitation
 PARAM.:  E = 11.524 eV, complete set
-COMMENT: [e + CO(X) -> e + CO(E1P), Excitation] Kawanhara H, Kato H, Hoshino M, Tanaka H and
+COMMENT: [e + CO(X,v=0) -> e + CO(E1P), Excitation] Kawanhara H, Kato H, Hoshino M, Tanaka H and
 COMMENT: Brunger M J 2008 Phys. Rev. A 77 012713 as reported in Itikawa Y 2015 J. Phys. Chem. Ref.
 COMMENT: Data 44 013105.
-UPDATED: 2020-06-28 11:39:21
+UPDATED: 2019-12-19 02:33:00
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.152400e+1	0.000000e+0
@@ -4324,9 +4257,9 @@ CO -> CO(+,X)
 SPECIES: e / CO
 PROCESS: E + CO -> E + E + CO(+,X), Ionization
 PARAM.:  E = 14.01 eV, complete set
-COMMENT: [e + CO(X) -> e + e + CO(+,X), Ionization] Rapp D and Englander-Golden P 1965 J. Chem.
-COMMENT: Phys. 43 1464.
-UPDATED: 2020-06-28 11:39:56
+COMMENT: [e + CO(X,v=0) -> e + e + CO(+,X), Ionization] Rapp D and Englander-Golden P 1965 J.
+COMMENT: Chem. Phys. 43 1464.
+UPDATED: 2019-12-15 07:46:04
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.401000e+1	0.000000e+0

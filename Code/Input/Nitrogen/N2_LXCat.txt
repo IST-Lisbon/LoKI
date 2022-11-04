@@ -1,8 +1,8 @@
 LXCat, www.lxcat.net
-Generated on 02 Apr 2018. All rights reserved.
+Generated on 23 Sep 2022. All rights reserved.
 
 RECOMMENDED REFERENCE FORMAT
-- IST-Lisbon database, www.lxcat.net, retrieved on April 2, 2018.
+- IST-Lisbon database, www.lxcat.net, retrieved on September 23, 2022.
 Be aware that some databases and solvers can additionally have instructions how to reference corresponding data.
 Please check below in the headers of databases.
 
@@ -21,14 +21,15 @@ the first name either by arrow "->" (dash + greater than) or by double-head arro
 greater than), e.g. "Ar -> Ar*" and "Ar <-> Ar*", respectively. In the later case BOLSIG+ will automatically
 define the inverse superelastic process, constructing the superelastic cross-section by detailed balancing, and
 considering the indicated excited state as the target. In this case, the ratio of statistical weights must be input in
-the 3rd line (see below).  Alternatively, superelastic collisions could be defined explicitly as excitation collisions
-with a negative electron energy loss with user input cross sections and species name, "Ar*", for example.
+the 3rd line (see below).
 3rd line
 For elastic and effective collisions, the ratio of the electron mass to the target particle mass. For excitation or
 ionization collisions, the electron energy loss (nominally the threshold energy) in eV. For attachment, the 3rd line is
 missing. In case of an excitation process where an excited state has been indicated on the 2nd line using double-head
 arrow "<->", the 3rd line must specify also ratio of the statistical weights of the final state to the initial state
-as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section.
+as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section. The
+statistical weight ratio, if given, will also be used by the automatic superelastics option in BOLSIG+. If this ratio is
+not provided then BOLSIG+ will assume it unity.
 from 4th line (optionally)
 User comments and reference information, maximum 100 lines. The only constraint on format is that these comment lines
 must not start with a number.
@@ -42,13 +43,13 @@ PERMLINK:         www.lxcat.net/IST-Lisbon
 DESCRIPTION:      IST-Lisbon database contains up-to-date electron-neutral scattering cross sections (together with the
                   measured swarm parameters used to validate these data), resulting from the research effort of the
                   Group N-Plasmas Reactive: Modelling and Engineering (N-PRiME) with IPFN/IST (Instituto de Plasmas e
-                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal. The data, compiled from the literature,
-                  correspond to contributions from different authors (see detailed references in the database). For each
-                  gas the database presents a COMPLETE SET of cross sections, validated against measured swarm
-                  parameters by solving the two-term homogeneous electron Boltzmann equation. In most cases, predictions
-                  are in agreement with measurements within 1-20%, for reduced electric fields E/N ~ 1e-4 - 500 Td. To
-                  improve predictions at low E/N, some sets need to be completed with rotational cross sections, also
-                  available in the database.
+                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal.  The data, compiled from the
+                  literature, correspond to contributions from different authors (see detailed references in the
+                  database). For each gas the database presents a COMPLETE SET of cross sections, validated against
+                  measured swarm parameters by solving the two-term homogeneous electron Boltzmann equation. In most
+                  cases, predictions are in agreement with measurements within 1-20%, for reduced electric fields E/N ~
+                  1e-4 - 500 Td. To improve predictions at low E/N, some sets need to be completed with rotational cross
+                  sections, also available in the database.
 CONTACT:          LL Alves and V Guerra
                   e-mail: llalves@@tecnico.ulisboa.pt
 HOW TO REFERENCE: L.L. Alves, ''The IST-Lisbon database on LXCat'' J. Phys. Conf. Series 2014, 565, 1
@@ -64,15 +65,15 @@ COMMENT: J. Loureiro and C.M. Ferreira, ''Coupled electron energy and vibrationa
          ground-state, N2(X,v=0) --> N2(X,v') (1 <= v' <= 10), correspond to an anharmonic distribution of energy
          levels, close to the one obtained by assuming a Morse potential. When this complete set is used in a two-term Boltzmann
          solver (choosing a linear interpolation scheme), it yields calculated swarm parameters in good agreement with
-         measurements for E/N values between 1 and 1000 Td.  For E/N < 1 Td, the set must be further completed to include
+         measurements for E/N values between 1 and 1000 Td. For E/N < 1 Td, the set must be further completed to include
          rotational excitation mechanisms (see below), in order to reproduce measured swarm data.
          IMPORTANT NOTICE ABOUT ROTATIONAL TRANSITIONS
          This set is to be completed with the rotational cross sections for transitions N2(X,v=0,J) --> N2(X,v=0,J+2)
-         (J=0,1,.,30), available in this database under group N2-rot (see N2-rot description for more details). When the full
-         cross section set for N2 (containing momentum-transfer, and electronic excitation and ionization from ground-state) and
-         N2-rot (including the rotational excitation / deexcitation to/from the N2(J=0), N2(J=1),.., N2(J=32) states) are used in
-         a two-term Boltzmann solver, one obtains calculated swarm parameters in good agreement with measurements over a large
-         range of E/N values (1e-4 to 1000 Td).
+         (J=0,1,.,30), available in this database under group Nitrogen > N2-rot (see N2-rot description for more details).
+         When the full cross section set for N2 (containing momentum-transfer, and electronic excitation and ionization from
+         ground-state) and N2-rot (including the rotational excitation / deexcitation to/from the N2(J=0), N2(J=1),.., N2(J=32)
+         states) are used in a two-term Boltzmann solver, one obtains calculated swarm parameters in good agreement with
+         measurements over a large range of E/N values (1e-4 to 1000 Td).
 
 ********************************************************** N2 **********************************************************
 
@@ -84,7 +85,7 @@ PROCESS: E + N2 -> E + N2, Effective
 PARAM.:  m/M = 0.0000195921, complete set
 COMMENT: [e + N2(X) -> e + N2(X), Effective] Pitchford L C and Phelps A V 1982 Bull. Am. Phys.
 COMMENT: Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544.
-UPDATED: 2017-11-14 10:24:49
+UPDATED: 2019-12-16 04:01:47
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  0.000000e+0	1.100000e-20
@@ -195,7 +196,6 @@ COLUMNS: Energy (eV) | Cross section (m2)
  5.000000e+3	4.000000e-21
  7.000000e+3	2.900000e-21
  1.000000e+4	2.100000e-21
- 1.001000e+4	1.000000e-50
 -----------------------------
 
 EXCITATION
@@ -209,7 +209,7 @@ COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988 Schulz G J 1973 Rev. Mod. Phys.
 COMMENT: 45 423 Engelhardt A G, Phelps A V and Risk C G 1964 Phys. Rev. 135 A1566 Pavlovic Z,
 COMMENT: Boness M J W, Herzenberg A and Schulz G J 1972 Phys. Rev. A 6 676.
-UPDATED: 2017-09-03 10:54:40
+UPDATED: 2017-09-03 03:54:40
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.000000e-1	0.000000e+0
@@ -548,7 +548,7 @@ PARAM.:  E = 0.6 eV, complete set
 COMMENT: [e + N2(X,v=0) <-> e + N2(X,v=2), Vibrational] Pitchford L C and Phelps A V 1982
 COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544 Schulz G J 1962
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988.
-UPDATED: 2017-09-03 10:56:36
+UPDATED: 2017-09-03 03:56:36
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  6.000000e-1	0.000000e+0
@@ -584,7 +584,7 @@ PARAM.:  E = 0.9 eV, complete set
 COMMENT: [e + N2(X,v=0) <-> e + N2(X,v=3), Vibrational] Pitchford L C and Phelps A V 1982
 COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544 Schulz G J 1962
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988.
-UPDATED: 2017-09-03 10:57:51
+UPDATED: 2017-09-03 03:57:51
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  9.000000e-1	0.000000e+0
@@ -616,7 +616,7 @@ PARAM.:  E = 1.1 eV, complete set
 COMMENT: [e + N2(X,v=0) <-> e + N2(X,v=4), Vibrational] Pitchford L C and Phelps A V 1982
 COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544 Schulz G J 1962
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988.
-UPDATED: 2017-09-03 10:59:20
+UPDATED: 2017-09-03 03:59:20
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.100000e+0	0.000000e+0
@@ -646,7 +646,7 @@ PARAM.:  E = 1.4 eV, complete set
 COMMENT: [e + N2(X,v=0) <-> e + N2(X,v=5), Vibrational] Pitchford L C and Phelps A V 1982
 COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544 Schulz G J 1962
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988.
-UPDATED: 2017-09-03 11:00:30
+UPDATED: 2017-09-03 04:00:30
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.400000e+0	0.000000e+0
@@ -676,7 +676,7 @@ PARAM.:  E = 1.7 eV, complete set
 COMMENT: [e + N2(X,v=0) <-> e + N2(X,v=6), Vibrational] Pitchford L C and Phelps A V 1982
 COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544 Schulz G J 1962
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988.
-UPDATED: 2017-09-03 11:01:30
+UPDATED: 2017-09-03 04:01:30
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.700000e+0	0.000000e+0
@@ -703,7 +703,7 @@ PARAM.:  E = 2 eV, complete set
 COMMENT: [e + N2(X,v=0) <-> e + N2(X,v=7), Vibrational] Pitchford L C and Phelps A V 1982
 COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544 Schulz G J 1962
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988.
-UPDATED: 2017-09-03 11:02:29
+UPDATED: 2017-09-03 04:02:29
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.000000e+0	0.000000e+0
@@ -732,7 +732,7 @@ PARAM.:  E = 2.2 eV, complete set
 COMMENT: [e + N2(X,v=0) <-> e + N2(X,v=8), Vibrational] Pitchford L C and Phelps A V 1982
 COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544 Schulz G J 1962
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988.
-UPDATED: 2017-09-03 11:03:23
+UPDATED: 2017-09-03 04:03:23
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.200000e+0	0.000000e+0
@@ -760,7 +760,7 @@ COMMENT: [e + N2(X,v=0) <-> e + N2(X,v=9), Vibrational] Pitchford L C and Phelps
 COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544 Schulz G J 1962
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988 Boness M J W and Schulz G J 1973
 COMMENT: Phys. Rev. A 8 2883.
-UPDATED: 2017-09-03 11:06:09
+UPDATED: 2017-09-03 04:06:09
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.500000e+0	0.000000e+0
@@ -798,7 +798,7 @@ COMMENT: [e + N2(X,v=0) <-> e + N2(X,v=10), Vibrational] Pitchford L C and Phelp
 COMMENT: Bull. Am. Phys. Soc. 27 109 Tachibana K and Phelps A V 1979 JCP 71 3544 Schulz G J 1962
 COMMENT: Phys. Rev. 125 229 Schulz G J 1964 Phys. Rev. 135 A988 Boness M J W and Schulz G J 1973
 COMMENT: Phys. Rev. A 8 2883.
-UPDATED: 2017-09-03 11:07:04
+UPDATED: 2017-09-03 04:07:04
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.700000e+0	0.000000e+0
@@ -826,7 +826,7 @@ PROCESS: E + N2 -> E + N2[A3Su+(v=0-4)], Excitation
 PARAM.:  E = 6.2 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(A3Su+,v=0-4), Excitation] Pitchford L C and Phelps A V 1982 Bull.
 COMMENT: Am. Phys. Soc. 27 109.
-UPDATED: 2017-09-03 11:09:25
+UPDATED: 2017-09-03 04:09:25
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  6.200000e+0	0.000000e+0
@@ -1205,7 +1205,7 @@ PROCESS: E + N2 -> E + N2 [A3Su+(v=5-9)], Excitation
 PARAM.:  E = 7 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(A3Su+,v=5-9), Excitation] Pitchford L C and Phelps A V 1982 Bull.
 COMMENT: Am. Phys. Soc. 27 109.
-UPDATED: 2017-09-03 11:11:10
+UPDATED: 2017-09-03 04:11:10
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  7.000000e+0	0.000000e+0
@@ -1575,7 +1575,7 @@ SPECIES: e / N2
 PROCESS: E + N2 -> E + N2(B3Pg), Excitation
 PARAM.:  E = 7.4 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(B3Pg), Excitation] Cartwright D C et al 1977 Phys. Rev. A 16 1041.
-UPDATED: 2017-07-24 13:14:11
+UPDATED: 2017-07-24 06:14:11
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  7.400000e+0	0.000000e+0
@@ -2300,7 +2300,7 @@ SPECIES: e / N2
 PROCESS: E + N2 -> E + N2(W3Du), Excitation
 PARAM.:  E = 7.4 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(W3Du), Excitation] Cartwright D C et al 1977 Phys. Rev. A 16 1041.
-UPDATED: 2017-07-24 13:49:01
+UPDATED: 2017-07-24 06:49:01
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  7.400000e+0	0.000000e+0
@@ -2826,7 +2826,7 @@ PROCESS: E + N2 -> E + N2 [A3Su+(v=10+)], Excitation
 PARAM.:  E = 7.8 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(A3Su+,v=10+), Excitation] Pitchford L C and Phelps A V 1982 Bull.
 COMMENT: Am. Phys. Soc. 27 109.
-UPDATED: 2017-09-03 11:12:55
+UPDATED: 2017-09-03 04:12:55
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  7.800000e+0	0.000000e+0
@@ -3190,7 +3190,7 @@ PROCESS: E + N2 -> E + N2(B3Su-), Excitation
 PARAM.:  E = 8.2 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(B3Su-), Excitation] Cartwright D C et al 1977 Phys. Rev. A 16
 COMMENT: 1041.
-UPDATED: 2017-09-03 11:14:14
+UPDATED: 2017-09-03 04:14:14
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.200000e+0	0.000000e+0
@@ -3922,7 +3922,7 @@ PROCESS: E + N2 -> E + N2(a1Su-), Excitation
 PARAM.:  E = 8.4 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(a1Su-), Excitation] Cartwright D C et al 1977 Phys. Rev. A 16
 COMMENT: 1041.
-UPDATED: 2017-09-03 11:15:43
+UPDATED: 2017-09-03 04:15:43
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.400000e+0	0.000000e+0
@@ -4501,7 +4501,7 @@ SPECIES: e / N2
 PROCESS: E + N2 -> E + N2(a1Pg), Excitation
 PARAM.:  E = 8.6 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(a1Pg), Excitation] Cartwright D C et al 1977 Phys. Rev. A 16 1041.
-UPDATED: 2017-07-21 15:24:28
+UPDATED: 2017-07-21 08:24:28
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.600000e+0	0.000000e+0
@@ -4838,7 +4838,7 @@ SPECIES: e / N2
 PROCESS: E + N2 -> E + N2(w1Du), Excitation
 PARAM.:  E = 8.9 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(w1Du), Excitation] Cartwright D C et al 1977 Phys. Rev. A 16 1041.
-UPDATED: 2017-09-03 11:17:18
+UPDATED: 2017-09-03 04:17:18
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.900000e+0	0.000000e+0
@@ -5331,7 +5331,7 @@ PROCESS: E + N2 -> E + N2(C3Pu), Excitation
 PARAM.:  E = 11 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(C3Pu), Excitation] Pitchford L C and Phelps A V 1982 Bull. Am.
 COMMENT: Phys. Soc. 27 109.
-UPDATED: 2017-09-03 11:19:47
+UPDATED: 2017-09-03 04:19:47
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.100000e+1	0.000000e+0
@@ -5642,7 +5642,7 @@ PROCESS: E + N2 -> E + N2(E3Sg+), Excitation
 PARAM.:  E = 11.8 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(E3Sg+), Excitation] Pitchford L C and Phelps A V 1982 Bull. Am.
 COMMENT: Phys. Soc. 27 109.
-UPDATED: 2017-09-03 11:21:12
+UPDATED: 2017-09-03 04:21:12
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.180000e+1	0.000000e+0
@@ -6023,7 +6023,7 @@ PROCESS: E + N2 -> E + N2(a1Sg+), Excitation
 PARAM.:  E = 12.2 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(a1Sg+), Excitation] Pitchford L C and Phelps A V 1982 Bull. Am.
 COMMENT: Phys. Soc. 27 109.
-UPDATED: 2017-07-21 15:27:03
+UPDATED: 2017-07-21 08:27:03
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.220000e+1	0.000000e+0
@@ -6324,7 +6324,7 @@ PROCESS: E + N2 -> E + N2(sing-sup), Excitation
 PARAM.:  E = 13 eV, complete set
 COMMENT: [e + N2(X) -> e + N2(sing-sup), Excitation] Zipf E C and McLaughlin R W 1978 Planet.
 COMMENT: Space Sci. 26 449.
-UPDATED: 2017-07-24 13:58:27
+UPDATED: 2017-07-24 06:58:27
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.300000e+1	0.000000e+0
@@ -6611,14 +6611,16 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 IONIZATION
-N2 -> N2+
+N2 -> N2+(X)
  1.560000e+1
 SPECIES: e / N2
-PROCESS: E + N2 -> E + E + N2+, Ionization
+PROCESS: E + N2 -> E + E + N2+(X), Ionization
 PARAM.:  E = 15.6 eV, complete set
-COMMENT: [e + N2(X) -> e + e + N2(+,X), Ionization] Rapp D and Englander-Golden P 1965 J. Chem.
-COMMENT: Phys. 43 1464.
-UPDATED: 2017-09-03 18:11:09
+COMMENT: [e + N2(X) -> e + e + N2(+,X), Ionization] The cross section for the ionization to
+COMMENT: N2(+,X) was obtained from the total ionization cross section of Rapp D and
+COMMENT: Englander-Golden P 1965 J. Chem. Phys. 43 1464, and the partial ionization cross section
+COMMENT: to N2(+,B) of Isola L M, Gómez B J and Guerra V 2010 J. Phys. D: Appl. Phys. 43 015202.
+UPDATED: 2018-11-27 05:51:46
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.560000e+1	0.000000e+0
@@ -6654,228 +6656,280 @@ COLUMNS: Energy (eV) | Cross section (m2)
  1.860000e+1	1.640000e-21
  1.870000e+1	1.715000e-21
  1.880000e+1	1.790000e-21
- 1.890000e+1	1.885000e-21
- 1.900000e+1	1.980000e-21
- 1.910000e+1	2.015000e-21
- 1.920000e+1	2.050000e-21
- 1.930000e+1	2.125000e-21
- 1.940000e+1	2.200000e-21
- 1.950000e+1	2.260000e-21
- 1.960000e+1	2.320000e-21
- 1.970000e+1	2.405000e-21
- 1.980000e+1	2.490000e-21
- 1.990000e+1	2.590000e-21
- 2.000000e+1	2.690000e-21
- 2.010000e+1	2.743000e-21
- 2.020000e+1	2.795000e-21
- 2.030000e+1	2.848000e-21
- 2.040000e+1	2.900000e-21
- 2.050000e+1	2.975000e-21
- 2.060000e+1	3.050000e-21
- 2.070000e+1	3.125000e-21
- 2.080000e+1	3.200000e-21
- 2.090000e+1	3.275000e-21
- 2.100000e+1	3.350000e-21
- 2.110000e+1	3.425000e-21
- 2.120000e+1	3.500000e-21
- 2.130000e+1	3.575000e-21
- 2.140000e+1	3.650000e-21
- 2.150000e+1	3.725000e-21
- 2.160000e+1	3.800000e-21
- 2.170000e+1	3.900000e-21
- 2.180000e+1	4.000000e-21
- 2.190000e+1	4.100000e-21
- 2.200000e+1	4.200000e-21
- 2.210000e+1	4.250000e-21
- 2.220000e+1	4.300000e-21
- 2.230000e+1	4.350000e-21
- 2.240000e+1	4.400000e-21
- 2.250000e+1	4.475000e-21
- 2.260000e+1	4.550000e-21
- 2.270000e+1	4.625000e-21
- 2.280000e+1	4.700000e-21
- 2.290000e+1	4.800000e-21
- 2.300000e+1	4.900000e-21
- 2.310000e+1	5.000000e-21
- 2.320000e+1	5.100000e-21
- 2.330000e+1	5.150000e-21
- 2.340000e+1	5.200000e-21
- 2.350000e+1	5.250000e-21
- 2.360000e+1	5.300000e-21
- 2.370000e+1	5.400000e-21
- 2.380000e+1	5.500000e-21
- 2.390000e+1	5.600000e-21
- 2.400000e+1	5.700000e-21
- 2.410000e+1	5.775000e-21
- 2.420000e+1	5.850000e-21
- 2.430000e+1	5.925000e-21
- 2.440000e+1	6.000000e-21
- 2.450000e+1	6.075000e-21
- 2.460000e+1	6.150000e-21
- 2.470000e+1	6.225000e-21
- 2.480000e+1	6.300000e-21
- 2.490000e+1	6.350000e-21
- 2.500000e+1	6.400000e-21
- 2.510000e+1	6.450000e-21
- 2.520000e+1	6.500000e-21
- 2.530000e+1	6.575000e-21
- 2.540000e+1	6.650000e-21
- 2.550000e+1	6.725000e-21
- 2.560000e+1	6.800000e-21
- 2.570000e+1	6.875000e-21
- 2.580000e+1	6.950000e-21
- 2.590000e+1	7.025000e-21
- 2.600000e+1	7.100000e-21
- 2.610000e+1	7.175000e-21
- 2.620000e+1	7.250000e-21
- 2.630000e+1	7.325000e-21
- 2.640000e+1	7.400000e-21
- 2.650000e+1	7.475000e-21
- 2.660000e+1	7.550000e-21
- 2.670000e+1	7.625000e-21
- 2.680000e+1	7.700000e-21
- 2.690000e+1	7.800000e-21
- 2.700000e+1	7.900000e-21
- 2.710000e+1	8.000000e-21
- 2.720000e+1	8.100000e-21
- 2.730000e+1	8.175000e-21
- 2.740000e+1	8.250000e-21
- 2.750000e+1	8.325000e-21
- 2.760000e+1	8.400000e-21
- 2.770000e+1	8.475000e-21
- 2.780000e+1	8.550000e-21
- 2.790000e+1	8.625000e-21
- 2.800000e+1	8.700000e-21
- 2.810000e+1	8.775000e-21
- 2.820000e+1	8.850000e-21
- 2.830000e+1	8.925000e-21
- 2.840000e+1	9.000000e-21
- 2.850000e+1	9.075000e-21
- 2.860000e+1	9.150000e-21
- 2.870000e+1	9.225000e-21
- 2.880000e+1	9.300000e-21
- 2.890000e+1	9.375000e-21
- 2.900000e+1	9.450000e-21
- 2.910000e+1	9.525000e-21
- 2.920000e+1	9.600000e-21
- 2.930000e+1	9.675000e-21
- 2.940000e+1	9.750000e-21
- 2.950000e+1	9.825000e-21
- 2.960000e+1	9.900000e-21
- 2.970000e+1	9.975000e-21
- 2.980000e+1	1.005000e-20
- 2.990000e+1	1.013000e-20
- 3.000000e+1	1.020000e-20
- 3.010000e+1	1.027000e-20
- 3.020000e+1	1.035000e-20
- 3.030000e+1	1.043000e-20
- 3.040000e+1	1.050000e-20
- 3.050000e+1	1.058000e-20
- 3.060000e+1	1.065000e-20
- 3.070000e+1	1.072000e-20
- 3.080000e+1	1.080000e-20
- 3.090000e+1	1.085000e-20
- 3.100000e+1	1.090000e-20
- 3.110000e+1	1.095000e-20
- 3.120000e+1	1.100000e-20
- 3.130000e+1	1.108000e-20
- 3.140000e+1	1.115000e-20
- 3.150000e+1	1.122000e-20
- 3.160000e+1	1.130000e-20
- 3.170000e+1	1.135000e-20
- 3.180000e+1	1.140000e-20
- 3.190000e+1	1.145000e-20
- 3.200000e+1	1.150000e-20
- 3.210000e+1	1.158000e-20
- 3.220000e+1	1.165000e-20
- 3.230000e+1	1.172000e-20
- 3.240000e+1	1.180000e-20
- 3.250000e+1	1.185000e-20
- 3.260000e+1	1.190000e-20
- 3.270000e+1	1.195000e-20
- 3.280000e+1	1.200000e-20
- 3.290000e+1	1.205000e-20
- 3.300000e+1	1.210000e-20
- 3.310000e+1	1.215000e-20
- 3.320000e+1	1.220000e-20
- 3.330000e+1	1.225000e-20
- 3.340000e+1	1.230000e-20
- 3.350000e+1	1.235000e-20
- 3.360000e+1	1.240000e-20
- 3.370000e+1	1.245000e-20
- 3.380000e+1	1.250000e-20
- 3.390000e+1	1.255000e-20
- 3.400000e+1	1.260000e-20
- 3.410000e+1	1.267000e-20
- 3.420000e+1	1.275000e-20
- 3.430000e+1	1.282000e-20
- 3.440000e+1	1.290000e-20
- 3.450000e+1	1.295000e-20
- 3.460000e+1	1.300000e-20
- 3.470000e+1	1.305000e-20
- 3.480000e+1	1.310000e-20
- 3.490000e+1	1.317000e-20
- 3.500000e+1	1.325000e-20
- 3.510000e+1	1.332000e-20
- 3.520000e+1	1.340000e-20
- 3.530000e+1	1.345000e-20
- 3.540000e+1	1.350000e-20
- 3.550000e+1	1.355000e-20
- 3.560000e+1	1.360000e-20
- 3.570000e+1	1.365000e-20
- 3.580000e+1	1.370000e-20
- 3.590000e+1	1.375000e-20
- 3.600000e+1	1.380000e-20
- 3.610000e+1	1.385000e-20
- 3.620000e+1	1.390000e-20
- 3.630000e+1	1.395000e-20
- 3.640000e+1	1.400000e-20
- 3.650000e+1	1.405000e-20
- 3.660000e+1	1.410000e-20
- 3.670000e+1	1.415000e-20
- 3.680000e+1	1.420000e-20
- 3.690000e+1	1.425000e-20
- 3.700000e+1	1.430000e-20
- 3.710000e+1	1.435000e-20
- 3.720000e+1	1.440000e-20
- 3.730000e+1	1.445000e-20
- 3.740000e+1	1.450000e-20
- 3.750000e+1	1.455000e-20
- 3.760000e+1	1.460000e-20
- 3.770000e+1	1.465000e-20
- 3.780000e+1	1.470000e-20
- 3.790000e+1	1.475000e-20
- 3.800000e+1	1.480000e-20
- 3.810000e+1	1.485000e-20
- 3.820000e+1	1.490000e-20
- 3.830000e+1	1.495000e-20
- 3.840000e+1	1.500000e-20
- 3.850000e+1	1.505000e-20
- 3.860000e+1	1.510000e-20
- 3.870000e+1	1.515000e-20
- 3.880000e+1	1.520000e-20
- 3.890000e+1	1.525000e-20
- 3.900000e+1	1.530000e-20
- 3.910000e+1	1.535000e-20
- 3.920000e+1	1.540000e-20
- 3.930000e+1	1.543000e-20
- 3.940000e+1	1.545000e-20
- 3.950000e+1	1.547000e-20
- 3.960000e+1	1.550000e-20
- 3.970000e+1	1.555000e-20
- 3.980000e+1	1.560000e-20
- 3.990000e+1	1.565000e-20
- 4.000000e+1	1.570000e-20
- 4.500000e+1	1.646000e-20
- 6.000000e+1	2.018000e-20
- 7.500000e+1	2.213000e-20
- 1.000000e+2	2.344000e-20
- 1.500000e+2	2.269000e-20
- 2.000000e+2	2.102000e-20
- 3.000000e+2	1.776000e-20
- 5.000000e+2	1.348000e-20
- 7.000000e+2	1.079000e-20
- 1.000000e+3	8.556000e-21
- 1.500000e+3	7.440000e-21
+ 1.890000e+1	1.876772e-21
+ 1.900000e+1	1.963544e-21
+ 1.910000e+1	1.990384e-21
+ 1.920000e+1	2.017224e-21
+ 1.930000e+1	2.084132e-21
+ 1.940000e+1	2.151040e-21
+ 1.950000e+1	2.202948e-21
+ 1.960000e+1	2.254856e-21
+ 1.970000e+1	2.331866e-21
+ 1.980000e+1	2.408876e-21
+ 1.990000e+1	2.500886e-21
+ 2.000000e+1	2.592896e-21
+ 2.010000e+1	2.637246e-21
+ 2.020000e+1	2.680597e-21
+ 2.030000e+1	2.724947e-21
+ 2.040000e+1	2.768298e-21
+ 2.050000e+1	2.834648e-21
+ 2.060000e+1	2.900998e-21
+ 2.070000e+1	2.967349e-21
+ 2.080000e+1	3.033699e-21
+ 2.090000e+1	3.100050e-21
+ 2.100000e+1	3.166400e-21
+ 2.110000e+1	3.232832e-21
+ 2.120000e+1	3.299264e-21
+ 2.130000e+1	3.365696e-21
+ 2.140000e+1	3.432128e-21
+ 2.150000e+1	3.498560e-21
+ 2.160000e+1	3.564992e-21
+ 2.170000e+1	3.656424e-21
+ 2.180000e+1	3.747856e-21
+ 2.190000e+1	3.839288e-21
+ 2.200000e+1	3.930720e-21
+ 2.210000e+1	3.972152e-21
+ 2.220000e+1	4.013584e-21
+ 2.230000e+1	4.055016e-21
+ 2.240000e+1	4.096448e-21
+ 2.250000e+1	4.162880e-21
+ 2.260000e+1	4.229312e-21
+ 2.270000e+1	4.295744e-21
+ 2.280000e+1	4.362176e-21
+ 2.290000e+1	4.453608e-21
+ 2.300000e+1	4.545040e-21
+ 2.310000e+1	4.636336e-21
+ 2.320000e+1	4.727632e-21
+ 2.330000e+1	4.768928e-21
+ 2.340000e+1	4.810224e-21
+ 2.350000e+1	4.851520e-21
+ 2.360000e+1	4.892816e-21
+ 2.370000e+1	4.984112e-21
+ 2.380000e+1	5.075408e-21
+ 2.390000e+1	5.166704e-21
+ 2.400000e+1	5.258000e-21
+ 2.410000e+1	5.324296e-21
+ 2.420000e+1	5.390592e-21
+ 2.430000e+1	5.456888e-21
+ 2.440000e+1	5.523184e-21
+ 2.450000e+1	5.589480e-21
+ 2.460000e+1	5.655776e-21
+ 2.470000e+1	5.722072e-21
+ 2.480000e+1	5.788368e-21
+ 2.490000e+1	5.829664e-21
+ 2.500000e+1	5.870960e-21
+ 2.510000e+1	5.912120e-21
+ 2.520000e+1	5.953280e-21
+ 2.530000e+1	6.019440e-21
+ 2.540000e+1	6.085600e-21
+ 2.550000e+1	6.151760e-21
+ 2.560000e+1	6.217920e-21
+ 2.570000e+1	6.284080e-21
+ 2.580000e+1	6.350240e-21
+ 2.590000e+1	6.416400e-21
+ 2.600000e+1	6.482560e-21
+ 2.610000e+1	6.548856e-21
+ 2.620000e+1	6.615152e-21
+ 2.630000e+1	6.681448e-21
+ 2.640000e+1	6.747744e-21
+ 2.650000e+1	6.814040e-21
+ 2.660000e+1	6.880336e-21
+ 2.670000e+1	6.946632e-21
+ 2.680000e+1	7.012928e-21
+ 2.690000e+1	7.104224e-21
+ 2.700000e+1	7.195520e-21
+ 2.710000e+1	7.286499e-21
+ 2.720000e+1	7.377477e-21
+ 2.730000e+1	7.443456e-21
+ 2.740000e+1	7.509435e-21
+ 2.750000e+1	7.575413e-21
+ 2.760000e+1	7.641392e-21
+ 2.770000e+1	7.707371e-21
+ 2.780000e+1	7.773349e-21
+ 2.790000e+1	7.839328e-21
+ 2.800000e+1	7.905307e-21
+ 2.810000e+1	7.971285e-21
+ 2.820000e+1	8.037264e-21
+ 2.830000e+1	8.103243e-21
+ 2.840000e+1	8.169221e-21
+ 2.850000e+1	8.235200e-21
+ 2.860000e+1	8.301179e-21
+ 2.870000e+1	8.367157e-21
+ 2.880000e+1	8.433136e-21
+ 2.890000e+1	8.499115e-21
+ 2.900000e+1	8.565093e-21
+ 2.910000e+1	8.631072e-21
+ 2.920000e+1	8.697051e-21
+ 2.930000e+1	8.763029e-21
+ 2.940000e+1	8.829008e-21
+ 2.950000e+1	8.894987e-21
+ 2.960000e+1	8.960965e-21
+ 2.970000e+1	9.026944e-21
+ 2.980000e+1	9.092923e-21
+ 2.990000e+1	9.163901e-21
+ 3.000000e+1	9.224880e-21
+ 3.010000e+1	9.286910e-21
+ 3.020000e+1	9.358941e-21
+ 3.030000e+1	9.430971e-21
+ 3.040000e+1	9.493002e-21
+ 3.050000e+1	9.565032e-21
+ 3.060000e+1	9.627062e-21
+ 3.070000e+1	9.689093e-21
+ 3.080000e+1	9.761123e-21
+ 3.090000e+1	9.803154e-21
+ 3.100000e+1	9.845184e-21
+ 3.110000e+1	9.887214e-21
+ 3.120000e+1	9.929245e-21
+ 3.130000e+1	1.000128e-20
+ 3.140000e+1	1.006331e-20
+ 3.150000e+1	1.012534e-20
+ 3.160000e+1	1.019737e-20
+ 3.170000e+1	1.023940e-20
+ 3.180000e+1	1.028143e-20
+ 3.190000e+1	1.032346e-20
+ 3.200000e+1	1.036549e-20
+ 3.210000e+1	1.043752e-20
+ 3.220000e+1	1.049955e-20
+ 3.230000e+1	1.056158e-20
+ 3.240000e+1	1.063361e-20
+ 3.250000e+1	1.067564e-20
+ 3.260000e+1	1.071767e-20
+ 3.270000e+1	1.075970e-20
+ 3.280000e+1	1.080173e-20
+ 3.290000e+1	1.084376e-20
+ 3.300000e+1	1.088579e-20
+ 3.310000e+1	1.092782e-20
+ 3.320000e+1	1.096985e-20
+ 3.330000e+1	1.101188e-20
+ 3.340000e+1	1.105391e-20
+ 3.350000e+1	1.109594e-20
+ 3.360000e+1	1.113797e-20
+ 3.370000e+1	1.118000e-20
+ 3.380000e+1	1.122204e-20
+ 3.390000e+1	1.126407e-20
+ 3.400000e+1	1.130610e-20
+ 3.410000e+1	1.136813e-20
+ 3.420000e+1	1.144016e-20
+ 3.430000e+1	1.150219e-20
+ 3.440000e+1	1.157422e-20
+ 3.450000e+1	1.161625e-20
+ 3.460000e+1	1.165828e-20
+ 3.470000e+1	1.170031e-20
+ 3.480000e+1	1.174234e-20
+ 3.490000e+1	1.180437e-20
+ 3.500000e+1	1.187640e-20
+ 3.510000e+1	1.194096e-20
+ 3.520000e+1	1.201552e-20
+ 3.530000e+1	1.206008e-20
+ 3.540000e+1	1.210464e-20
+ 3.550000e+1	1.214920e-20
+ 3.560000e+1	1.219376e-20
+ 3.570000e+1	1.223832e-20
+ 3.580000e+1	1.228288e-20
+ 3.590000e+1	1.232744e-20
+ 3.600000e+1	1.237200e-20
+ 3.610000e+1	1.241656e-20
+ 3.620000e+1	1.246112e-20
+ 3.630000e+1	1.250568e-20
+ 3.640000e+1	1.255024e-20
+ 3.650000e+1	1.259480e-20
+ 3.660000e+1	1.263936e-20
+ 3.670000e+1	1.268392e-20
+ 3.680000e+1	1.272848e-20
+ 3.690000e+1	1.277304e-20
+ 3.700000e+1	1.281760e-20
+ 3.710000e+1	1.286216e-20
+ 3.720000e+1	1.290672e-20
+ 3.730000e+1	1.295128e-20
+ 3.740000e+1	1.299584e-20
+ 3.750000e+1	1.304040e-20
+ 3.760000e+1	1.308496e-20
+ 3.770000e+1	1.312952e-20
+ 3.780000e+1	1.317408e-20
+ 3.790000e+1	1.321864e-20
+ 3.800000e+1	1.326320e-20
+ 3.810000e+1	1.330776e-20
+ 3.820000e+1	1.335232e-20
+ 3.830000e+1	1.339688e-20
+ 3.840000e+1	1.344144e-20
+ 3.850000e+1	1.348600e-20
+ 3.860000e+1	1.353056e-20
+ 3.870000e+1	1.357512e-20
+ 3.880000e+1	1.361968e-20
+ 3.890000e+1	1.366424e-20
+ 3.900000e+1	1.370880e-20
+ 3.910000e+1	1.375336e-20
+ 3.920000e+1	1.379792e-20
+ 3.930000e+1	1.382248e-20
+ 3.940000e+1	1.383704e-20
+ 3.950000e+1	1.385160e-20
+ 3.960000e+1	1.387616e-20
+ 3.970000e+1	1.392072e-20
+ 3.980000e+1	1.396528e-20
+ 3.990000e+1	1.400984e-20
+ 4.000000e+1	1.405440e-20
+ 4.500000e+1	1.461040e-20
+ 6.000000e+1	1.800400e-20
+ 7.500000e+1	1.983160e-20
+ 1.000000e+2	2.107360e-20
+ 1.500000e+2	2.043920e-20
+ 2.000000e+2	1.895280e-20
+ 3.000000e+2	1.597840e-20
+ 5.000000e+2	1.214856e-20
+ 7.000000e+2	9.712880e-21
+ 1.000000e+3	7.708720e-21
+-----------------------------
+
+IONIZATION
+N2 -> N2+(B)
+ 1.880000e+1
+SPECIES: e / N2
+PROCESS: E + N2 -> E + E + N2+(B), Ionization
+PARAM.:  E = 18.8 eV, complete set
+COMMENT: [e + N2(X) -> e + e + N2(+,B), Ionization] Isola L M, Gómez B J and Guerra V 2010 J.
+COMMENT: Phys. D: Appl. Phys. 43 015202.
+UPDATED: 2018-11-27 05:53:18
+COLUMNS: Energy (eV) | Cross section (m2)
+-----------------------------
+ 1.880000e+1	0.000000e+0
+ 1.900000e+1	1.645600e-23
+ 1.920000e+1	3.277600e-23
+ 1.960000e+1	6.514400e-23
+ 2.000000e+1	9.710400e-23
+ 2.100000e+1	1.836000e-22
+ 2.200000e+1	2.692800e-22
+ 2.300000e+1	3.549600e-22
+ 2.400000e+1	4.420000e-22
+ 2.500000e+1	5.290400e-22
+ 2.600000e+1	6.174400e-22
+ 2.700000e+1	7.044800e-22
+ 3.000000e+1	9.751200e-22
+ 3.500000e+1	1.373600e-21
+ 4.000000e+1	1.645600e-21
+ 4.500000e+1	1.849600e-21
+ 5.000000e+1	1.999200e-21
+ 5.500000e+1	2.094400e-21
+ 6.000000e+1	2.176000e-21
+ 7.000000e+1	2.271200e-21
+ 8.000000e+1	2.325600e-21
+ 9.000000e+1	2.352800e-21
+ 1.000000e+2	2.366400e-21
+ 1.100000e+2	2.366400e-21
+ 1.200000e+2	2.352800e-21
+ 1.400000e+2	2.284800e-21
+ 1.600000e+2	2.216800e-21
+ 1.800000e+2	2.148800e-21
+ 2.000000e+2	2.067200e-21
+ 2.500000e+2	1.917600e-21
+ 3.000000e+2	1.781600e-21
+ 3.300000e+2	1.686400e-21
+ 4.000000e+2	1.523200e-21
+ 4.500000e+2	1.414400e-21
+ 5.000000e+2	1.331440e-21
+ 6.000000e+2	1.190000e-21
+ 7.000000e+2	1.077120e-21
+ 8.000000e+2	9.860000e-22
+ 9.000000e+2	9.112000e-22
+ 1.000000e+3	8.472800e-22
 -----------------------------
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

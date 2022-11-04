@@ -188,8 +188,8 @@ classdef EedfGas < Gas
               % create Elastic collision in case it is needed
               if elasticCollisionNeedsToBeCreated
                 rawElasticCrossSection = gas.elasticFromEffectiveCrossSection;
-                collisionArray = Collision.add('Elastic', eleState, eleState, 1, false, 0.0, rawElasticCrossSection, ...
-                  collisionArray, 0);
+                collisionArray = Collision.add('Elastic', false, eleState, eleState, 1, false, 0.0, ...
+                  rawElasticCrossSection, collisionArray, 0);
               end
             end
           end
@@ -300,15 +300,26 @@ classdef EedfGas < Gas
       for collision = gas.collisionArray
        if strcmp(collision.type, 'Effective') || strcmp(collision.type, 'Elastic')
           continue
-        end
-        rawElasticCrossSection(2,:) = rawElasticCrossSection(2,:) - gas.effectivePopulations(collision.target.ID)*...
-          collision.interpolatedCrossSection(rawElasticCrossSection(1,:));
-        % remove contributions to the effective due to the super-elastic mechanism (in case it is defined)
-        if collision.isReverse
-          rawElasticCrossSection(2,:) = rawElasticCrossSection(2,:) - ...
-            gas.effectivePopulations(collision.productArray.ID)* ...
-            collision.superElasticCrossSection(rawElasticCrossSection(1,:));
-        end
+       end
+       [integralCS, momentumTransferCS] = collision.interpolatedCrossSection(rawElasticCrossSection(1,:));
+       if isempty(momentumTransferCS)
+         rawElasticCrossSection(2,:) = rawElasticCrossSection(2,:) - gas.effectivePopulations(collision.target.ID)*...
+           integralCS;
+       else
+         rawElasticCrossSection(2,:) = rawElasticCrossSection(2,:) - gas.effectivePopulations(collision.target.ID)*...
+           momentumTransferCS;
+       end
+       % remove contributions to the effective due to the super-elastic mechanism (in case it is defined)
+       if collision.isReverse
+         [integralCS, momentumTransferCS] = collision.superElasticCrossSection(rawElasticCrossSection(1,:));
+         if isempty(momentumTransferCS)
+           rawElasticCrossSection(2,:) = rawElasticCrossSection(2,:) - ...
+             gas.effectivePopulations(collision.productArray.ID)*integralCS;
+         else
+           rawElasticCrossSection(2,:) = rawElasticCrossSection(2,:) - ...
+             gas.effectivePopulations(collision.productArray.ID)*momentumTransferCS;
+         end
+       end
       end
       
       % check for negative values in the Elastic cross section

@@ -235,6 +235,11 @@ classdef Gas < handle
         end
       end
 
+      % avoid NaNs for "empty" gases
+      if gasFraction == 0
+        return
+      end
+
       % loop over electronic and ionic states to obtain the new populations (for states with a chemistry equivalent)
       eleStatesNeedToBeChecked = true;
       ionStatesNeedToBeChecked = true;

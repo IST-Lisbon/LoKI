@@ -1,8 +1,8 @@
 LXCat, www.lxcat.net
-Generated on 02 Apr 2018. All rights reserved.
+Generated on 23 Sep 2022. All rights reserved.
 
 RECOMMENDED REFERENCE FORMAT
-- IST-Lisbon database, www.lxcat.net, retrieved on April 2, 2018.
+- IST-Lisbon database, www.lxcat.net, retrieved on September 23, 2022.
 Be aware that some databases and solvers can additionally have instructions how to reference corresponding data.
 Please check below in the headers of databases.
 
@@ -21,14 +21,15 @@ the first name either by arrow "->" (dash + greater than) or by double-head arro
 greater than), e.g. "Ar -> Ar*" and "Ar <-> Ar*", respectively. In the later case BOLSIG+ will automatically
 define the inverse superelastic process, constructing the superelastic cross-section by detailed balancing, and
 considering the indicated excited state as the target. In this case, the ratio of statistical weights must be input in
-the 3rd line (see below).  Alternatively, superelastic collisions could be defined explicitly as excitation collisions
-with a negative electron energy loss with user input cross sections and species name, "Ar*", for example.
+the 3rd line (see below).
 3rd line
 For elastic and effective collisions, the ratio of the electron mass to the target particle mass. For excitation or
 ionization collisions, the electron energy loss (nominally the threshold energy) in eV. For attachment, the 3rd line is
 missing. In case of an excitation process where an excited state has been indicated on the 2nd line using double-head
 arrow "<->", the 3rd line must specify also ratio of the statistical weights of the final state to the initial state
-as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section.
+as the second parameter in 3rd line this is needed by BOLSIG+ to calculate the de-excitation cross-section. The
+statistical weight ratio, if given, will also be used by the automatic superelastics option in BOLSIG+. If this ratio is
+not provided then BOLSIG+ will assume it unity.
 from 4th line (optionally)
 User comments and reference information, maximum 100 lines. The only constraint on format is that these comment lines
 must not start with a number.
@@ -42,13 +43,13 @@ PERMLINK:         www.lxcat.net/IST-Lisbon
 DESCRIPTION:      IST-Lisbon database contains up-to-date electron-neutral scattering cross sections (together with the
                   measured swarm parameters used to validate these data), resulting from the research effort of the
                   Group N-Plasmas Reactive: Modelling and Engineering (N-PRiME) with IPFN/IST (Instituto de Plasmas e
-                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal. The data, compiled from the literature,
-                  correspond to contributions from different authors (see detailed references in the database). For each
-                  gas the database presents a COMPLETE SET of cross sections, validated against measured swarm
-                  parameters by solving the two-term homogeneous electron Boltzmann equation. In most cases, predictions
-                  are in agreement with measurements within 1-20%, for reduced electric fields E/N ~ 1e-4 - 500 Td. To
-                  improve predictions at low E/N, some sets need to be completed with rotational cross sections, also
-                  available in the database.
+                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal.  The data, compiled from the
+                  literature, correspond to contributions from different authors (see detailed references in the
+                  database). For each gas the database presents a COMPLETE SET of cross sections, validated against
+                  measured swarm parameters by solving the two-term homogeneous electron Boltzmann equation. In most
+                  cases, predictions are in agreement with measurements within 1-20%, for reduced electric fields E/N ~
+                  1e-4 - 500 Td. To improve predictions at low E/N, some sets need to be completed with rotational cross
+                  sections, also available in the database.
 CONTACT:          LL Alves and V Guerra
                   e-mail: llalves@@tecnico.ulisboa.pt
 HOW TO REFERENCE: L.L. Alves, ''The IST-Lisbon database on LXCat'' J. Phys. Conf. Series 2014, 565, 1
@@ -59,27 +60,27 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 COMMENT: J. Loureiro and C.M. Ferreira, ''Coupled electron energy and vibrational distribution functions in stationary N2
          discharges'' 1986 J. Phys. D 19 17.
          N2-vib is a set of vibrational excitation cross sections by electron impact, for transitions N2(X,v) --> N2(X,v') (1
-         <= v < v' <=10), which complements the COMPLETE set of N2 cross sections, available in this database under
-         group N2.
+         <= v < v' <=10), which complements the COMPLETE set of N2 cross sections (available in this database under
+         group N2) for use in a chemistry scheme.
          These cross sections were obtained by applying a threshold shift to the excitation cross sections for transitions from
          ground-state N2(X,v=0) --> N2(X,v') (1 <= v' <= 10) (see group N2 in this database). The cross sections are
          intended for use in electron kinetic calculations, e.g. when solving the electron Boltzmann equation. As recommended in
          Bourdon A and Vervisch P 2000 J. Thermophys. Heat Transfer 14 489 and in Colonna G et al 2015 Plasma Sources Sci.
          Technol. 24 035004, electron-vibrational mechanisms can be described in a chemistry model by using electron rate
          coefficients satisfying the scaling law 
-         k_v,v+v' = k_0,v' / (1+0.15*v)  (1 <= v' <= 10 0 <= v <= 49)    
+         k_v,v+v' = k_0,v' / (1+0.15*v) (1 <= v' <= 10 0 <= v <= 49) 
          where k_0,v' are the rate coefficients for transitions from ground-state N2(X,v=0) --> N2(X,v') (1 <= v' <=
          10), that can be calculated from the corresponding electron cross sections (see group N2 in this database).
 
-******************************************************** N2-vib ********************************************************
+******************************************************* Nitrogen *******************************************************
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=3-v=4), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=3-v=4), Vibrational
 PARAM.:  E = 0.2 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=3) <-> e + N2(X,v=4), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:28:24
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.000000e-1	0.000000e+0
@@ -411,12 +412,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=7-v=8), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=7-v=8), Vibrational
 PARAM.:  E = 0.2 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=7) <-> e + N2(X,v=8), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:35:10
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.000000e-1	0.000000e+0
@@ -748,12 +749,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=9-v=10), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=9-v=10), Vibrational
 PARAM.:  E = 0.2 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=9) <-> e + N2(X,v=10), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:36:41
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.000000e-1	0.000000e+0
@@ -1085,12 +1086,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=1-v=2), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=1-v=2), Vibrational
 PARAM.:  E = 0.3 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=1) <-> e + N2(X,v=2), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:23:55
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.000000e-1	0.000000e+0
@@ -1421,12 +1422,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=2-v=3), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=2-v=3), Vibrational
 PARAM.:  E = 0.3 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=2) <-> e + N2(X,v=3), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:26:14
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.000000e-1	0.000000e+0
@@ -1757,12 +1758,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=4-v=5), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=4-v=5), Vibrational
 PARAM.:  E = 0.3 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=4) <-> e + N2(X,v=5), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:30:20
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.000000e-1	0.000000e+0
@@ -2093,12 +2094,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=5-v=6), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=5-v=6), Vibrational
 PARAM.:  E = 0.3 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=5) <-> e + N2(X,v=6), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:32:08
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.000000e-1	0.000000e+0
@@ -2429,12 +2430,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=6-v=7), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=6-v=7), Vibrational
 PARAM.:  E = 0.3 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=6) <-> e + N2(X,v=7), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:33:47
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.000000e-1	0.000000e+0
@@ -2765,12 +2766,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=8-v=9), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=8-v=9), Vibrational
 PARAM.:  E = 0.3 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=8) <-> e + N2(X,v=9), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:36:06
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  3.000000e-1	0.000000e+0
@@ -3101,12 +3102,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=2-v=4), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=2-v=4), Vibrational
 PARAM.:  E = 0.5 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=2) <-> e + N2(X,v=4), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:26:28
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  5.000000e-1	0.000000e+0
@@ -3134,12 +3135,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=3-v=5), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=3-v=5), Vibrational
 PARAM.:  E = 0.5 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=3) <-> e + N2(X,v=5), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:28:41
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  5.000000e-1	0.000000e+0
@@ -3167,12 +3168,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=6-v=8), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=6-v=8), Vibrational
 PARAM.:  E = 0.5 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=6) <-> e + N2(X,v=8), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:34:06
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  5.000000e-1	0.000000e+0
@@ -3200,12 +3201,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=7-v=9), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=7-v=9), Vibrational
 PARAM.:  E = 0.5 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=7) <-> e + N2(X,v=9), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:35:27
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  5.000000e-1	0.000000e+0
@@ -3233,12 +3234,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=8-v=10), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=8-v=10), Vibrational
 PARAM.:  E = 0.5 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=8) <-> e + N2(X,v=10), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:36:24
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  5.000000e-1	0.000000e+0
@@ -3266,12 +3267,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=1-v=3), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=1-v=3), Vibrational
 PARAM.:  E = 0.6 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=1) <-> e + N2(X,v=3), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:24:11
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  6.000000e-1	0.000000e+0
@@ -3299,12 +3300,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=4-v=6), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=4-v=6), Vibrational
 PARAM.:  E = 0.6 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=4) <-> e + N2(X,v=6), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:30:37
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  6.000000e-1	0.000000e+0
@@ -3332,12 +3333,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=5-v=7), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=5-v=7), Vibrational
 PARAM.:  E = 0.6 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=5) <-> e + N2(X,v=7), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:32:25
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  6.000000e-1	0.000000e+0
@@ -3365,12 +3366,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=7-v=10), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=7-v=10), Vibrational
 PARAM.:  E = 0.7 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=7) <-> e + N2(X,v=10), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:35:49
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  7.000000e-1	0.000000e+0
@@ -3394,12 +3395,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=1-v=4), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=1-v=4), Vibrational
 PARAM.:  E = 0.8 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=1) <-> e + N2(X,v=4), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:24:27
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.000000e-1	0.000000e+0
@@ -3423,12 +3424,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=2-v=5), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=2-v=5), Vibrational
 PARAM.:  E = 0.8 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=2) <-> e + N2(X,v=5), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:26:47
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.000000e-1	0.000000e+0
@@ -3452,12 +3453,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=3-v=6), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=3-v=6), Vibrational
 PARAM.:  E = 0.8 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=3) <-> e + N2(X,v=6), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:28:57
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.000000e-1	0.000000e+0
@@ -3481,12 +3482,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=5-v=8), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=5-v=8), Vibrational
 PARAM.:  E = 0.8 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=5) <-> e + N2(X,v=8), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:32:46
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.000000e-1	0.000000e+0
@@ -3510,12 +3511,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=6-v=9), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=6-v=9), Vibrational
 PARAM.:  E = 0.8 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=6) <-> e + N2(X,v=9), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:34:25
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  8.000000e-1	0.000000e+0
@@ -3539,12 +3540,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=4-v=7), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=4-v=7), Vibrational
 PARAM.:  E = 0.9 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=4) <-> e + N2(X,v=7), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:30:53
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  9.000000e-1	0.000000e+0
@@ -3568,12 +3569,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=6-v=10), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=6-v=10), Vibrational
 PARAM.:  E = 1 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=6) <-> e + N2(X,v=10), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:34:44
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.000000e+0	0.000000e+0
@@ -3595,12 +3596,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=1-v=5), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=1-v=5), Vibrational
 PARAM.:  E = 1.1 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=1) <-> e + N2(X,v=5), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:24:46
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.100000e+0	0.000000e+0
@@ -3622,12 +3623,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=2-v=6), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=2-v=6), Vibrational
 PARAM.:  E = 1.1 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=2) <-> e + N2(X,v=6), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:27:02
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.100000e+0	0.000000e+0
@@ -3649,12 +3650,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=3-v=7), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=3-v=7), Vibrational
 PARAM.:  E = 1.1 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=3) <-> e + N2(X,v=7), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:29:14
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.100000e+0	0.000000e+0
@@ -3676,12 +3677,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=4-v=8), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=4-v=8), Vibrational
 PARAM.:  E = 1.1 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=4) <-> e + N2(X,v=8), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:31:13
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.100000e+0	0.000000e+0
@@ -3703,12 +3704,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=5-v=9), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=5-v=9), Vibrational
 PARAM.:  E = 1.1 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=5) <-> e + N2(X,v=9), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:33:10
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.100000e+0	0.000000e+0
@@ -3730,12 +3731,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=3-v=8), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=3-v=8), Vibrational
 PARAM.:  E = 1.3 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=3) <-> e + N2(X,v=8), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:29:32
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.300000e+0	0.000000e+0
@@ -3757,12 +3758,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=5-v=10), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=5-v=10), Vibrational
 PARAM.:  E = 1.3 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=5) <-> e + N2(X,v=10), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:33:31
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.300000e+0	0.000000e+0
@@ -3784,12 +3785,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=1-v=6), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=1-v=6), Vibrational
 PARAM.:  E = 1.4 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=1) <-> e + N2(X,v=6), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:25:00
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.400000e+0	0.000000e+0
@@ -3811,12 +3812,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=2-v=7), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=2-v=7), Vibrational
 PARAM.:  E = 1.4 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=2) <-> e + N2(X,v=7), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:27:17
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.400000e+0	0.000000e+0
@@ -3838,12 +3839,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=4-v=9), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=4-v=9), Vibrational
 PARAM.:  E = 1.4 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=4) <-> e + N2(X,v=9), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:31:29
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.400000e+0	0.000000e+0
@@ -3865,12 +3866,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=2-v=8), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=2-v=8), Vibrational
 PARAM.:  E = 1.6 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=2) <-> e + N2(X,v=8), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:27:33
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.600000e+0	0.000000e+0
@@ -3889,12 +3890,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=3-v=9), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=3-v=9), Vibrational
 PARAM.:  E = 1.6 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=3) <-> e + N2(X,v=9), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:29:47
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.600000e+0	0.000000e+0
@@ -3913,12 +3914,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=4-v=10), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=4-v=10), Vibrational
 PARAM.:  E = 1.6 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=4) <-> e + N2(X,v=10), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:31:49
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.600000e+0	0.000000e+0
@@ -3937,12 +3938,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=1-v=7), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=1-v=7), Vibrational
 PARAM.:  E = 1.7 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=1) <-> e + N2(X,v=7), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:25:14
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.700000e+0	0.000000e+0
@@ -3961,12 +3962,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=3-v=10), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=3-v=10), Vibrational
 PARAM.:  E = 1.8 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=3) <-> e + N2(X,v=10), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:30:03
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.800000e+0	0.000000e+0
@@ -3987,12 +3988,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=1-v=8), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=1-v=8), Vibrational
 PARAM.:  E = 1.9 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=1) <-> e + N2(X,v=8), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:25:30
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.900000e+0	0.000000e+0
@@ -4013,12 +4014,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=2-v=9), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=2-v=9), Vibrational
 PARAM.:  E = 1.9 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=2) <-> e + N2(X,v=9), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:27:54
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.900000e+0	0.000000e+0
@@ -4039,12 +4040,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=2-v=10), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=2-v=10), Vibrational
 PARAM.:  E = 2.1 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=2) <-> e + N2(X,v=10), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:28:09
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.100000e+0	0.000000e+0
@@ -4063,12 +4064,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=1-v=9), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=1-v=9), Vibrational
 PARAM.:  E = 2.2 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=1) <-> e + N2(X,v=9), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:25:45
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.200000e+0	0.000000e+0
@@ -4087,12 +4088,12 @@ COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
 
 VIBRATIONAL
-SPECIES: e / N2-vib
-PROCESS: E + N2-vib <-> E + N2 (v=1-v=10), Vibrational
+SPECIES: e / Nitrogen
+PROCESS: E + Nitrogen <-> E + N2 (v=1-v=10), Vibrational
 PARAM.:  E = 2.4 eV, g1/g0 = 1, complete set
 COMMENT: [e + N2(X,v=1) <-> e + N2(X,v=10), Vibrational] Loureiro and Ferreira C M 1986 J.
 COMMENT: Phys. D 19 17.
-UPDATED: 2017-11-01 20:25:58
+UPDATED: 2022-04-27 11:04:34
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  2.400000e+0	0.000000e+0

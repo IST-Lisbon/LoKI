@@ -1,8 +1,10 @@
 LXCat, www.lxcat.net
-Generated on 29 Jun 2020. All rights reserved.
+Generated on 26 Oct 2022. All rights reserved.
 
 RECOMMENDED REFERENCE FORMAT
-- Alves database, www.lxcat.net, retrieved on June 29, 2020.
+- IST-Lisbon database, www.lxcat.net, retrieved on October 26, 2022.
+Be aware that some databases and solvers can additionally have instructions how to reference corresponding data.
+Please check below in the headers of databases.
 
 CROSS SECTION DATA FORMAT
 In downloaded files, each collision process is defined by a block consisting of
@@ -36,15 +38,27 @@ Table of the cross section as a function of energy. The table starts and ends by
 and has otherwise two numbers per line: the energy in eV and the cross section in m2.
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-DATABASE:         Alves (Alves's test table)
-PERMLINK:         www.lxcat.net/Alves
-DESCRIPTION:      Luis Lemos Alves
+DATABASE:         IST-Lisbon database
+PERMLINK:         www.lxcat.net/IST-Lisbon
+DESCRIPTION:      IST-Lisbon database contains up-to-date electron-neutral scattering cross sections (together with the
+                  measured swarm parameters used to validate these data), resulting from the research effort of the
+                  Group N-Plasmas Reactive: Modelling and Engineering (N-PRiME) with IPFN/IST (Instituto de Plasmas e
+                  Fusao Nuclear / Instituto Superior Tecnico), Lisbon, Portugal.  The data, compiled from the
+                  literature, correspond to contributions from different authors (see detailed references in the
+                  database). For each gas the database presents a COMPLETE SET of cross sections, validated against
+                  measured swarm parameters by solving the two-term homogeneous electron Boltzmann equation. In most
+                  cases, predictions are in agreement with measurements within 1-20%, for reduced electric fields E/N ~
+                  1e-4 - 500 Td. To improve predictions at low E/N, some sets need to be completed with rotational cross
+                  sections, also available in the database.
+CONTACT:          LL Alves and V Guerra
+                  e-mail: llalves@@tecnico.ulisboa.pt
+HOW TO REFERENCE: L.L. Alves, ''The IST-Lisbon database on LXCat'' J. Phys. Conf. Series 2014, 565, 1
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ************************************************************************************************************************
 
 COMMENT: G. Gousset, C.M. Ferreira, M. Pinheiro, P.A. Sá, M. Touzeau, M. Vialle and J. Loureiro ''Electron and heavy-particle
-         kinetics in the low pressure oxygen positive column'' 1991 J. Phys. D 24 290 L.L. Alves, P. Coche, M.A. Ridenti and  G.
+         kinetics in the low pressure oxygen positive column'' 1991 J. Phys. D 24 290 L.L. Alves, P. Coche, M.A. Ridenti and G.
          Guerra ''Electron scattering cross sections for the modelling of oxygen-containing plasmas'' 2016 Eur. Phys. J. D 70
          124. The complete cross sections set was compiled from A.V. Phelps 1985 Technical Report 28 JILA Information Center
          Report, University of Colorado, Boulder, Colorado, USA.
@@ -56,8 +70,8 @@ COMMENT: G. Gousset, C.M. Ferreira, M. Pinheiro, P.A. Sá, M. Touzeau, M. Vialle
          to include rotational excitation mechanisms (see below), in order to reproduce measured swarm data.
          IMPORTANT NOTICE ABOUT ROTATIONAL EXCITATION
          This set is to be completed with the rotational cross sections for transitions O2(X,v=0,J) --> O2(X,v=0,J+2)
-         (J=1,3,.,29), available in this database under group O2-rot (see O2-rot description for more details). When the full
-         cross section set for O2 (containing momentum-transfer, dissociative attachment, and electronic excitation and
+         (J=1,3,.,29), available in this database under group Oxygen > O2-rot (see O2-rot description for more details). When
+         the full cross section set for O2 (containing momentum-transfer, dissociative attachment, and electronic excitation and
          ionization from ground-state) and O2-rot (including the rotational excitation / deexcitation to/from the O2(J=1),
          O2(J=3), ., O2(J=29) states) are used in a two-term Boltzmann solver, one obtains calculated swarm parameters in good
          agreement with measurements over a large range of E/N values (1e-4 to 1000 Td).
@@ -72,7 +86,7 @@ PARAM.:  E = 0 eV, complete set
 COMMENT: [e + O2(X) -> O(-,gnd) + O(3P), Attachment] Phelps A V 1985 Technical Report 28 JILA
 COMMENT: Information Center Report, University of Colorado, Boulder, Colorado, USA extended
 COMMENT: following Biagi v8.9.
-UPDATED: 2020-05-21 11:15:52
+UPDATED: 2020-05-21 11:16:32
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  0.000000e+0	0.000000e+0
@@ -1713,7 +1727,7 @@ PARAM.:  E = 0.977 eV, complete set
 COMMENT: [e + O2(X) <-> e + O2(a1Dg), Excitation] Phelps A V 1985 Technical Report 28 JILA
 COMMENT: Information Center Report, University of Colorado, Boulder, Colorado, USA extended up to
 COMMENT: 200eV taking Wakiya K J 1978 J Phys B 11, 3931 and extrapolated up to 1keV.
-UPDATED: 2020-05-15 09:16:35
+UPDATED: 2022-04-27 16:56:12
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  9.770000e-1	0.000000e+0
@@ -2126,7 +2140,7 @@ PROCESS: E + O2 -> E + O2(b1Sg+), Excitation
 PARAM.:  E = 1.627 eV, complete set
 COMMENT: [e + O2(X) <-> e + O2(b1Sg+), Excitation] Phelps A V 1985 Technical Report 28 JILA
 COMMENT: Information Center Report, University of Colorado, Boulder, Colorado, USA.
-UPDATED: 2020-05-15 09:16:53
+UPDATED: 2022-04-27 16:56:38
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.627000e+0	0.000000e+0
@@ -2490,10 +2504,10 @@ O2 -> O2(A3Su+,C3Du,c1Su-)
 SPECIES: e / O2
 PROCESS: E + O2 -> E + O2(A3Su+,C3Du,c1Su-), Excitation
 PARAM.:  E = 4.5 eV, complete set
-COMMENT: [e + O2(X) -> e + O2(A3Su+_C3Du_c1Su-), Excitation] A3Su+,C3Du,c1Su- bound states
+COMMENT: [e + O2(X) <-> e + O2(A3Su+_C3Du_c1Su-), Excitation] A3Su+,C3Du,c1Su- bound states
 COMMENT: Phelps A V 1985 Technical Report 28 JILA Information Center Report, University of
 COMMENT: Colorado, Boulder, Colorado, USA extended up to 1keV following Biagi v8.9.
-UPDATED: 2020-06-29 20:34:19
+UPDATED: 2022-10-24 11:48:51
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  4.500000e+0	0.000000e+0
@@ -3283,7 +3297,7 @@ PROCESS: E + O2 -> E + O2(9.97eV), Excitation
 PARAM.:  E = 9.97 eV, complete set
 COMMENT: [e + O2(X) -> e + O2(9.97eV), Excitation] Phelps A V 1985 Technical Report 28 JILA
 COMMENT: Information Center Report, University of Colorado, Boulder, Colorado, USA.
-UPDATED: 2020-06-29 20:35:12
+UPDATED: 2017-12-31 18:03:02
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  9.970000e+0	0.000000e+0
@@ -3611,7 +3625,7 @@ PROCESS: E + O2 -> E + O2(14.7eV), Excitation
 PARAM.:  E = 14.7 eV, complete set
 COMMENT: [e + O2(X) -> e + O2(14.7eV), Excitation] Phelps A V 1985 Technical Report 28 JILA
 COMMENT: Information Center Report, University of Colorado, Boulder, Colorado, USA.
-UPDATED: 2020-06-29 20:35:36
+UPDATED: 2017-12-31 18:04:37
 COLUMNS: Energy (eV) | Cross section (m2)
 -----------------------------
  1.470000e+1	0.000000e+0
