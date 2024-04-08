@@ -532,8 +532,8 @@ classdef Output < handle
               'RedMobE(eV/(msV))', 'MeanE(eV)', 'CharE(eV)');
           else
             fprintf(fileID1, [repmat('%-21s ', 1, 11) '\n'], 'EleTemp(eV)', 'RedField(Td)', 'RedDiff(1/(ms))', ...
-            'RedMob(1/(msV))', 'RedDiffE(eV/(ms))', 'RedMobE(eV/(msV))', 'RedTow(m2)', 'RedAtt(m2)', 'MeanE(eV)', ...
-            'CharE(eV)', 'DriftVelocity(m/s)');
+            'RedMob(1/(msV))', 'DriftVelocity(m/s)', 'RedTow(m2)', 'RedAtt(m2)', 'RedDiffE(eV/(ms))', 'RedMobE(eV/(msV))', 'MeanE(eV)', ...
+            'CharE(eV)');            
           end
           fprintf(fileID2, '%-21s ', 'EleTemp(eV)');
           fprintf(fileID3, '%-21s ', 'EleTemp(eV)');
