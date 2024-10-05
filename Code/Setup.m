@@ -216,12 +216,15 @@ classdef Setup < handle
       % setup next job (if there are)
       if setup.currentJobID <= setup.numberOfJobs
         
-        % obtain old job indices
-        [oldJobIndeces{1:setup.numberOfBatches}] = ind2sub(setup.jobMatrixSize, setup.currentJobID-1);
-        
-        % obtain new job idices
-        [newJobIndeces{1:setup.numberOfBatches}] = ind2sub(setup.jobMatrixSize, setup.currentJobID);
-        
+        % obtain old and new job indices
+        if isscalar(setup.jobMatrixSize) % single batch case (runs over different values of a single working condition)
+          oldJobIndeces{1} = setup.currentJobID-1;
+          newJobIndeces{1} = setup.currentJobID;
+        else % multiple batch case (not allowed for now, runs over different values of multiple working conditions)
+          [oldJobIndeces{1:setup.numberOfBatches}] = ind2sub(setup.jobMatrixSize, setup.currentJobID-1);
+          [newJobIndeces{1:setup.numberOfBatches}] = ind2sub(setup.jobMatrixSize, setup.currentJobID);
+        end
+                
         % obtain properties that needs to be updated and the updated values
         propertiesToUpdate = cell.empty;
         newValues = [];
