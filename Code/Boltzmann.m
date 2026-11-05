@@ -432,20 +432,20 @@ classdef Boltzmann < handle
       if isempty(boltzmann.fieldMatrix)
         boltzmann.fieldMatrix = zeros(boltzmann.energyGrid.cellNumber);
       end
-      if isempty(boltzmann.fieldMatrix2)
-          boltzmann.fieldMatrix2 = zeros(boltzmann.energyGrid.cellNumber);
-      end
+      % if isempty(boltzmann.fieldMatrix2)
+      %     boltzmann.fieldMatrix2 = zeros(boltzmann.energyGrid.cellNumber);
+      % end
 
       % OLD SCHEME - UNIFORM GRID - TO DELETE
-      % evaluate diagonal elements
-      boltzmann.fieldMatrix2(1:cellNumber+1:cellNumber*cellNumber) = ...
-        - (boltzmann.g_E(1:cellNumber)+boltzmann.g_E(2:cellNumber+1))./boltzmann.energyGrid.step^2;
-      % evaluate inferior diagonal elements
-      boltzmann.fieldMatrix2(2:cellNumber+1:cellNumber*cellNumber) = ...
-        boltzmann.g_E(2:cellNumber)./boltzmann.energyGrid.step^2;
-      % evaluate superior diagonal elements
-      boltzmann.fieldMatrix2(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = ...
-        boltzmann.g_E(2:cellNumber)./boltzmann.energyGrid.step^2;
+      % % evaluate diagonal elements
+      % boltzmann.fieldMatrix2(1:cellNumber+1:cellNumber*cellNumber) = ...
+      %   - (boltzmann.g_E(1:cellNumber)+boltzmann.g_E(2:cellNumber+1))./boltzmann.energyGrid.step^2;
+      % % evaluate inferior diagonal elements
+      % boltzmann.fieldMatrix2(2:cellNumber+1:cellNumber*cellNumber) = ...
+      %   boltzmann.g_E(2:cellNumber)./boltzmann.energyGrid.step^2;
+      % % evaluate superior diagonal elements
+      % boltzmann.fieldMatrix2(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = ...
+      %   boltzmann.g_E(2:cellNumber)./boltzmann.energyGrid.step^2;
 
       % evaluate weights for discretization in variable energy grid
       weightGrid(1:cellNumber-1) = energyStep(1:cellNumber-1)./...
@@ -487,18 +487,18 @@ classdef Boltzmann < handle
       % evaluate higher diagonal elements - variable energy grid (with Aux)     
       boltzmann.fieldMatrix(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = Aux2(2:cellNumber)./energyStep(1:cellNumber-1);
 
-      rtol = 5e-13;
-      diffVal = abs(boltzmann.fieldMatrix - boltzmann.fieldMatrix2);
-      scale = max([abs(boltzmann.fieldMatrix(:)); abs(boltzmann.fieldMatrix2(:))]);
-      tolVal = rtol * scale;
-      failIdx = find(diffVal(:) > tolVal, 1, 'first');
-      if ~isempty(failIdx)
-          [i, j] = ind2sub(size(boltzmann.fieldMatrix), failIdx);
-          error('Boltzmann:fieldMatrix', ...
-              ['boltzmann.fieldMatrix and boltzmann.fieldMatrix2 differ at (%d,%d): ' ...
-              'boltzmann.fieldMatrix=%g, boltzmann.fieldMatrix2=%g, abs(diff)=%g, tol=%g.'], ...
-              i, j, boltzmann.fieldMatrix(i, j), boltzmann.fieldMatrix2(i, j), diffVal(i, j), tolVal);
-      end
+      % rtol = 5e-13;
+      % diffVal = abs(boltzmann.fieldMatrix - boltzmann.fieldMatrix2);
+      % scale = max([abs(boltzmann.fieldMatrix(:)); abs(boltzmann.fieldMatrix2(:))]);
+      % tolVal = rtol * scale;
+      % failIdx = find(diffVal(:) > tolVal, 1, 'first');
+      % if ~isempty(failIdx)
+      %     [i, j] = ind2sub(size(boltzmann.fieldMatrix), failIdx);
+      %     error('Boltzmann:fieldMatrix', ...
+      %         ['boltzmann.fieldMatrix and boltzmann.fieldMatrix2 differ at (%d,%d): ' ...
+      %         'boltzmann.fieldMatrix=%g, boltzmann.fieldMatrix2=%g, abs(diff)=%g, tol=%g.'], ...
+      %         i, j, boltzmann.fieldMatrix(i, j), boltzmann.fieldMatrix2(i, j), diffVal(i, j), tolVal);
+      % end
 
     end
     
@@ -517,8 +517,8 @@ classdef Boltzmann < handle
       energyStep = boltzmann.energyGrid.energyStep; % energy step values of the grid 
 
       % OLD SCHEME - UNIFORM GRID - TO DELETE
-      factor12 = (kb*Tg/boltzmann.energyGrid.step+0.5)/boltzmann.energyGrid.step;
-      factor22 = (kb*Tg/boltzmann.energyGrid.step-0.5)/boltzmann.energyGrid.step;
+      % factor12 = (kb*Tg/boltzmann.energyGrid.step+0.5)/boltzmann.energyGrid.step;
+      % factor22 = (kb*Tg/boltzmann.energyGrid.step-0.5)/boltzmann.energyGrid.step;
       
       % evaluate weights for discretization in variable energy grid
       weightGrid(1:cellNumber-1) = energyStep(1:cellNumber-1)./...
@@ -542,22 +542,22 @@ classdef Boltzmann < handle
       if isempty(boltzmann.elasticMatrix)
         boltzmann.elasticMatrix = zeros(boltzmann.energyGrid.cellNumber);
       end
-      if isempty(boltzmann.elasticMatrix2)
-          boltzmann.elasticMatrix2 = zeros(boltzmann.energyGrid.cellNumber);
-      end
+      % if isempty(boltzmann.elasticMatrix2)
+      %     boltzmann.elasticMatrix2 = zeros(boltzmann.energyGrid.cellNumber);
+      % end
 
       % evaluate auxiliary matrix coefficients for discretization of continuous operator
       Aux1(2:cellNumber) = boltzmann.g_c(2:cellNumber).*factor1(1:cellNumber-1);
       Aux2(2:cellNumber) = boltzmann.g_c(2:cellNumber).*factor2(1:cellNumber-1);
 
       % OLD SCHEME - UNIFORM GRID - TO DELETE
-      % evaluate diagonal elements
-      boltzmann.elasticMatrix2(1:cellNumber+1:cellNumber*cellNumber) = ...
-        - (boltzmann.g_c(1:cellNumber)*factor12+boltzmann.g_c(2:cellNumber+1)*factor22);
-      % evaluate inferior diagonal elements
-      boltzmann.elasticMatrix2(2:cellNumber+1:cellNumber*cellNumber) = boltzmann.g_c(2:cellNumber).*factor22;
-      % evaluate superior diagonal elements
-      boltzmann.elasticMatrix2(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = boltzmann.g_c(2:cellNumber).*factor12;
+      % % evaluate diagonal elements
+      % boltzmann.elasticMatrix2(1:cellNumber+1:cellNumber*cellNumber) = ...
+      %   - (boltzmann.g_c(1:cellNumber)*factor12+boltzmann.g_c(2:cellNumber+1)*factor22);
+      % % evaluate inferior diagonal elements
+      % boltzmann.elasticMatrix2(2:cellNumber+1:cellNumber*cellNumber) = boltzmann.g_c(2:cellNumber).*factor22;
+      % % evaluate superior diagonal elements
+      % boltzmann.elasticMatrix2(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = boltzmann.g_c(2:cellNumber).*factor12;
      
       % evaluate diagonal elements - variable energy grid (without Aux) - TO DELETE
       % boltzmann.elasticMatrix2(cellNumber+2:cellNumber+1:cellNumber*cellNumber-1) = ...
@@ -587,18 +587,18 @@ classdef Boltzmann < handle
       % evaluate higher diagonal elements - variable energy grid (with Aux)
       boltzmann.elasticMatrix(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = Aux1(2:cellNumber)./energyStep(1:cellNumber-1);
 
-      rtol = 5e-13;
-      diffVal = abs(boltzmann.elasticMatrix - boltzmann.elasticMatrix2);
-      scale = max([abs(boltzmann.elasticMatrix(:)); abs(boltzmann.elasticMatrix2(:))]);
-      tolVal = rtol * scale;
-      failIdx = find(diffVal(:) > tolVal, 1, 'first');
-      if ~isempty(failIdx)
-          [i, j] = ind2sub(size(boltzmann.elasticMatrix), failIdx);
-          error('Boltzmann:elasticMatrix', ...
-              ['boltzmann.elasticMatrix and boltzmann.elasticMatrix2 differ at (%d,%d): ' ...
-              'boltzmann.elasticMatrix=%g, boltzmann.elasticMatrix2=%g, abs(diff)=%g, tol=%g.'], ...
-              i, j, boltzmann.elasticMatrix(i, j), boltzmann.elasticMatrix2(i, j), diffVal(i, j), tolVal);
-      end
+      % rtol = 5e-13;
+      % diffVal = abs(boltzmann.elasticMatrix - boltzmann.elasticMatrix2);
+      % scale = max([abs(boltzmann.elasticMatrix(:)); abs(boltzmann.elasticMatrix2(:))]);
+      % tolVal = rtol * scale;
+      % failIdx = find(diffVal(:) > tolVal, 1, 'first');
+      % if ~isempty(failIdx)
+      %     [i, j] = ind2sub(size(boltzmann.elasticMatrix), failIdx);
+      %     error('Boltzmann:elasticMatrix', ...
+      %         ['boltzmann.elasticMatrix and boltzmann.elasticMatrix2 differ at (%d,%d): ' ...
+      %         'boltzmann.elasticMatrix=%g, boltzmann.elasticMatrix2=%g, abs(diff)=%g, tol=%g.'], ...
+      %         i, j, boltzmann.elasticMatrix(i, j), boltzmann.elasticMatrix2(i, j), diffVal(i, j), tolVal);
+      % end
 
     end
     
@@ -621,8 +621,8 @@ classdef Boltzmann < handle
       energyStep = boltzmann.energyGrid.energyStep; % energy step values of the grid 
 
       % OLD SCHEME - UNIFORM GRID - TO DELETE
-      factor12 = (kb*Tg/boltzmann.energyGrid.step+0.5)/boltzmann.energyGrid.step;
-      factor22 = (kb*Tg/boltzmann.energyGrid.step-0.5)/boltzmann.energyGrid.step;
+      % factor12 = (kb*Tg/boltzmann.energyGrid.step+0.5)/boltzmann.energyGrid.step;
+      % factor22 = (kb*Tg/boltzmann.energyGrid.step-0.5)/boltzmann.energyGrid.step;
             
       % evaluate weights for discretization in variable energy grid
       weightGrid(1:cellNumber-1) = energyStep(1:cellNumber-1)./...
@@ -653,22 +653,22 @@ classdef Boltzmann < handle
       if isempty(boltzmann.CARMatrix)
         boltzmann.CARMatrix = zeros(boltzmann.energyGrid.cellNumber);
       end
-      if isempty(boltzmann.CARMatrix2)
-          boltzmann.CARMatrix2 = zeros(boltzmann.energyGrid.cellNumber);
-      end
+      % if isempty(boltzmann.CARMatrix2)
+      %     boltzmann.CARMatrix2 = zeros(boltzmann.energyGrid.cellNumber);
+      % end
 
       % evaluate auxiliary matrix coefficients for discretization of continuous operator
       Aux1(2:cellNumber) = boltzmann.g_car(2:cellNumber).*factor1(1:cellNumber-1);
       Aux2(2:cellNumber) = boltzmann.g_car(2:cellNumber).*factor2(1:cellNumber-1);
  
       % OLD SCHEME - UNIFORM GRID - TO DELETE
-      % evaluate diagonal elements
-      boltzmann.CARMatrix2(1:cellNumber+1:cellNumber*cellNumber) = ...
-        - (boltzmann.g_car(1:cellNumber)*factor12+boltzmann.g_car(2:cellNumber+1)*factor22);
-      % evaluate inferior diagonal elements
-      boltzmann.CARMatrix2(2:cellNumber+1:cellNumber*cellNumber) = boltzmann.g_car(2:cellNumber).*factor22;
-      % evaluate superior diagonal elements
-      boltzmann.CARMatrix2(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = boltzmann.g_car(2:cellNumber).*factor12;
+      % % evaluate diagonal elements
+      % boltzmann.CARMatrix2(1:cellNumber+1:cellNumber*cellNumber) = ...
+      %   - (boltzmann.g_car(1:cellNumber)*factor12+boltzmann.g_car(2:cellNumber+1)*factor22);
+      % % evaluate inferior diagonal elements
+      % boltzmann.CARMatrix2(2:cellNumber+1:cellNumber*cellNumber) = boltzmann.g_car(2:cellNumber).*factor22;
+      % % evaluate superior diagonal elements
+      % boltzmann.CARMatrix2(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = boltzmann.g_car(2:cellNumber).*factor12;
       
       % evaluate diagonal elements - variable energy grid (without Aux) - TO DELETE
       % boltzmann.CARMatrix2(cellNumber+2:cellNumber+1:cellNumber*cellNumber-1) = ...
@@ -698,18 +698,18 @@ classdef Boltzmann < handle
       % evaluate higher diagonal elements - variable energy grid (with Aux)
       boltzmann.CARMatrix(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = Aux1(2:cellNumber)./energyStep(1:cellNumber-1);
 
-      rtol = 5e-13;
-      diffVal = abs(boltzmann.CARMatrix - boltzmann.CARMatrix2);
-      scale = max([abs(boltzmann.CARMatrix(:)); abs(boltzmann.CARMatrix2(:))]);
-      tolVal = rtol * scale;
-      failIdx = find(diffVal(:) > tolVal, 1, 'first');
-      if ~isempty(failIdx)
-          [i, j] = ind2sub(size(boltzmann.CARMatrix), failIdx);
-          error('Boltzmann:CARMatrix', ...
-              ['boltzmann.CARMatrix and boltzmann.CARMatrix2 differ at (%d,%d): ' ...
-              'boltzmann.CARMatrix=%g, boltzmann.CARMatrix2=%g, abs(diff)=%g, tol=%g.'], ...
-              i, j, boltzmann.CARMatrix(i, j), boltzmann.CARMatrix2(i, j), diffVal(i, j), tolVal);
-      end
+      % rtol = 5e-13;
+      % diffVal = abs(boltzmann.CARMatrix - boltzmann.CARMatrix2);
+      % scale = max([abs(boltzmann.CARMatrix(:)); abs(boltzmann.CARMatrix2(:))]);
+      % tolVal = rtol * scale;
+      % failIdx = find(diffVal(:) > tolVal, 1, 'first');
+      % if ~isempty(failIdx)
+      %     [i, j] = ind2sub(size(boltzmann.CARMatrix), failIdx);
+      %     error('Boltzmann:CARMatrix', ...
+      %         ['boltzmann.CARMatrix and boltzmann.CARMatrix2 differ at (%d,%d): ' ...
+      %         'boltzmann.CARMatrix=%g, boltzmann.CARMatrix2=%g, abs(diff)=%g, tol=%g.'], ...
+      %         i, j, boltzmann.CARMatrix(i, j), boltzmann.CARMatrix2(i, j), diffVal(i, j), tolVal);
+      % end
 
     end
     
@@ -1318,7 +1318,7 @@ classdef Boltzmann < handle
       
       energyCell = boltzmann.energyGrid.cell;
       energyStep = boltzmann.energyGrid.energyStep;
-      energyFirstStep = boltzmann.energyGrid.step;
+      % energyFirstStep = boltzmann.energyGrid.step;
       cellNumber = boltzmann.energyGrid.cellNumber;
       energyNode = boltzmann.energyGrid.node;
       eedf = boltzmann.eedf;
@@ -1338,18 +1338,18 @@ classdef Boltzmann < handle
       
       % electron-electron collisions terms
       Mee = zeros(cellNumber);
-      Mee_old = zeros(cellNumber);
+      % Mee_old = zeros(cellNumber);
       if boltzmann.includeEECollisions
         alphaEE = boltzmann.alphaee;
         auxA=boltzmann.Aee;
         auxB=boltzmann.Bee;
 
         % OLD SCHEME - UNIFORM GRID - TO DELETE
-        A_old = (alphaEE/energyFirstStep)*(auxA*eedf');
-        B_old = (alphaEE/energyFirstStep)*(auxB*eedf');
-        Mee_old(1:cellNumber+1:cellNumber*cellNumber) = -(A_old(1:cellNumber)+B_old(1:cellNumber));
-        Mee_old(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = B_old(2:cellNumber);
-        Mee_old(2:cellNumber+1:cellNumber*cellNumber) = A_old(1:cellNumber-1);
+        % A_old = (alphaEE/energyFirstStep)*(auxA*eedf');
+        % B_old = (alphaEE/energyFirstStep)*(auxB*eedf');
+        % Mee_old(1:cellNumber+1:cellNumber*cellNumber) = -(A_old(1:cellNumber)+B_old(1:cellNumber));
+        % Mee_old(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = B_old(2:cellNumber);
+        % Mee_old(2:cellNumber+1:cellNumber*cellNumber) = A_old(1:cellNumber-1);
 
         % calculation of electron-electron collisions vectors of upflux (A) and downflux (B)
         A = alphaEE*(auxA*eedf');
@@ -1363,18 +1363,18 @@ classdef Boltzmann < handle
         Mee(2:cellNumber+1:cellNumber*cellNumber) = A(1:cellNumber-1)./...
             energyStep(2:cellNumber)';
 
-        rtol = 5e-13;
-        diffVal = abs(Mee - Mee_old);
-        scale = max([abs(Mee(:)); abs(Mee_old(:))]);
-        tolVal = rtol * scale;
-        failIdx = find(diffVal(:) > tolVal, 1, 'first');
-        if ~isempty(failIdx)
-            [i, j] = ind2sub(size(Mee), failIdx);
-            error('Boltzmann:Mee', ...
-                ['Mee and Mee_old differ at (%d,%d): ' ...
-                'Mee=%g, Mee_old=%g, abs(diff)=%g, tol=%g.'], ...
-                i, j, Mee(i, j), Mee_old(i, j), diffVal(i, j), tolVal);
-        end
+        % rtol = 5e-13;
+        % diffVal = abs(Mee - Mee_old);
+        % scale = max([abs(Mee(:)); abs(Mee_old(:))]);
+        % tolVal = rtol * scale;
+        % failIdx = find(diffVal(:) > tolVal, 1, 'first');
+        % if ~isempty(failIdx)
+        %     [i, j] = ind2sub(size(Mee), failIdx);
+        %     error('Boltzmann:Mee', ...
+        %         ['Mee and Mee_old differ at (%d,%d): ' ...
+        %         'Mee=%g, Mee_old=%g, abs(diff)=%g, tol=%g.'], ...
+        %         i, j, Mee(i, j), Mee_old(i, j), diffVal(i, j), tolVal);
+        % end
 
       end
       
@@ -1518,7 +1518,7 @@ classdef Boltzmann < handle
       
       energyCell = boltzmann.energyGrid.cell;
       energyStep = boltzmann.energyGrid.energyStep;
-      energyFirstStep = boltzmann.energyGrid.step;
+      % energyFirstStep = boltzmann.energyGrid.step;
       cellNumber = boltzmann.energyGrid.cellNumber;
       energyNode = boltzmann.energyGrid.node;
       eedf = boltzmann.eedf;
@@ -1537,18 +1537,18 @@ classdef Boltzmann < handle
       
       % electron-electron collisions terms (not updated in the density growth operator)
       Mee = zeros(cellNumber);
-      Mee_old = zeros(cellNumber);
+      % Mee_old = zeros(cellNumber);
       if boltzmann.includeEECollisions
         alphaEE = boltzmann.alphaee;
         auxA=boltzmann.Aee;
         auxB=boltzmann.Bee;
 
         % OLD SCHEME - UNIFORM GRID - TO DELETE
-        A_old = (alphaEE/energyFirstStep)*(auxA*eedf');
-        B_old = (alphaEE/energyFirstStep)*(auxB*eedf');
-        Mee_old(1:cellNumber+1:cellNumber*cellNumber) = -(A_old(1:cellNumber)+B_old(1:cellNumber));
-        Mee_old(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = B_old(2:cellNumber);
-        Mee_old(2:cellNumber+1:cellNumber*cellNumber) = A_old(1:cellNumber-1);
+        % A_old = (alphaEE/energyFirstStep)*(auxA*eedf');
+        % B_old = (alphaEE/energyFirstStep)*(auxB*eedf');
+        % Mee_old(1:cellNumber+1:cellNumber*cellNumber) = -(A_old(1:cellNumber)+B_old(1:cellNumber));
+        % Mee_old(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = B_old(2:cellNumber);
+        % Mee_old(2:cellNumber+1:cellNumber*cellNumber) = A_old(1:cellNumber-1);
 
         % calculation of electron-electron collisions vectors of upflux (A) and downflux (B)
         A = alphaEE*(auxA*eedf');
@@ -1562,18 +1562,18 @@ classdef Boltzmann < handle
         Mee(2:cellNumber+1:cellNumber*cellNumber) = A(1:cellNumber-1)./...
             energyStep(2:cellNumber)';
 
-        rtol = 5e-13;
-        diffVal = abs(Mee - Mee_old);
-        scale = max([abs(Mee(:)); abs(Mee_old(:))]);
-        tolVal = rtol * scale;
-        failIdx = find(diffVal(:) > tolVal, 1, 'first');
-        if ~isempty(failIdx)
-            [i, j] = ind2sub(size(Mee), failIdx);
-            error('Boltzmann:Mee', ...
-                ['Mee and Mee_old differ at (%d,%d): ' ...
-                'Mee=%g, Mee_old=%g, abs(diff)=%g, tol=%g.'], ...
-                i, j, Mee(i, j), Mee_old(i, j), diffVal(i, j), tolVal);
-        end
+        % rtol = 5e-13;
+        % diffVal = abs(Mee - Mee_old);
+        % scale = max([abs(Mee(:)); abs(Mee_old(:))]);
+        % tolVal = rtol * scale;
+        % failIdx = find(diffVal(:) > tolVal, 1, 'first');
+        % if ~isempty(failIdx)
+        %     [i, j] = ind2sub(size(Mee), failIdx);
+        %     error('Boltzmann:Mee', ...
+        %         ['Mee and Mee_old differ at (%d,%d): ' ...
+        %         'Mee=%g, Mee_old=%g, abs(diff)=%g, tol=%g.'], ...
+        %         i, j, Mee(i, j), Mee_old(i, j), diffVal(i, j), tolVal);
+        % end
 
       end
 
@@ -1677,13 +1677,13 @@ classdef Boltzmann < handle
       
       energyCell = boltzmann.energyGrid.cell;
       energyStep = boltzmann.energyGrid.energyStep;
-      energyFirstStep = boltzmann.energyGrid.step;
+      % energyFirstStep = boltzmann.energyGrid.step;
       cellNumber = boltzmann.energyGrid.cellNumber;
       energyNode = boltzmann.energyGrid.node;
       eedf = boltzmann.eedf;
       
       Mee = zeros(cellNumber);
-      Mee_old = zeros(cellNumber);
+      % Mee_old = zeros(cellNumber);
 
       % writing of Boltzmann matrix without the electron-electron collisional operator
       if boltzmann.includeNonConservativeIonization || boltzmann.includeNonConservativeAttachment
@@ -1768,13 +1768,13 @@ classdef Boltzmann < handle
         
         % OLD SCHEME - UNIFORM GRID - TO DELETE
         % calculation of electron-electron collisions vectors of upflux (A) and downflux (B)
-        A_old = (alpha/energyFirstStep)*(auxA*eedf');
-        B_old = (alpha/energyFirstStep)*(auxB*eedf');
+        % A_old = (alpha/energyFirstStep)*(auxA*eedf');
+        % B_old = (alpha/energyFirstStep)*(auxB*eedf');
         
         % writing of the electron-electron operator
-        Mee_old(1:cellNumber+1:cellNumber*cellNumber) = -(A_old(1:cellNumber)+B_old(1:cellNumber));
-        Mee_old(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = B_old(2:cellNumber);
-        Mee_old(2:cellNumber+1:cellNumber*cellNumber) = A_old(1:cellNumber-1);
+        % Mee_old(1:cellNumber+1:cellNumber*cellNumber) = -(A_old(1:cellNumber)+B_old(1:cellNumber));
+        % Mee_old(cellNumber+1:cellNumber+1:cellNumber*cellNumber) = B_old(2:cellNumber);
+        % Mee_old(2:cellNumber+1:cellNumber*cellNumber) = A_old(1:cellNumber-1);
                 
         % calculation of electron-electron collisions vectors of upflux (A) and downflux (B)
         A = alpha*(auxA*eedf');
@@ -1788,18 +1788,18 @@ classdef Boltzmann < handle
         Mee(2:cellNumber+1:cellNumber*cellNumber) = A(1:cellNumber-1)./...
             energyStep(2:cellNumber)';
           
-        rtol = 5e-13;
-        diffVal = abs(Mee - Mee_old);
-        scale = max([abs(Mee(:)); abs(Mee_old(:))]);
-        tolVal = rtol * scale;
-        failIdx = find(diffVal(:) > tolVal, 1, 'first');
-        if ~isempty(failIdx)
-            [i, j] = ind2sub(size(Mee), failIdx);
-            error('Boltzmann:Mee', ...
-                ['Mee and Mee_old differ at (%d,%d): ' ...
-                'Mee=%g, Mee_old=%g, abs(diff)=%g, tol=%g.'], ...
-                i, j, Mee(i, j), Mee_old(i, j), diffVal(i, j), tolVal);
-        end
+        % rtol = 5e-13;
+        % diffVal = abs(Mee - Mee_old);
+        % scale = max([abs(Mee(:)); abs(Mee_old(:))]);
+        % tolVal = rtol * scale;
+        % failIdx = find(diffVal(:) > tolVal, 1, 'first');
+        % if ~isempty(failIdx)
+        %     [i, j] = ind2sub(size(Mee), failIdx);
+        %     error('Boltzmann:Mee', ...
+        %         ['Mee and Mee_old differ at (%d,%d): ' ...
+        %         'Mee=%g, Mee_old=%g, abs(diff)=%g, tol=%g.'], ...
+        %         i, j, Mee(i, j), Mee_old(i, j), diffVal(i, j), tolVal);
+        % end
 
         % sum all contributions to the Boltzmann matrix and rescale it to avoid very small numbers
         matrixAux = 1e20*(baseMatrix + Mee);
@@ -1874,7 +1874,7 @@ classdef Boltzmann < handle
       energyGridLocal = boltzmann.energyGrid;   % energyGrid object
       N = energyGridLocal.cellNumber;           % number of cells in the energy grid
       energyStep = energyGridLocal.energyStep;  % energy step
-      energyFirstStep = energyGridLocal.step;  
+      % energyFirstStep = energyGridLocal.step;  
       energyCell = energyGridLocal.cell;        % value of the energy at the cells
       energyNode = energyGridLocal.node;        % value of the energy at the nodes
       
@@ -1888,8 +1888,8 @@ classdef Boltzmann < handle
       % auxiliary quantities needed to evaluate the elastic and CAR powers
       kTg = Constant.boltzmannInEV*boltzmann.workCond.gasTemperature;
       % OLD SCHEME - UNIFORM GRID - TO DELETE
-      aux12 = kTg+energyFirstStep*0.5;
-      aux22 = kTg-energyFirstStep*0.5;      
+      % aux12 = kTg+energyFirstStep*0.5;
+      % aux22 = kTg-energyFirstStep*0.5;      
 
       aux1(1:N-1) = kTg+energyStep(1:N-1).*0.5;
       aux2(1:N-1) = kTg-energyStep(1:N-1).*(1 - weightGrid(1:N-1))./weightGrid(1:N-1).*0.5;
@@ -1897,44 +1897,44 @@ classdef Boltzmann < handle
       % evaluate power absorbed per electron at unit gas density due to elastic collisions
       g_cLocal = boltzmann.g_c; % elements of the elastic collision operator (local copy)
       % OLD SCHEME - UNIFORM GRID - TO DELETE
-      power.elasticNet2 = gamma*sum(eedfLocal.*(g_cLocal(2:end)*aux22-g_cLocal(1:end-1)*aux12));
+      % power.elasticNet2 = gamma*sum(eedfLocal.*(g_cLocal(2:end)*aux22-g_cLocal(1:end-1)*aux12));
 
       power.elasticNet = gamma*sum(g_cLocal(2:N).*(eedfLocal(1:N-1).*aux2(1:N-1)-eedfLocal(2:N).*aux1(1:N-1)));
       power.elasticGain = gamma*kTg*sum(eedfLocal.*(g_cLocal(2:end)-g_cLocal(1:end-1)));
       power.elasticLoss = power.elasticNet-power.elasticGain;
 
-      rtol = 5e-13;
-      diffVal = abs(power.elasticNet - power.elasticNet2);
-      scale = max([abs(power.field), abs(power.elasticGain), abs(power.carGain), abs(power.electronElectronGain)]);
-      tolVal = rtol * scale;
-      if diffVal > tolVal
-          error('Power:elasticNet', ...
-              ['power.elasticNet and power.elasticNet2 differ: ' ...
-              'power.elasticNet=%g, power.elasticNet2=%g, abs(diff)=%g, tol=%g.'], ...
-              power.elasticNet, power.elasticNet2, diffVal, tolVal);
-      end
+      % rtol = 5e-13;
+      % diffVal = abs(power.elasticNet - power.elasticNet2);
+      % scale = max([abs(power.field), abs(power.elasticGain), abs(power.carGain), abs(power.electronElectronGain)]);
+      % tolVal = rtol * scale;
+      % if diffVal > tolVal
+      %     error('Power:elasticNet', ...
+      %         ['power.elasticNet and power.elasticNet2 differ: ' ...
+      %         'power.elasticNet=%g, power.elasticNet2=%g, abs(diff)=%g, tol=%g.'], ...
+      %         power.elasticNet, power.elasticNet2, diffVal, tolVal);
+      % end
 
       % evaluate power absorbed per electron at unit gas density due to rotations CAR
       if ~isempty(boltzmann.CARgases)
         g_carLocal = boltzmann.g_car; % elements of the CAR operator (local copy)
         % OLD SCHEME - UNIFORM GRID - TO DELETE
-        power.carNet2 = gamma*sum(eedfLocal.*(g_carLocal(2:end)*aux22-g_carLocal(1:end-1)*aux12));
+        % power.carNet2 = gamma*sum(eedfLocal.*(g_carLocal(2:end)*aux22-g_carLocal(1:end-1)*aux12));
 
         power.carNet = gamma*sum(g_carLocal(2:N).*(eedfLocal(1:N-1).*aux2(1:N-1)-eedfLocal(2:N).*aux1(1:N-1)));
         power.carGain = gamma*kTg*sum(eedfLocal.*(g_carLocal(2:end)-g_carLocal(1:end-1)));
         power.carLoss = power.carNet-power.carGain;
       end
       
-      rtol = 5e-13;
-      diffVal = abs(power.carNet - power.carNet2);
-      scale = max([abs(power.field), abs(power.elasticGain), abs(power.carGain), abs(power.electronElectronGain)]);
-      tolVal = rtol * scale;
-      if diffVal > tolVal
-          error('Power:carNet', ...
-              ['power.carNet and power.carNet2 differ: ' ...
-              'power.carNet=%g, power.carNet2=%g, abs(diff)=%g, tol=%g.'], ...
-              power.carNet, power.carNet2, diffVal, tolVal);
-      end
+      % rtol = 5e-13;
+      % diffVal = abs(power.carNet - power.carNet2);
+      % scale = max([abs(power.field), abs(power.elasticGain), abs(power.carGain), abs(power.electronElectronGain)]);
+      % tolVal = rtol * scale;
+      % if diffVal > tolVal
+      %     error('Power:carNet', ...
+      %         ['power.carNet and power.carNet2 differ: ' ...
+      %         'power.carNet=%g, power.carNet2=%g, abs(diff)=%g, tol=%g.'], ...
+      %         power.carNet, power.carNet2, diffVal, tolVal);
+      % end
       
       % evaluate power gained from electric field and lost due to electron density growth terms
       if boltzmann.includeNonConservativeIonization || boltzmann.includeNonConservativeAttachment
@@ -2000,11 +2000,11 @@ classdef Boltzmann < handle
       % power absorbed per electron at unit gas density due to electron-electron collisions
       if boltzmann.includeEECollisions
         % OLD SCHEME - UNIFORM GRID - TO DELETE
-        A_old = boltzmann.Afinal/energyFirstStep;
-        B_old = boltzmann.Bfinal/energyFirstStep;
-        power.electronElectronNet_old = gamma*sum((A_old(1:N)-B_old(1:N)).*eedfLocal(1:N)')*energyFirstStep^2;
-        power.electronElectronGain_old = gamma*0.5*( sum((A_old(2:N-1)+B_old(3:N)-A_old(1:N-2)-B_old(2:N-1)).*eedfLocal(2:N-1)')+...
-          (A_old(1)+B_old(2))*eedfLocal(1)-(A_old(N-1)+B_old(N))*eedfLocal(N))*energyFirstStep^2;
+        % A_old = boltzmann.Afinal/energyFirstStep;
+        % B_old = boltzmann.Bfinal/energyFirstStep;
+        % power.electronElectronNet_old = gamma*sum((A_old(1:N)-B_old(1:N)).*eedfLocal(1:N)')*energyFirstStep^2;
+        % power.electronElectronGain_old = gamma*0.5*( sum((A_old(2:N-1)+B_old(3:N)-A_old(1:N-2)-B_old(2:N-1)).*eedfLocal(2:N-1)')+...
+        %   (A_old(1)+B_old(2))*eedfLocal(1)-(A_old(N-1)+B_old(N))*eedfLocal(N))*energyFirstStep^2;
 
         A = boltzmann.Afinal';
         B = boltzmann.Bfinal';
@@ -2023,27 +2023,27 @@ classdef Boltzmann < handle
         power.electronElectronLoss = power.electronElectronNet - power.electronElectronGain;
       end
       
-      rtol = 5e-13;
-      diffVal = abs(power.electronElectronNet - power.electronElectronNet_old);
-      scale = max([abs(power.field), abs(power.elasticGain), abs(power.carGain), abs(power.electronElectronGain)]);
-      tolVal = rtol * scale;
-      if diffVal > tolVal
-          error('Power:electronElectronNet', ...
-              ['power.electronElectronNet and power.electronElectronNet_old differ: ' ...
-              'power.electronElectronNet=%g, power.electronElectronNet_old=%g, abs(diff)=%g, tol=%g.'], ...
-              power.electronElectronNet, power.electronElectronNet_old, diffVal, tolVal);
-      end
+      % rtol = 5e-13;
+      % diffVal = abs(power.electronElectronNet - power.electronElectronNet_old);
+      % scale = max([abs(power.field), abs(power.elasticGain), abs(power.carGain), abs(power.electronElectronGain)]);
+      % tolVal = rtol * scale;
+      % if diffVal > tolVal
+      %     error('Power:electronElectronNet', ...
+      %         ['power.electronElectronNet and power.electronElectronNet_old differ: ' ...
+      %         'power.electronElectronNet=%g, power.electronElectronNet_old=%g, abs(diff)=%g, tol=%g.'], ...
+      %         power.electronElectronNet, power.electronElectronNet_old, diffVal, tolVal);
+      % end
 
-      rtol = 5e-13;
-      diffVal = abs(power.electronElectronGain - power.electronElectronGain_old);
-      scale = max([abs(power.field), abs(power.elasticGain), abs(power.carGain), abs(power.electronElectronGain)]);
-      tolVal = rtol * scale;
-      if diffVal > tolVal
-          error('Power:electronElectronGain', ...
-              ['power.electronElectronGain and power.electronElectronGain_old differ: ' ...
-              'power.electronElectronGain=%g, power.electronElectronGain_old=%g, abs(diff)=%g, tol=%g.'], ...
-              power.electronElectronGain, power.electronElectronGain_old, diffVal, tolVal);
-      end
+      % rtol = 5e-13;
+      % diffVal = abs(power.electronElectronGain - power.electronElectronGain_old);
+      % scale = max([abs(power.field), abs(power.elasticGain), abs(power.carGain), abs(power.electronElectronGain)]);
+      % tolVal = rtol * scale;
+      % if diffVal > tolVal
+      %     error('Power:electronElectronGain', ...
+      %         ['power.electronElectronGain and power.electronElectronGain_old differ: ' ...
+      %         'power.electronElectronGain=%g, power.electronElectronGain_old=%g, abs(diff)=%g, tol=%g.'], ...
+      %         power.electronElectronGain, power.electronElectronGain_old, diffVal, tolVal);
+      % end
 
       % TO BE UPDATED FOR VARIABLE ENERGY GRID
       % evaluate power absorbed per electron at unit gas density due to the inelastic/super-elastic collisions
