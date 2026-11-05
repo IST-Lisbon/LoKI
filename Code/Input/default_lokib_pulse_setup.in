@@ -61,6 +61,10 @@ electronKinetics:
 %       - N2(X,v=0,J=*) = boltzmannPopulation@gasTemperature
   numerics:                            % configuration of numerical details of the simulation
     energyGrid:                        % properties of the energy grid (in eV)
+      inelCollisions: false            % true or false (to activate or deactivate inelastic collisions) - TO BE DELETED
+      variableGrid: true               % true or false (to activate or deactivate variable energy grid)
+                                       %  (if true it sets a grid with energy steps in geometric progression)   
+      firstEnergyStep: 1e-3            % first energy step (to set the variable energy grid)
       maxEnergy: 18                    % (use 18-20 for time-dependent simulations)
       cellNumber: 1800                 % (use 1800-2000 for time-dependent simulations)
 %       smartGrid:                     % configuration of the smart grid
@@ -84,8 +88,8 @@ gui:
 
 % ---  configuration of the output files ---
 output: 
-  isOn: false
-  dataFormat: txt % txt or hdf5 or hdf5+txt
+  isOn: true
+  dataFormat: hdf5+txt % txt or hdf5 or hdf5+txt
   folder: simulation_pulse_1
   dataSets:
 %     - inputs
@@ -94,5 +98,5 @@ output:
     - swarmParameters
     - rateCoefficients
     - powerBalance
-    - lookUpTable
+    - lookUpTables
 

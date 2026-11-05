@@ -31,12 +31,12 @@ electronKinetics:
   includeEECollisions: false           % true or false (to include / remove e-e collisions)
   LXCatFiles:                          % cross section files
     - Nitrogen/N2_LXCat.txt
-    - Nitrogen/N2_rot_LXCat.txt
+%    - Nitrogen/N2_rot_LXCat.txt
 %   LXCatFilesExtra: extra_LXCat.txt    % extra cross section files
 %   effectiveCrossSectionPopulations:   % see doc
 %     - Nitrogen/N2_effectivePop.txt
-%   CARgases:                           % gases for which CAR is activated
-%     - N2
+  CARgases:                           % gases for which CAR is activated
+      - N2
   gasProperties:                       % properties of the gases (S.I. Units)
     mass: Databases/masses.txt
     fraction:
@@ -49,18 +49,22 @@ electronKinetics:
   stateProperties:                     % properties of the states (S.I. Units except for the energy [eV])
     energy:
       - N2(X,v=*) = harmonicOscillatorEnergy
-      - N2(X,v=0,J=*) = rigidRotorEnergy  
+%      - N2(X,v=0,J=*) = rigidRotorEnergy  
     statisticalWeight:
       - N2(X,v=*) = 1.0
-      - N2(X,v=0,J=*) = rotationalDegeneracy_N2  
+%      - N2(X,v=0,J=*) = rotationalDegeneracy_N2  
     population:
       - N2(X) = 1.0
       - Nitrogen/N2_vibpop.txt
-      - N2(X,v=0,J=*) = boltzmannPopulation@gasTemperature
+%      - N2(X,v=0,J=*) = boltzmannPopulation@gasTemperature
   numerics:                            % configuration of numerical details of the simulation
     energyGrid:                        % properties of the energy grid (in eV)
-      maxEnergy: 1                     % (use 18-20 for time-dependent simulations)
-      cellNumber: 1000                 % (use 1800-2000 for time-dependent simulations)
+      inelCollisions: false            % true or false (to activate or deactivate inelastic collisions) - TO BE DELETED
+      variableGrid: true               % true or false (to activate or deactivate variable energy grid)
+                                       %  (if true it sets a grid with energy steps in geometric progression)   
+      firstEnergyStep: 1e-3            % first energy step (to set the variable energy grid)
+      maxEnergy: 20                    % (use 18-20 for time-dependent simulations)
+      cellNumber: 200                  % (use 1800-2000 for time-dependent simulations)
       smartGrid:                       % configuration of the smart grid
         minEedfDecay: 20               % minimum number of decade-fall for the EEDF
         maxEedfDecay: 25               % maximum number of decade-fall for the EEDF
@@ -70,11 +74,11 @@ electronKinetics:
       algorithm: mixingDirectSolutions % mixingDirectSolutions or temporalIntegration
       mixingParameter: 0.7             % mixingDirectSolutions mixing parameter from 0 to 1
       maxEedfRelError: 1e-9            % maximum rel. variation for EEDF between two iterations (stop criterion)
-%       odeSetParameters:                % optional parameters for the ode solver of the "temporalIntegration" algorithm	           
-%         AbsTol: 1e-300
-%         RelTol: 1e-6
-%         MaxStep: 1e-7
-          
+       % odeSetParameters:                % optional parameters for the ode solver of the "temporalIntegration" algorithm               
+       %   AbsTol: 1e-300
+       %   RelTol: 1e-6
+       %   MaxStep: 1e-7          
+
 % --- configuration of the graphical user interface ---
 gui: 
   isOn: true
@@ -82,7 +86,7 @@ gui:
 
 % ---  configuration of the output files ---
 output: 
-  isOn: false
+  isOn: true
   dataFormat: hdf5+txt % txt or hdf5 or hdf5+txt
   folder: simulation_1
   dataSets:
@@ -92,4 +96,4 @@ output:
     - swarmParameters
     - rateCoefficients
     - powerBalance
-    - lookUpTable
+    - lookUpTables
