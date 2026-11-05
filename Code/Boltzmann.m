@@ -1,4 +1,3 @@
-
 % THIS FILE IS WIP
 % THINGS TO CHECK
 %   use of floor vs findCellNumber
@@ -7,7 +6,6 @@
 %     "TO BE UPDATED"
 %     "CHECK"
 % THINGS TO VERIFY
-%   swarm calculations, in particular for D*N and mu*N 
 %   function derivatives vs OtherAuxFunctions\eedfTimeDerivative
 %     remove the former, checking if it works while calling the latter
 %     move the former to within public methods, changing the calling boltzmann.xxx 
@@ -2224,52 +2222,66 @@ classdef Boltzmann < handle
       % evaluate weights for discretization in variable energy grid
       weightGrid(1:N-1) = energyStep(1:N-1)./(energyStep(2:N)+energyStep(1:N-1));
       
-      % evaluate reduced diffusion coefficient - uniform energy grid
+      % OLD SCHEME - UNIFORM GRID - TO DELETE
+      % evaluate reduced diffusion coefficient
       % swarmParam.redDiffCoeff = (2*gamma/3)*energyStep*sum(energyCell.*eedfLocal./...
       %   (totalCrossSectionAux(1:end-1)+totalCrossSectionAux(2:end)));
 
-     % evaluate reduced diffusion coefficient - variable energy grid (TO CHECK)
+     % evaluate reduced diffusion coefficient
       swarmParam.redDiffCoeff = (gamma/3)*sum(energyNode(2:N)./totalCrossSectionAux(2:N).*...
           ((1-weightGrid(1:N-1)).*eedfLocal(1:N-1) + weightGrid(1:N-1).*eedfLocal(2:N)).*...
           (energyStep(1:N-1)+energyStep(2:N))./2);
         
+      % OLD SCHEME - UNIFORM GRID - TO DELETE    
       % evaluate reduced mobility (DC expression) - uniform energy grid
       % swarmParam.redMobility = -gamma/3*sum(energyNode(2:end-1).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
       %   (totalCrossSectionAux(2:end-1)));
 
-      % evaluate reduced mobility (DC expression) - variable energy grid (TO CHECK)
+      % evaluate reduced mobility (DC expression)
       swarmParam.redMobility = -gamma/3*sum(energyNode(2:N).*(eedfLocal(2:N)-eedfLocal(1:N-1))./...
         (totalCrossSectionAux(2:N)));        
 
-      % evaluate complex HF reduced mobility (in case the excitation frequency is not zero) (TO BE UPDATED)
+      % OLD SCHEME - UNIFORM GRID - TO DELETE    
+      % evaluate complex HF reduced mobility (in case the excitation frequency is not zero)
+      % if WoN ~= 0
+      %   swarmParam.redMobilityHF = -gamma/3*sum(energyNode(2:end-1).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
+      %     (totalCrossSectionAux(2:end-1)+(WoN/gamma)^2./(energyNode(2:end-1).*totalCrossSectionAux(2:end-1))));
+      %   swarmParam.redMobilityHF = swarmParam.redMobilityHF + 1i*(1/3)*sum(sqrt(energyNode(2:end-1)).*...
+      %     (WoN./totalCrossSectionAux(2:end-1)).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
+      %     (totalCrossSectionAux(2:end-1)+(WoN/gamma)^2./(energyNode(2:end-1).*totalCrossSectionAux(2:end-1))));
+      % end
+
+      % evaluate complex HF reduced mobility (in case the excitation frequency is not zero)
       if WoN ~= 0
-        swarmParam.redMobilityHF = -gamma/3*sum(energyNode(2:end-1).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
-          (totalCrossSectionAux(2:end-1)+(WoN/gamma)^2./(energyNode(2:end-1).*totalCrossSectionAux(2:end-1))));
-        swarmParam.redMobilityHF = swarmParam.redMobilityHF + 1i*(1/3)*sum(sqrt(energyNode(2:end-1)).*...
-          (WoN./totalCrossSectionAux(2:end-1)).*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
-          (totalCrossSectionAux(2:end-1)+(WoN/gamma)^2./(energyNode(2:end-1).*totalCrossSectionAux(2:end-1))));
+        swarmParam.redMobilityHF = -gamma/3*sum(energyNode(2:N).*(eedfLocal(2:N)-eedfLocal(1:N-1))./...
+          (totalCrossSectionAux(2:N)+(WoN/gamma)^2./(energyNode(2:N).*totalCrossSectionAux(2:N))));
+        swarmParam.redMobilityHF = swarmParam.redMobilityHF + 1i*(1/3)*sum(sqrt(energyNode(2:N)).*...
+          (WoN./totalCrossSectionAux(2:N)).*(eedfLocal(2:N)-eedfLocal(1:N-1))./...
+          (totalCrossSectionAux(2:N)+(WoN/gamma)^2./(energyNode(2:N).*totalCrossSectionAux(2:N))));
       end
       
-      % evaluate reduced energy diffusion coefficient - uniform energy grid
+      % OLD SCHEME - UNIFORM GRID - TO DELETE    
+      % evaluate reduced energy diffusion coefficient
       % this coefficient corresponds to the heat diffusion (G) defined in Allis 1956
       % here, and contrary to other references, the reduced energy diffusion coefficient (in eV m-1 s-1) is not normalized to the electron mean energy
       % swarmParam.redDiffCoeffEnergy = 2*gamma/3*energyStep*sum(energyCell.^2.*eedfLocal./...
       %   (totalCrossSectionAux(1:end-1)+totalCrossSectionAux(2:end)));
 
-      % evaluate reduced energy diffusion coefficient - variable energy grid (TO CHECK)
+      % evaluate reduced energy diffusion coefficient
       % this coefficient corresponds to the heat diffusion (G) defined in Allis 1956
       % here, and contrary to other references, the reduced energy diffusion coefficient (in eV m-1 s-1) is not normalized to the electron mean energy
       swarmParam.redDiffCoeffEnergy = (gamma/3)*sum(energyNode(2:N).^2./totalCrossSectionAux(2:N).*...
           ((1-weightGrid(1:N-1)).*eedfLocal(1:N-1) + weightGrid(1:N-1).*eedfLocal(2:N)).*...
           (energyStep(1:N-1)+energyStep(2:N))./2);        
     
-      % evaluate reduced energy mobility - uniform energy grid
+      % OLD SCHEME - UNIFORM GRID - TO DELETE    
+      % evaluate reduced energy mobility
       % this coefficient corresponds to the thermoelectricity (beta) defined in Allis 1956
       % here, and contrary to other references, the reduced energy mobility (in m-1 s-1) is not normalized to the electron mean energy
-      swarmParam.redMobilityEnergy = -gamma/3*sum(energyNode(2:end-1).^2.*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
-        totalCrossSectionAux(2:end-1));
+      % swarmParam.redMobilityEnergy = -gamma/3*sum(energyNode(2:end-1).^2.*(eedfLocal(2:end)-eedfLocal(1:end-1))./...
+      %   totalCrossSectionAux(2:end-1));
 
-      % evaluate reduced energy mobility - variable energy grid (TO CHECK)
+      % evaluate reduced energy mobility
       % this coefficient corresponds to the thermoelectricity (beta) defined in Allis 1956
       % here, and contrary to other references, the reduced energy mobility (in m-1 s-1) is not normalized to the electron mean energy
       swarmParam.redMobilityEnergy = -gamma/3*sum(energyNode(2:N).^2.*(eedfLocal(2:N)-eedfLocal(1:N-1))./...
@@ -2360,7 +2372,8 @@ classdef Boltzmann < handle
       localEedf = boltzmann.eedf;                             % electron energy distribution function (isotropic)
       cellNumber = boltzmann.energyGrid.cellNumber;           % number of cells in the energy grid
       energyNode = boltzmann.energyGrid.node;                 % values of the grid at node positions
-      energyCell = boltzmann.energyGrid.cell;                 % values of the grid at cell positions (same as eedf)
+      % OLD SCHEME - UNIFORM GRID - TO DELETE
+      % energyCell = boltzmann.energyGrid.cell;                 % values of the grid at cell positions (same as eedf)
       energyStep = boltzmann.energyGrid.energyStep;           % values of the energy steps
       localTotalCrossSection = boltzmann.totalCrossSection;   % total momentum transfer cross section
       gamma = Constant.gamma;                                 % gamma parameter (sqrt(2e/me))
@@ -2370,13 +2383,14 @@ classdef Boltzmann < handle
       % evaluate weights for discretization in variable energy grid
       weightGrid(1:cellNumber-1) = energyStep(1:cellNumber-1)./(energyStep(2:cellNumber)+energyStep(1:cellNumber-1));
       
-      % evaluate derivative of the eedf - uniform energy grid
+      % OLD SCHEME - UNIFORM GRID - TO DELETE
+      % evaluate derivative of the eedf
       % eedfDerivative = zeros(size(localEedf));
       % eedfDerivative(1) = (localEedf(2)-localEedf(1))/energyStep;                     % 1st order forward approximation
       % eedfDerivative(end) = (localEedf(end)-localEedf(end-1))/energyStep;             % 1st order backward approximation
       % eedfDerivative(2:end-1) = (localEedf(3:end)-localEedf(1:end-2))/(energyStep*2); % 2nd order centered approximation
 
-      % evaluate derivative of the eedf on energy nodes - variable energy grid (TO CHECK)
+      % evaluate derivative of the eedf on energy nodes
       eedfDerivativeNode = zeros(size(localTotalCrossSection));
       eedfDerivativeNode(1) = 2*(localEedf(2)-localEedf(1))/...
           (energyStep(1) + energyStep(2));                                              % 1st order forward approximation
@@ -2385,22 +2399,25 @@ classdef Boltzmann < handle
       eedfDerivativeNode(2:end-1) = 2*(localEedf(2:end)-localEedf(1:end-1))./...
           (energyStep(2:end)+energyStep(1:end-1));                                      % 1st order centered approximation      
 
+      % OLD SCHEME - UNIFORM GRID - TO DELETE
       % evaluate total momentum transfer cross section at cell positions
-      totalCrossSectionCell = (localTotalCrossSection(1:end-1)+localTotalCrossSection(2:end))/2.0;
+      % totalCrossSectionCell = (localTotalCrossSection(1:end-1)+localTotalCrossSection(2:end))/2.0;
       
-      % evaluate the first anisotropy (TO CHECK)
+      % evaluate the first anisotropy
       if boltzmann.includeNonConservativeIonization || boltzmann.includeNonConservativeAttachment
         switch boltzmann.eDensGrowthModel
-          case 'temporal' % to be updated - variable energy grid
-            totalCrossSectionCell = totalCrossSectionCell + (boltzmann.CIEff/gamma)./(sqrt(energyCell));
+          case 'temporal'
+            % OLD SCHEME - UNIFORM GRID - TO DELETE
+            % totalCrossSectionCell = totalCrossSectionCell + (boltzmann.CIEff/gamma)./(sqrt(energyCell));
+            localTotalCrossSection = localTotalCrossSection + (boltzmann.CIEff/gamma)./(sqrt(energyNode));            
             if WoN == 0
-              % OLD SCHEME - UNIFORM GRID
+              % OLD SCHEME - UNIFORM GRID - TO DELETE
               % boltzmann.firstAnisotropy = -EoN.*eedfDerivative./totalCrossSectionCell;
               % Calculate on cells by averaging node values
               anisotropyNode = -EoN.*eedfDerivativeNode./localTotalCrossSection;
               boltzmann.firstAnisotropy = (anisotropyNode(2:end) + anisotropyNode(1:end-1))./2;              
             else
-              % OLD SCHEME - UNIFORM GRID
+              % OLD SCHEME - UNIFORM GRID - TO DELETE
               % boltzmann.firstAnisotropy = -EoN*sqrt(2).*eedfDerivative./(totalCrossSectionCell+(WoN/gamma)^2./...
               %   (energyCell.*totalCrossSectionCell));
               % Calculate on cells by averaging node values
@@ -2408,8 +2425,8 @@ classdef Boltzmann < handle
                 (energyNode.*localTotalCrossSection));
               boltzmann.firstAnisotropy = (anisotropyNode(2:end) + anisotropyNode(1:end-1))./2;
             end
-          case 'spatial' % to be updated - variable energy grid
-          % OLD SCHEME - UNIFORM GRID
+          case 'spatial' 
+          % OLD SCHEME - UNIFORM GRID - TO DELETE
           % boltzmann.firstAnisotropy = -(boltzmann.alphaRedEff.*localEedf+EoN.*eedfDerivative)./totalCrossSectionCell;
           % Calculate on cells by averaging node values
           anisotropyNode = zeros(size(localTotalCrossSection));
@@ -2418,14 +2435,14 @@ classdef Boltzmann < handle
           anisotropyNode(1:end) = anisotropyNode(1:end) - EoN.*eedfDerivativeNode./localTotalCrossSection;
             boltzmann.firstAnisotropy = (anisotropyNode(2:end) + anisotropyNode(1:end-1))./2;
         end
-      elseif WoN == 0 % to be updated - variable energy grid
-        % OLD SCHEME - UNIFORM GRID
+      elseif WoN == 0
+        % OLD SCHEME - UNIFORM GRID - TO DELETE
         % boltzmann.firstAnisotropy = -EoN.*eedfDerivative./totalCrossSectionCell;
-        % first anisotropy calculation (on energy cells for graphical purposes) - variable energy grid 
-        boltzmann.firstAnisotropy = -EoN.*(eedfDerivativeNode(2:end)./localTotalCrossSection(2:end) +...
-            eedfDerivativeNode(1:end-1)./localTotalCrossSection(1:end-1))./2;
+        % Calculate on cells by averaging node values
+        anisotropyNode = -EoN.*eedfDerivativeNode./localTotalCrossSection;
+        boltzmann.firstAnisotropy = (anisotropyNode(2:end) + anisotropyNode(1:end-1))./2;
       else
-        % OLD SCHEME - UNIFORM GRID
+        % OLD SCHEME - UNIFORM GRID - TO DELETE
         % boltzmann.firstAnisotropy = -EoN*sqrt(2).*eedfDerivative./(totalCrossSectionCell+(WoN/gamma)^2./...
         %   (energyCell.*totalCrossSectionCell));
         % Calculate on cells by averaging node values
